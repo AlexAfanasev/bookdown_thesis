@@ -1,0 +1,9 @@
+# Simulation Study {#simulation}
+
+**Content:**
+
+- Linear and Nonlinear Model example
+
+- Simulation for presenting benefits of the bayesian framework 
+
+    - compare with weak and informative priors and the particle filter itself and also Kalman Filter in the linear case

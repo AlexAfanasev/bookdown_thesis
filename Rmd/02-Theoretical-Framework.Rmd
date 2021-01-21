@@ -1,0 +1,5 @@
+# Theoretical Framework {#theory}
+
+**Content:**
+
+- Give short description of the bootstrap particle filter algorithm and the incorporation of it into the MCMC algorithm

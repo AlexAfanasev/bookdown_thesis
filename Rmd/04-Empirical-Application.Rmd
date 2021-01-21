@@ -1,0 +1,23 @@
+# Empirical Application {#application}
+
+## Models and Data {#models_data}
+
+**Content:**
+
+- Add short [@xie2015] description of the model and the data (content from previous paper) and the chosen prior distributions
+
+## Results{#application_results}
+
+**Content:**
+
+- Analyising the filtered latent process of mean log price dividend ratio by incorporating covariates in the state equation of the latent process
+
+    - possible covariates (USA GDP, Earnings S&P 500,  consumption risk, ratio of middle aged to young people in USA, effective federal fund rate)
+
+    - test for cointegration of these variables with latent process estimated by simple random walk model        
+
+- Add these covariates to latent process and estimate the parameters using MCMC and the particle filter together (PMMH)
+
+    - use informative priors and compare the results
+    
+    - present results from MCMC procedure and apply the predictive regressions

@@ -1,0 +1,25 @@
+\mainmatter
+
+# Introduction {#intro}
+
+<!-- **Tips:** -->
+
+<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
+
+<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
+
+<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
+
+<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
+
+**Content:**
+
+- Describe Goals of thesis and relation to previous work (Determinants of the price dividend ratio)
+    
+    - Extend estimation of latent state (mean price dividend ratio) by including possible economic determinants
+    
+- Describe the purpose of the MCMC Extension (benefits and possible disadvantages)
+
+    - Advantage because of short time series (prior information from previous study)???
+    
+    - verification with simulation study (linear and nonlinear case)

@@ -14,9 +14,13 @@ lof: true
 geometry: "left=3.5cm, right=3.5cm, top=2.5cm, bottom=2.5cm"
 ---
 
-```{r include=FALSE}
-# automatically create a bib database for used R packages
+```{r, global_setup, include=FALSE}
+# 1. automatically create a bib database for used R packages
 knitr::write_bib(c(
   .packages(), 'bookdown', 'knitr', 'rmarkdown'
 ), 'packages.bib')
+
+# 2. here setup
+
+# 3. source R files
 ```
