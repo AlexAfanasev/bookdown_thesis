@@ -1,5 +1,6 @@
 book_filename: "bookdown_thesis"
 delete_merged_file: true
+rmd_subdir: "Rmd/"
 language:
   ui:
     chapter_name: "Chapter "
