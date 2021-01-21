@@ -1,1 +1,40 @@
 \usepackage{booktabs}
+
+% disable hyphenation completely
+\usepackage[none]{hyphenat}
+% \usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% set format of chapters
+\titleformat{\chapter}
+  {\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+% % sets depth of first row for all paragraphs
+% \setlength{\parindent}{0.0cm}
+% % sets distance for all paragraphs
+% \setlength{\parskip}{0.35cm}
+% \titlespacing*{\chapter}{0pt}{0pt}{0pt}
+% \titlespacing*{\section}{0pt}{0pt}{0pt}
+% \titlespacing*{\subsection}{0pt}{0pt}{0pt}
+
+% % sets style for each page
+% \pagestyle{fancy}
+% % empty header
+% \fancyhf{}
+%
+% \renewcommand\chaptermark[1]{\markboth{\thechapter\, \,#1}{}}
+% \fancyhead[L]{\leftmark}
+% \fancyfoot[R]{Page \thepage}
+% \renewcommand{\footrulewidth}{0.4pt}
+% \fancypagestyle{plain}{
+% 	\fancyhf{}
+% 	\fancyfoot[R]{Page \thepage}
+% 	\renewcommand{\headrulewidth}{0pt}
+% 	\renewcommand{\footrulewidth}{0.4pt}
+% }
+
+% include appendix and list of figures/tables in table of contents
+\usepackage[nottoc]{tocbibind}
+
+\frontmatter

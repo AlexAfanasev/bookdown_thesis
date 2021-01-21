@@ -1,6 +1,8 @@
 bookdown::pdf_book:
   includes:
     in_header: latex/preamble.tex
+    before_body: latex/titlepage.tex
+    after_body: latex/after_body.tex
+  keep_tex: yes
   latex_engine: xelatex
   citation_package: natbib
-  keep_tex: yes

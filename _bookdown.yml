@@ -1,6 +1,10 @@
-book_filename: "bookdown_thesis"
-delete_merged_file: true
+book_filename: "Alex_Afanasev_Masterthesis"
+repo: https://github.com/AlexAfanasev/bookdown_thesis
+output_dir: docs
 rmd_subdir: "Rmd/"
-language:
-  ui:
-    chapter_name: "Chapter "
+new_session: false
+delete_merged_file: true
+ui:
+    edit: Edit
+    chapter_name: ''
+    appendix_name: ''
