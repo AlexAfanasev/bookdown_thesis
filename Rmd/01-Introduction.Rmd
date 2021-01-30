@@ -1,3 +1,8 @@
+---
+output: pdf_document
+editor_options: 
+  chunk_output_type: inline
+---
 \mainmatter
 
 # Introduction {#intro}
@@ -23,3 +28,235 @@
     - Advantage because of short time series (prior information from previous study)???
     
     - verification with simulation study (linear and nonlinear case)
+
+```{r, import_package_functions, include=FALSE}
+import::from(magrittr, "%>%")
+```
+
+
+```{r, read_data, include=FALSE, echo=FALSE}
+# read in data
+dataset <- readODS::read_ods(here::here("data", "final_dataset.ods"))
+relevant_columns <- c(
+    "Date",
+    "Real Consumption (per Capita)",
+    "Consumption (per Capita)",
+    "USPOPTO",
+    "USPOP24Y",
+    "USPOP29Y",
+    "USPOP44Y",
+    "USPOP49Y",
+    "S&P",
+    "Dividend",
+    "Earnings",
+    "CPI",
+    "rf",
+    "fund_rate",
+    "real_m1"
+)
+# filter relevant columns
+dataset <- dataset[, relevant_columns]
+
+# rename columns
+renamed_columns <- c(
+    "date",
+    "real_consumption",
+    "consumption",
+    "us_pop_total",
+    "us_pop_20_24",
+    "us_pop_25_29",
+    "us_pop_40_44",
+    "us_pop_45_49",
+    "price",
+    "dividend",
+    "earnings",
+    "cpi",
+    "rf",
+    "fund_rate",
+    "real_m1"
+)
+colnames(dataset) <- renamed_columns
+row.names(dataset) <- dataset$date
+dataset <- dataset[, colnames(dataset)[2:length(colnames(dataset))]]
+
+# transform to xts object
+dataset <- xts::xts(
+    dataset, order.by = as.Date(row.names(dataset), "%Y-%m-%d")
+)
+dataset <- dataset["1949-12-31/2019-12-31"]
+
+# linear interpolation for population data
+pop_columns <- c(
+    "us_pop_total",
+    "us_pop_20_24",
+    "us_pop_25_29",
+    "us_pop_40_44",
+    "us_pop_45_49"
+)
+dataset[
+    -dataset[xts:::endof(dataset, "years"), which.i = TRUE],
+    pop_columns
+] <- NA
+storage.mode(dataset) <- "numeric"
+
+dataset[, pop_columns] <- zoo::na.approx(dataset[, pop_columns])
+dataset <- dataset[complete.cases(dataset), ]
+# dataset <- dataset[xts:::endof(dataset, "years")]
+
+head(dataset)
+```
+
+```{r, consumption_volatility, include=FALSE, eval=TRUE}
+con <- dataset$real_consumption
+quar_c_growth <- diff(con) / lag(con, k = 1)
+quar_c_growth <- quar_c_growth[!is.na(quar_c_growth)]
+quar_c_growth <- quar_c_growth - mean(quar_c_growth)
+con_vol <- log(zoo::rollapply(abs(quar_c_growth), width = 20, FUN = sum, 
+                              align = "right"))
+```
+
+```{r, middle_aged_young_ratio, include=FALSE, eval=TRUE}
+middle_aged <- dataset$us_pop_40_44 + dataset$us_pop_45_49
+young <- dataset$us_pop_20_24 + dataset$us_pop_25_29
+middle_aged_young_ratio <- middle_aged / young
+```
+
+## Model
+
+**Measurement:**
+
+$$\eta_{t} = \frac{k_{t}}{1-\rho_{t}}+\sum_{i\;=\;1}^{\infty}\rho^{i-1}_{t}\tilde{E}[\Delta d^{e}_{t+i}-r_{t+i}^{e}] + \epsilon_{t}$$
+
+$$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$
+
+$$\rho_{t} = \frac{1}{1+exp(-\tilde{\eta_{t}})}$$
+
+$$k_{t} = -ln(\rho_{t})-(1-\rho_{t})ln\bigg(\frac{1}{\rho_{t}} - 1\bigg)$$
+
+**State:**
+
+$$\tilde{\eta}_{t} = \tilde{\eta}_{t-1} + u_{t}$$
+
+**Model with covariates:**
+
+$$\tilde{\eta}_{t} = \beta_{0} + \beta_{1}\tilde{\eta}_{t-1} + \beta_{2}cr_{t-1} + \beta_{3}my_{t-1} + \beta_{4}fr_{t-1} + \beta_{5}ms_{t-1} + u_{t}$$
+
+$$u_{t} \sim N(0, \sigma_{u}^2)$$
+
+\newpage
+
+## Estimation
+
+**Data:**
+
+- *lpd*: log price dividend ratio
+- *d_e*: excess dividends
+- *r_e*: excess returns
+- *infl*: inflation
+- *cr*: consumption risk
+- *my*: middle aged to young ratio
+- *fr*: effective federal funds rate
+- *ms*: log real money supply m1
+
+```{r, data_for_estimation, echo=FALSE}
+sub_dataset <- dataset
+
+r_e <- (
+  log((sub_dataset$price + sub_dataset$dividend) / 
+        stats::lag(sub_dataset$price, k = 1))
+  - log(1 + (sub_dataset$rf / 100))
+)
+d_e <- (
+  log(sub_dataset$dividend / stats::lag(sub_dataset$dividend, k = 1))
+  - log(1 + (sub_dataset$rf / 100))
+)
+con_vol <- con_vol
+my <- middle_aged_young_ratio
+fr <- log(1 + (sub_dataset$fund_rate/100))
+ms <- log(sub_dataset$real_m1)
+inflation <- (diff(sub_dataset$cpi) / stats::lag(sub_dataset$cpi, k = 1))
+lpd <- log((sub_dataset$price / sub_dataset$dividend))
+
+var_data <- cbind(lpd, d_e, r_e, inflation, con_vol, my, fr, ms)
+var_data <- var_data[complete.cases(var_data),]
+
+starting_point <- 41
+params <- matrix(nrow = nrow(var_data) - starting_point + 1, ncol = 20)
+for (i in starting_point:nrow(var_data)) {
+    residuals_model <- vector("numeric", length = 11)
+    for (w in 30:40) {
+        var_model <- vars::VAR(var_data[(i - w + 1):i, 1:4], p = 1,
+                               type = "const")
+        residuals_j <- tail(residuals(var_model), 10)[, c(2, 3)]
+        residuals_model[w - 29] <- sqrt(
+            mean((residuals_j[, 1] - residuals_j[, 2])^2)
+        )
+    }
+    best_model <- which.min(residuals_model)
+    model <- vars::VAR(var_data[(i - best_model - 29):i, 1:4], type = "const")
+    params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
+}
+
+var_data <- cbind(var_data[starting_point:nrow(var_data), ], params)
+y <- var_data[complete.cases(var_data),]
+y <- cbind(1:nrow(y), y)
+colnames(y) <- c("time", "lpd", "d_e", "r_e", "inflation", "cr", "mys", "fr", 
+                 "ms", sapply(1:20, function(x){sprintf("param_%i", x)}))
+dates <- zoo::index(y)
+y <- as.data.frame(y, row.names = NULL)
+
+head(y, 10)
+```
+
+```{r}
+test <- pomp::pomp(
+    data = y[, c(1, 2)],
+    times = "time", t0 = 1,
+    params = ,
+    rinit = function(e_lpd_0, ...) {
+        return(c(e_lpd = e_lpd_0))
+    },
+    rprocess = pomp::discrete_time(pomp::Csnippet(
+      "e_lpd = e_lpd + rnorm(0, sigma_u);"
+    ), delta.t = 1),
+    dmeasure = dm,
+    statenames = "e_lpd",
+    partrans = pomp::parameter_trans(log = c("sigma_u", "sigma_e")),
+    paramnames = c("e_lpd_0", "sigma_u", "sigma_e"),
+    covar = pomp::covariate_table(y[, -c(2, 6, 7, 8, 9)], times = "time"),
+    covarnames = colnames(y[, -c(1, 2, 6, 7, 8, 9)])
+)
+
+theta <- c(sigma_u = 0.05, e_lpd_0 = 3.5, sigma_e = 0.05)
+
+pf <- pomp::pfilter(test, params = theta, Np = 250, 
+                    pred.mean = TRUE, pred.var = TRUE, 
+                    filter.mean = T, filter.traj = TRUE, 
+                    save.states = TRUE, verbose = TRUE)
+pomp::logLik(pf)
+
+m <- pomp::mif2(
+  test, Nmif = 50, Np = 250, params = theta, cooling.fraction = 0.7,
+  rw.sd = pomp::rw.sd(e_lpd_0 = ivp(3.5), sigma_e = 0.02, sigma_u = 0.02),
+  verbose = TRUE
+)
+
+nm <- optim(
+  par = c(sigma_u = log(0.05), e_lpd_0 = 3.5, sigma_e = log(0.05)),
+  fn = function(par, ...){
+    par[c(1, 3)] <- exp(par[c(1, 3)])
+    print(par)
+    return(-logLik(pfilter(test, params = par, Np = 250)))
+  },
+  test = test
+)
+
+theta1 <- nm$par
+theta1[c(1, 3)] <- exp(theta1[c(1, 3)])
+pf <- pfilter(test, params = theta1, Np = 250, 
+              pred.mean = TRUE, pred.var = TRUE, 
+              filter.mean = T, filter.traj = TRUE, 
+              save.states = TRUE, verbose = TRUE)
+logLik(pf)
+plot(pf)
+```

@@ -15,25 +15,33 @@
 #'
 #' @return Returns a list containing the estimated negative log likelihood and
 #' an array containing the estimated state and 95% CI.
-smc <- function(
-    params, y, start_point, prob_state, sample_state, n_particles, n_states,
-    more_information = FALSE
-) {
+smc <- function(params,
+                y,
+                start_point,
+                prob_state,
+                sample_state,
+                n_particles,
+                n_states,
+                more_information = FALSE) {
     if (isTRUE(more_information)) {
         print("Parameters:")
-        print(paste(paste(names(params), round(unlist(params), 4), sep = ": "),
-                    collapse = " | "))
+        print(paste(paste(
+            names(params), round(unlist(params), 4), sep = ": "
+        ),
+        collapse = " | "))
     }
 
     n_t <- nrow(y[start_point:nrow(y), , drop = FALSE])
-    sampled_states <- array(0, dim = c(n_states, n_t + 1, n_particles))
+    sampled_states <-
+        array(0, dim = c(n_states, n_t + 1, n_particles))
     state_weights <- matrix(0, nrow = n_t, ncol = n_particles)
     estimated_states <- array(0, dim = c(n_states, n_t, 3))
 
     # Initialize drawing states
-    sampled_states[, 1, ] <- sample_state(
+    sampled_states[, 1,] <- sample_state(
         previous_state = sampled_states[, 1, , drop = F],
-        params = params, time_point = 0,
+        params = params,
+        time_point = 0,
         y = y[1:(start_point - 1), , drop = FALSE]
     )
 
@@ -41,62 +49,62 @@ smc <- function(
 
     for (time_point in 1:n_t) {
         # Sample states
-        sampled_states[, time_point + 1, ] <- sample_state(
+        sampled_states[, time_point + 1,] <- sample_state(
             previous_state = sampled_states[, 1:time_point, , drop = F],
-            params = params, time_point = time_point + start_point - 1,
+            params = params,
+            time_point = time_point + start_point - 1,
             y = y[1:(start_point + time_point - 1), , drop = FALSE]
         )
 
         # Compute Probability of drawn states
-        state_weights[time_point, ] <- prob_state(
+        state_weights[time_point,] <- prob_state(
             y = y[1:(start_point + time_point - 1), , drop = FALSE],
             state = sampled_states[, 1:(time_point + 1), , drop = F],
-            start_point = start_point, params = params
+            start_point = start_point,
+            params = params
         )
 
-        if (isTRUE(any(is.na(state_weights[time_point, ])))) {
+        if (isTRUE(any(is.na(state_weights[time_point,])))) {
             print(paste("NaN weight! Iteration:", time_point))
             return(list(prob = -Inf, state = NULL))
-        } else if (all(state_weights[time_point, ] == 0.0)) {
-            print(
-                paste("All weights are equal to 0 at iteration:", time_point)
-            )
+        } else if (all(state_weights[time_point,] == 0.0)) {
+            print(paste("All weights are equal to 0 at iteration:", time_point))
             return(list(prob = -Inf, state = NULL))
         }
 
         # Resample particles (complete paths)
-        sampled_indices <- sample(
-            n_particles, n_particles, replace = TRUE,
-            prob = state_weights[time_point, ]
-        )
-        sampled_states <- sampled_states[, , sampled_indices, drop = F]
+        sampled_indices <- sample(n_particles,
+                                  n_particles,
+                                  replace = TRUE,
+                                  prob = state_weights[time_point,])
+        sampled_states <-
+            sampled_states[, , sampled_indices, drop = F]
 
         # Estimate state
-        estimated_states[, time_point, ] <- rowMeans(
+        estimated_states[, time_point,] <- rowMeans(
             sampled_states[, time_point + 1, , drop = FALSE]
         )
 
         # Estimated state 95% CI
         estimated_states[, time_point, 2:3] <- apply(
             sampled_states[, time_point + 1, , drop = FALSE], 1,
-            quantile,
-            probs = c(0.025, 0.975)
+            quantile, probs = c(0.025, 0.975)
         )
 
         # Compute Log Likelihood
-        prob_obs <- prob_obs + log(mean(state_weights[time_point, ]))
+        prob_obs <-
+            prob_obs + log(mean(state_weights[time_point,]))
         state_weights <- state_weights[, sampled_indices, drop = F]
     }
 
-    pmmh_particle <- sample(
-        n_particles, 1, replace = TRUE, prob = state_weights[n_t, ]
-    )
+    pmmh_particle <- sample(n_particles, 1)
     pmmh_path <- sampled_states[, -1, pmmh_particle]
     pmmh_weights <- state_weights[, pmmh_particle]
 
     return(
         list(
-            prob = -1 * prob_obs, state = estimated_states,
+            prob = -1 * prob_obs,
+            state = estimated_states,
             pmmh_prob = -1 * sum(log(pmmh_weights)),
             pmmh_path = pmmh_path
         )
@@ -133,15 +141,26 @@ smc <- function(
 #' @return Returns matrix containing the samples from the posterior. The burn in
 #'   iterations are removed and the rest is thinned. The matrix contains
 #'   number of params columns.
-pmmh <- function(
-    params, y, start_point, prob_state, sample_state, likelihood_prior,
-    proposal, likelihood_proposal, n_states = 1, n_met = 6500,
-    n_particles = 1000, burn_in = 499, thining = 1, more_information = FALSE
-) {
+pmmh <- function(params,
+                 y,
+                 start_point,
+                 prob_state,
+                 sample_state,
+                 likelihood_prior,
+                 proposal,
+                 likelihood_proposal,
+                 n_states = 1,
+                 n_met = 6500,
+                 n_particles = 1000,
+                 burn_in = 499,
+                 thining = 1,
+                 more_information = FALSE,
+                 adaptive_n = NULL) {
     thetas <- matrix(nrow = n_met, ncol = length(params))
-    paths <- matrix(nrow = n_met, ncol = nrow(y[start_point:nrow(y)]))
+    paths <-
+        matrix(nrow = n_met, ncol = nrow(y[start_point:nrow(y),]))
     theta_start <- params
-    acceptance_rate <- 0
+    acceptance_rate <- rep(0, n_met)
 
     if (isTRUE(more_information)) {
         print("Iteration 0.")
@@ -149,9 +168,13 @@ pmmh <- function(
 
     # compute probability of y1:T using smc
     smc_result_start <- smc(
-        params = theta_start, y = y, start_point = start_point,
-        prob_state = prob_state, sample_state = sample_state,
-        n_particles = n_particles, n_states = n_states,
+        params = theta_start,
+        y = y,
+        start_point = start_point,
+        prob_state = prob_state,
+        sample_state = sample_state,
+        n_particles = n_particles,
+        n_states = n_states,
         more_information = more_information
     )
 
@@ -165,15 +188,28 @@ pmmh <- function(
             print(paste("Iteration:", met_iteration))
         }
 
+        if (!is.null(adaptive_n)) {
+            if (met_iteration %% adaptive_n == 0) {
+                prop_cov <- var(var(thetas[1:(met_iteration - 1), ]))
+            } else {
+                prop_cov <- NULL
+            }
+        } else {
+            prop_cov <- NULL
+        }
+
         # sample new proposals and compute prob y1:T as long as not -Inf
         while (TRUE) {
-            theta_proposal <- proposal(theta_start)
+            theta_proposal <- proposal(theta_start, prop_cov = prop_cov)
 
             smc_result_proposal <- smc(
-                params = theta_proposal, y = y,
+                params = theta_proposal,
+                y = y,
                 start_point = start_point,
-                prob_state = prob_state, sample_state = sample_state,
-                n_particles = n_particles, n_states = n_states,
+                prob_state = prob_state,
+                sample_state = sample_state,
+                n_particles = n_particles,
+                n_states = n_states,
                 more_information = more_information
             )
 
@@ -186,41 +222,43 @@ pmmh <- function(
 
         # computed acceptance probability
         prob <- (
-            (smc_result_start$pmmh_prob - smc_result_proposal$pmmh_prob)
-            + (
-                sum(likelihood_prior(theta_proposal, log = TRUE))
-                - sum(likelihood_prior(theta_start, log = TRUE))
+            (smc_result_start$prob - smc_result_proposal$prob)
+            + (sum(
+                likelihood_prior(theta_proposal, log = TRUE)
             )
+            - sum(
+                likelihood_prior(theta_start, log = TRUE)
+            ))
             + (
                 sum(
-                    likelihood_proposal(theta_start, theta_proposal, log = TRUE)
+                    likelihood_proposal(theta_start, theta_proposal,
+                                        log = TRUE, prop_cov = prop_cov)
                 )
                 - sum(
-                    likelihood_proposal(theta_proposal, theta_start, log = TRUE)
+                    likelihood_proposal(theta_proposal, theta_start,
+                                        log = TRUE, prop_cov = prop_cov)
                 )
             )
         )
 
         # overwrite initial proposal with new if accepted
         if (prob > log(runif(1))) {
-            acceptance_rate <- acceptance_rate + 1
+            acceptance_rate[met_iteration] <- 1
             theta_start <- theta_proposal
             smc_result_start <- smc_result_proposal
         }
 
         # store sampled parameters
-        thetas[met_iteration, ] <- unlist(theta_start)
+        thetas[met_iteration,] <- unlist(theta_start)
         # store specific path
-        paths[met_iteration, ] <- smc_result_start$pmmh_path
+        paths[met_iteration,] <- smc_result_start$pmmh_path
     }
 
-    return(
-        list(
-            theta = thetas[seq(burn_in + 1, n_met, by = thining), ,
-                           drop = FALSE],
-            paths = paths[seq(burn_in + 1, n_met, by = thining), ,
-                          drop = FALSE],
-            acceptance_rate = acceptance_rate / n_met
-        )
-    )
+    return(list(
+        theta = thetas[seq(burn_in + 1, n_met, by = thining), ,
+                       drop = FALSE],
+        paths = paths[seq(burn_in + 1, n_met, by = thining), ,
+                      drop = FALSE],
+        acceptance_rate = acceptance_rate
+    ))
 }
