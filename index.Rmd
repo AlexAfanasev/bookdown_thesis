@@ -19,8 +19,4 @@ geometry: "left=3.5cm, right=3.5cm, top=2.5cm, bottom=2.5cm"
 knitr::write_bib(c(
   .packages(), 'bookdown', 'knitr', 'rmarkdown'
 ), 'packages.bib')
-
-# 2. here setup
-
-# 3. source R files
 ```

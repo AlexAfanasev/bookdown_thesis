@@ -33,7 +33,7 @@ $$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$
 
 **State:**
 
-$$\tilde{\eta}_{t} = \beta_{1}x_{1, t} + \beta_{2}x_{2, t} + u_{t}$$
+$$\tilde{\eta}_{t} = \beta_{1}x_{1, t-1} + \beta_{2}x_{2, t-1} + u_{t}$$
 $$u_{t} \sim N(0, \sigma_{u}^2)$$
 
 $$x_{1, t} = x_{1, t - 1} + z_{1, t}$$
@@ -48,13 +48,13 @@ $$\begin{pmatrix} z_{1, t} \\ z_{2, t} \end{pmatrix} \sim N(0, 0.000625\;I_{2})$
 
 - $\tilde{\eta}_{t}$ is bound to be between 2.9 and 4.35
 
-```{r, source_basic_functions, include=FALSE}
+```{r, source_basic_functions, include=FALSE, eval=FALSE}
 source(here::here("R", "particle_filter_functions.R"))
 source(here::here("R", "smc_nonlinear_simulation.R"))
 source(here::here("R", "pmmh_nonlinear_simulation.R"))
 ```
 
-```{r, helper_nonlinear_simulation, include = FALSE}
+```{r, helper_nonlinear_simulation, include = FALSE, eval=FALSE}
 generate_simulation_data <- function(n, params) {
   # simulate d_t
   d_t <- arima.sim(
@@ -72,23 +72,22 @@ generate_simulation_data <- function(n, params) {
   latent_lpd_sim <- vector("numeric", length = n)
   x_1 <- vector("numeric", length = n)
   x_2 <- vector("numeric", length = n)
-  u_t <- vector("numeric", length = n)
   for (i in 1:n) {
     if (i == 1) {
-      x_1[i] <- 3.5
-      x_2[i] <- 3.5
+      x_1[i] <- 0
+      x_2[i] <- 0
       latent_lpd_sim[i] <- 3.5
-      u_t[1] <- 0
     } else {
       while (TRUE) {
         val_2 <- x_1[i - 1] + rnorm(1, 0, 0.05)
         val_3 <- x_2[i - 1] + rnorm(1, 0, 0.05)
         val_1 <- (
-          params$beta_1 * val_2 
-          + params$beta_2 * val_3 
-          + rnorm(1, 0, exp(params$sigma_u))
+          3.5 + params["phi"] * (latent_lpd_sim[i - 1] - 3.5)
+          + params["beta_1"] * val_2
+          + params["beta_2"] * val_3
+          + rnorm(1, 0, exp(params["sigma_x"]))
         )
-        if (val_1 > 2.9 & val_1 < 4.35) {
+        if (val_1 > 2.7 & val_1 < 4.5) {
           x_1[i] <- val_2
           x_2[i] <- val_3
           latent_lpd_sim[i] <- val_1
@@ -104,7 +103,7 @@ generate_simulation_data <- function(n, params) {
     rho <- 1 / (1 + exp(-latent_lpd_sim[i]))
     k <- -log(rho) - ((1 - rho) * log((1 / rho) - 1))
     observed_lpd[i] <- ((k / (1 - rho)) + d_t[i]
-                        + rnorm(1, 0, exp(params$sigma_e)))
+                        + rnorm(1, 0, exp(params["sigma_y"])))
   }
   return(list(
     observed = cbind(observed_lpd, d_t, x_1, x_2),
@@ -113,19 +112,20 @@ generate_simulation_data <- function(n, params) {
 }
 ```
 
-```{r, setup_nonlinear_simulation, include = FALSE}
-N_obs <- 76
+```{r, setup_nonlinear_simulation, include = FALSE, eval=FALSE}
+N_obs <- 100
 N_sim <- 4
-true_params_simulation <- list(
+true_params_simulation <- c(
     beta_1 = 0.8,
     beta_2 = 0.2,
-    sigma_e = log(0.05),
-    sigma_u = log(0.025)
+    sigma_e = log(0.015),
+    sigma_u = log(0.05),
+    phi = 0.8
 )
-params_simulation <- list(
+params_simulation <- c(
     beta_1 = 1.0,
     beta_2 = 0.5,
-    sigma_e = log(0.075),
+    sigma_e = log(0.1),
     sigma_u = log(0.05)
 )
 ```
@@ -185,7 +185,7 @@ lines(smc_simulation$state[1, , 1], col = "red")
 lines(colMeans(pmmh_result$paths[1000:2000, ]), col = "blue")
 ```
 
-```{r, nonlinear_simulation, include = FALSE}
+```{r, nonlinear_simulation, include = FALSE, eval=FALSE}
 nonlinear_simulation <- function(N_obs, true_params, start_params) {
   data_simulation <- generate_simulation_data(N_obs, true_params)
   
@@ -254,7 +254,7 @@ system.time(results <- foreach::`%dopar%`(
 parallel::stopCluster(cl)
 ```
 
-```{r, simulation_result_plots}
+```{r, simulation_result_plots, eval=FALSE}
 res_smc <- matrix(nrow = N_sim, ncol = 4)
 res_pmmh <- matrix(nrow = N_sim, ncol = 4)
 
@@ -287,18 +287,3 @@ plot(density(res_pmmh[, 4]), type = "l")
 
 **Setup:**
 
-\begin{center}
- \begin{tabular}{|c c c |} 
- \hline
- Parameter & True Value & Start Values \\ [0.5ex] 
- \hline
- $\beta_{1}$ & `r true_params_simulation$beta_1` & `r params_simulation$beta_1` \\
- \hline
- $\beta_{2}$ & `r true_params_simulation$beta_2` & `r params_simulation$beta_2` \\
- \hline
- $\sigma_{e}$ & `r exp(true_params_simulation$sigma_e)` & `r exp(params_simulation$sigma_e)` \\
- \hline
- $\sigma_{u}$ & `r exp(true_params_simulation$sigma_u)` & `r exp(params_simulation$sigma_u)` \\
- \hline
- \end{tabular}
-\end{center}

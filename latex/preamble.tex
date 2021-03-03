@@ -1,9 +1,14 @@
 \usepackage{booktabs}
-
+\usepackage[ruled,vlined]{algorithm2e}
+% setup for pseudocode generation
+\DontPrintSemicolon
+\newcommand{\To}{\mbox{\upshape\bfseries to}}
 % disable hyphenation completely
 \usepackage[none]{hyphenat}
 % \usepackage{fancyhdr}
 \usepackage{titlesec}
+% no indent new paragraph
+\usepackage[parfill]{parskip}
 
 % set format of chapters
 \titleformat{\chapter}
