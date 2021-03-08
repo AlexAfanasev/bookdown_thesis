@@ -1,0 +1,48 @@
+# (APPENDIX) Appendix {-}
+
+# Appendix: Algorithms {#algorithms}
+
+## Paricle Filter and Systematic resampling
+\begin{algorithm}
+  \caption{Particle Filter}
+    \KwIn {Simulator $\mu_{\theta}(x_{0})$ \newline
+    Simulator $f_{\theta}(x_{n}|x_{n-1})$ \newline
+    Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
+    Parameter $\theta$ \newline
+    Data $y^*_{1:N}$ \newline
+    Number of particles $J$
+    }
+  \nl Initialize filter particles: simulate $X^F_{0,j} \sim \mu_{\theta}(\cdot)$ for $j$ in $1:J$\;
+  \nl \For{$n = 1$ \To{} $N$}{%
+    \nl Simulate for prediction: $X^P_{n,j} \sim f_{\theta}(\cdot|X^F_{n-1,j})$ for $j$ in $1:J$\;
+    \nl Evaluate weights: $w(n, j) = g_{\theta}(y^*_{n}|X^P_{n,j})$ for $j$ in $1:J$\;
+    \nl Normalize weights: $\tilde{w}(n, j) = \frac{w(n, j)}{\sum^J_{m=1}w(n, m)}$\;
+    \nl Apply Algorithm 2 to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
+    \nl Resample: set $X^F_{n,j} = X^P_{n,k_j}$ for $j$ in $1:J$\;
+    \nl Compute conditional log likelihood: $\hat{\ell}_{n|1:n-1} = ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
+  }
+  \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|1:n-1}$ \newline
+  Filter sample, $X^F_{n,1:J}$ for $n$ in 1:N}
+  \textbf{complexity:} $\mathcal{O}(J)$
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Systematic Resampling}
+    \KwIn {Weights $\tilde{w}_{1:J}$, normalized so that $\sum^J_{j=1}\tilde{w}_{j} = 1$
+    }
+  \nl Construct cumulative sum: $c_j = \sum_{m=1}^j \tilde{w}_m$ for $j$ in $1:J$\;
+  \nl Draw a uniform initial sampling point: $U_1 \sim U(0, \frac{1}{J})$\;
+  \nl Construct evenly spaced sampling points: $U_j = U_1 + (j - 1)\frac{1}{J}$ for $j$ in $2:J$\;
+  \nl Initialize: set $p=1$\;
+  \nl \For{$j = 1$ \To{} $J$}{%
+    \nl \While{$U_j > c_p$}{%
+      \nl Step to the next resampling index: set $p = p + 1$\;
+    }
+    \nl Assign resampling index: set $k_j = p$\;
+  }
+  \KwOut{Resampling indices $k_{1:J}$}
+  \textbf{complexity:} $\mathcal{O}(J)$
+\end{algorithm}
+
+
+

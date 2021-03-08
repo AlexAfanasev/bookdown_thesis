@@ -15,36 +15,28 @@ Partially observed Markov processes, also known as state space models or hidden 
 As illustrated in [@pomp_article], let $\theta \in R^p$ be the $p$-dimensional vector of model parameters and $\{X(t;\;\theta), t\in T\}$ be the latent state process with $T \subset N$ and $X(t;\;\theta) \in R^q$. The times at which $X(t;\;\theta)$ is partially observed are denoted $\{t_i \in T, i=1, ..., N\}$ with $t_0 \leq t_1 < t_2 < ... < t_N$ and $t_0 \in T$ being the initial time. Furthermore, the following representation is set: $X_i = X(t_i; \theta)$ and $X_{i:j} = (X_i, X_{i+1}, ..., X_j)$. Besides that, one observes the latent state process by way of a so called observation process $Y_{1:N}$ with $Y_n \in R^r$.
 
 The state process can be described with an initial density $\mu_{\theta}(x_{0})$ and a transition density $f_{\theta}(x_{n}|x_{n-1})$
-
 \begin{equation}
 \begin{split}
-    & X_{0} \sim \mu_{\theta}(x_{0}), \\
-    & X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}),
+    X_{0} & \sim \mu_{\theta}(x_{0}), \\
+    X_{n} | (X_{0:n-1} = x_{0:n-1}) & \sim f_{\theta}(x_{n} | x_{n-1}),
 \end{split}
 \end{equation}
-
 and the latter with the following relation
-
 \begin{equation}
     Y_{n} | (X_{0:n} = x_{0:n}, Y_{1:n-1} = y_{1:n-1}) \sim g_{\theta}(y_{n} | x_{n})
 \end{equation}
-
 where $g_{\theta}(y_{n}|x_{n})$ represents the conditional marginal density, see [@doucet_inference].
 
 The transition density $f_{\theta}(x_{n}|x_{n-1})$, measurement density $g_{\theta}(y_{n}|x_{n})$ and initial density $\mu_{\theta}(x_{0})$ specify the entire joint density:
-
 \begin{equation}
     p_{\theta}(x_{0:N}, y_{1:N}) = \mu_{\theta}(x_{0})\prod^{N}_{n=1}f_{\theta}(x_{n} | x_{n-1})g_{\theta}(y_{n} | x_{n})
     (\#eq:pomp-joint-density)
 \end{equation}
-
 Using the joint density it is possible to obtain the marginal density:
-
 \begin{equation}
     p_{\theta}(y_{1:n}) = \int p_{\theta}(x_{0:n}, y_{1:n})dx_{0:n}
     (\#eq:pomp-marginal-density)
 \end{equation}
-
 Within this setup the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$ one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including covariates. The covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ or the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$.
 
 Typically, one can separate two setups. Firstly, the case when the latent state process and the observation process are Gaussian with a linear relationship. This setup has an analytical solution to the parameter inference and hidden state estimation problem which is based upon the famous Kalman Filter [@kalman_filter]. Secondly, the general case where the processes are non-Gaussian and the relationship is nonlinear. Unfortunately, these models are difficult to fit and require powerful simulation techniques, [@doucet_inference].
@@ -54,97 +46,67 @@ Typically, one can separate two setups. Firstly, the case when the latent state 
 Given a fixed collection of observations $y^*_{1:N} = (y^*_1, ..., y^*_N)$ one is interested in carrying out inference about $\theta$ and $x_{0:N} = (x_0, ..., x_N)$. The two methods at hand, likelihood based inference and bayesian inference, require the evaluation of the likelihood function.
 
 The likelihood for parameter $\theta$ is the marginal density \@ref(eq:pomp-marginal-density) evaluated at the collected data:
-
 \begin{equation}
-  \mathcal{L}(\theta) = p_{\theta}(y^*_{1:n}) = \int p_{\theta}(x_{0:n}, y^*_{1:n})dx_{0:n} = \int \mu_{\theta}(x_{0})\prod^{N}_{n=1}f_{\theta}(x_{n} | x_{n-1})g_{\theta}(y^*_{n} | x_{n})dx_{0:N}
+\begin{split}
+  \mathcal{L}(\theta) = p_{\theta}(y^*_{1:n}) & = \int p_{\theta}(x_{0:n}, y^*_{1:n})dx_{0:n} \\
+  & = \int \mu_{\theta}(x_{0})\prod^{N}_{n=1}f_{\theta}(x_{n} | x_{n-1})g_{\theta}(y^*_{n} | x_{n})dx_{0:N}
   (\#eq:pomp-likelihood)
+\end{split}
 \end{equation}
-
 For finite state-space hidden Markov models the integrals would correspond to finite sums and the likelihood could be computed exactly. Furthermore, for linear Gaussian models Kalman techniques can be used. However, for non linear and non-Gaussian models it is not possible to compute the likelihood in closed-form and numerical methods have to be employed, [@doucet_johansen_tutorial]. 
 
-A naive approach for estimating the likelihood function using Monte Carlo integration can be based upon the Markov property:
-
-$$p_{\theta}(x_{0:N}) = \mu_{\theta}(x_0) \cdot f_{\theta}(x_1|x_0) \cdot f_{\theta}(x_2|x_1) \cdot \; ... \; \cdot f_{\theta}(x_{N}|x_N-1) = \mu_{\theta}(x_0) \prod^{N}_{n=1}f_{\theta}(x_{n}|x_{n-1})$$
-
+A naive approach for estimating the likelihood \@ref(eq:pomp-likelihood) function using Monte Carlo integration can be based upon the Markov property:
+\begin{equation*}
+\begin{split}
+  p_{\theta}(x_{0:N}) & = \mu_{\theta}(x_0) \cdot f_{\theta}(x_1|x_0) \cdot f_{\theta}(x_2|x_1) \cdot \; ... \; \cdot f_{\theta}(x_{N}|x_N-1) \\
+  & = \mu_{\theta}(x_0) \prod^{N}_{n=1}f_{\theta}(x_{n}|x_{n-1})
+\end{split}
+\end{equation*}
 Hence, by directly sampling a set $\{X_{0:N}^j, j = 1,..., J\}$ of size $J$ of trajectories, each with length $N$, from $p_{\theta}(x_{0:N})$ one can compute a numerical approximation of the likelihood:
-
 $$\mathcal{L}(\theta) = \mathbb{E}\Bigg[\prod^{N}_{n=1}g_{\theta}(y^*_{n} | X_{n})\Bigg] \approx \frac{1}{J}\sum^J_{j=1}\prod^{N}_{n=1}g_{\theta}(y^*_{n} | X^j_{n})$$
-
 However, this setup would require a very large number of samples $J$ in order to obtain a relatively good approximation since most of the trajectories diverge a lot from the true state and therefore yield extremely small likelihoods. Additionally, as a trajectory diverges from the true process, it will almost never come back.
 
 A better approach would be to generate samples of the state process $X_{0:N}$ conditional on the observed data $y^*_{1:N}$. Sequential Monte Carlo methods, alias Particle Filters, pick up this idea by combining importance sampling and resampling steps using a cloud of particles.
 
-The likelihood of the partially observed markov model can be factorized differently, see [@doucet_inference]:
-
-$$\mathcal{L}(\theta)=\prod^{N}_{n=1}p_{\theta}(y^*_n|y^*_{1:n-1})=\prod^{N}_{n=1} \int g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})dx_n$$
-
-Now, the likelihood can be estimated by approximating the integral at each time point $n$. One can think of this task as applying Monte Carlo integration by drawing samples from the so called prediction distribution $p_{\theta}(x_n|y^*_{1:n-1})$. Drawing samples from this distribution can only be done by using a so called filtering distribution $p_{\theta}(x_n|y^*_{1:n})$ as can be seen by extending the prediction distribution using the Markov property: 
-
-$$p_{\theta}(x_n|y^*_{1:n-1}) = \int f_{\theta}(x_n|x_{n-1})p_{\theta}(x_{n-1}|y^*_{1:n-1})dx_{n-1}\\$$
-
+As a first step, the likelihood of the partially observed Markov model can be factorized differently, see [@doucet_inference]:
+\begin{equation*}
+\begin{split}
+  \mathcal{L}(\theta) & = \prod^{N}_{n=1}p_{\theta}(y^*_n|y^*_{1:n-1}) \\
+  & = \prod^{N}_{n=1}\int p_{\theta}(x_n, y^*_n|y^*_{1:n-1}) dx_n  \\
+  & =\prod^{N}_{n=1} \int g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})dx_n
+\end{split}
+\end{equation*}
+Now, the likelihood can be estimated by approximating the integral at each time point $t_n$ as shown in [@cappe_smc]. One can think of this task as applying Monte Carlo integration by drawing samples from the so called prediction distribution $p_{\theta}(x_n|y^*_{1:n-1})$. Drawing samples from this distribution can only be done by using a so called filtering or updating distribution $p_{\theta}(x_n|y^*_{1:n})$ as can be seen by extending the prediction distribution: 
+\begin{equation*}
+\begin{split}
+  p_{\theta}(x_n|y^*_{1:n-1}) & = \int p_{\theta}(x_n, x_{n-1}|y^*_{1:n-1})dx_{n-1} \\
+  & = \int f_{\theta}(x_n|x_{n-1})p_{\theta}(x_{n-1}|y^*_{1:n-1})dx_{n-1}
+\end{split}
+\end{equation*}
 The filtering distribution is obtained by applying Bayes theorem:
+\begin{equation*}
+\begin{split}
+  p_{\theta}(x_n|y^*_{1:n}) & = p_{\theta}(x_n|y^*_n, y^*_{1:n-1}) \\
+  & = \frac{p_{\theta}(x_n, y^*_n|y^*_{1:n-1})}{p_{\theta}(y^*_n|y^*_{1:n-1})} \\
+  & =  \frac{g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})}{p_{\theta}(y^*_n|y^*_{1:n-1})}
+\end{split}
+\end{equation*}
+Hence, for each time point, $t_n, n= 1, ...., N$, it is possible to obtain the prediction distribution using the filtering distribution from $t_{n-1}$. Furthermore, one can obtain the filtering distribution at $t_n$ from the prediction distribution at $t_n$. Furthermore, the filtering distribution at $t_0$ is just the initial value distribution $\mu_{\theta}(x_0)$.
 
-$$p_{\theta}(x_n|y^*_{1:n}) = \frac{g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})}{\int f_{\theta}(x_n|x_{n-1})p_{\theta}(x_{n-1}|y^*_{1:n-1})dx_{n-1}}$$
-Hence, for each time point $t_n, n= 1, ...., N$ it is possible to obtain the prediction distribution using the filtering distribution from $t_{n-1}$. Furthermore, one can obtain the filtering distribution at $t_n$ from the prediction distribution at $t_n$.
+At $t_0$ one starts by sampling values from $\mu_{\theta}(\cdot)$ in order to get a sample from the filtering distribution $X^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$, a sample from the prediction distribution, $X^P_{1,j}$, $j = 1, ..., J$, can be obtained by sampling from $f_{\theta}(\cdot|X^F_{0, j})$. By resampling $\{X^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|X^P_{n, j})$ it is possible to get a sample from the filtering distribution at $t_1$, $X^F_{1, j}$, $j = 1, ..., J$.
 
-At $t_0$ one starts by sampling values from $\mu_{\theta}(\cdot)$ in order to get a sample from the filtering distribution $X^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$, a sample from the prediction distribution, $X^P_{1,j}$, $j = 1, ..., J$, can be obtained by sampling from $f_{\theta}(\cdot|X^F_{0, j})$. By resampling $\{X^P_{n, j} ,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|X^P_{n, j})$ it is possible to get a sample from the filtering distribution at $t_1$, $X^F_{1, j}$, $j = 1, ..., J$.
-
-Simultaneously, at each time point the log likelihood can be approximated using,
-
-$$\hat{\ell}_{n} = ln\Bigg(\frac{1}{J}\sum^J_{j=1}w_{n, j}\Bigg)$$
-
-and a filtering estimate for the state can be computed:
-
-$$E\big[X_n|y^*_{1:n}\big] = \frac{1}{J}\sum^J_{j=1}X^F_{n, j}$$
-
+Hence, at each time point the log likelihood can be approximated and a filtering estimate for the state can be computed:
+\begin{equation*}
+\begin{split}
+  \hat{\ell}_{n} & = ln\Bigg(\frac{1}{J}\sum^J_{j=1}w_{n, j}\Bigg) \\
+  E\big[X_n|y^*_{1:n}\big] & = \frac{1}{J}\sum^J_{j=1}X^F_{n, j}
+\end{split}
+\end{equation*}
 After having iterated through this sampling, resampling procedure the full log likelihood approximation can be computed:
-
 $$\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n}$$
+An exact description of these algorithms can be found in [@pomp_article] and the appendix, [Appendix Algorithms][Paricle Filter and Systematic resampling].
 
-Particle filtering techniques are able to approximate the likelihood function and simultaneously estimate the latent state process for a given parameter $\theta$.
-
-\begin{algorithm}
-  \caption{Particle Filter}
-    \KwIn {Simulator $\mu_{\theta}(x_{0})$ \newline
-    Simulator $f_{\theta}(x_{n}|x_{n-1})$ \newline
-    Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
-    Parameter $\theta$ \newline
-    Data $y^*_{1:N}$ \newline
-    Number of particles $J$
-    }
-  \nl Initialize filter particles: simulate $X^F_{0,j} \sim \mu_{\theta}(\cdot)$ for $j$ in $1:J$\;
-  \nl \For{$n = 1$ \To{} $N$}{%
-    \nl Simulate for prediction: $X^P_{n,j} \sim f_{\theta}(\cdot|X^F_{n-1,j})$ for $j$ in $1:J$\;
-    \nl Evaluate weights: $w(n, j) = g_{\theta}(y^*_{n}|X^P_{n,j})$ for $j$ in $1:J$\;
-    \nl Normalize weights: $\tilde{w}(n, j) = \frac{w(n, j)}{\sum^J_{m=1}w(n, m)}$\;
-    \nl Apply Algorithm 2 to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
-    \nl Resample: set $X^F_{n,j} = X^P_{n,k_j}$ for $j$ in $1:J$\;
-    \nl Compute conditional log likelihood: $\hat{\ell}_{n|1:n-1} = ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
-  }
-  \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|1:n-1}$ \newline
-  Filter sample, $X^F_{n,1:J}$ for $n$ in 1:N}
-  \textbf{complexity:} $\mathcal{O}(J)$
-\end{algorithm}
-
-\begin{algorithm}
-  \caption{Systematic resampling}
-    \KwIn {Weights $\tilde{w}_{1:J}$, normalized so that $\sum^J_{j=1}\tilde{w}_{j} = 1$
-    }
-  \nl Construct cumulative sum: $c_j = \sum_{m=1}^j \tilde{w}_m$ for $j$ in $1:J$\;
-  \nl Draw a uniform initial sampling point: $U_1 \sim U(0, \frac{1}{J})$\;
-  \nl Construct evenly spaced sampling points: $U_j = U_1 + (j - 1)\frac{1}{J}$ for $j$ in $2:J$\;
-  \nl Initialize: set $p=1$\;
-  \nl \For{$j = 1$ \To{} $J$}{%
-    \nl \While{$U_j > c_p$}{%
-      \nl Step to the next resampling index: set $p = p + 1$\;
-    }
-    \nl Assign resampling index: set $k_j = p$\;
-  }
-  \KwOut{Resampling indices $k_{1:J}$}
-  \textbf{complexity:} $\mathcal{O}(J)$
-\end{algorithm}
-
-- refer to Pitt and shephard!
+- refer to Pitt and shephard?!
 
 ## Likelihood based Inference
 
