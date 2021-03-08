@@ -33,7 +33,7 @@ $$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$
 
 **State:**
 
-$$\tilde{\eta}_{t} = \beta_{1}x_{1, t-1} + \beta_{2}x_{2, t-1} + u_{t}$$
+$$\tilde{\eta}_{t} = \beta_{1}x_{1, t} + \beta_{2}x_{2, t} + u_{t}$$
 $$u_{t} \sim N(0, \sigma_{u}^2)$$
 
 $$x_{1, t} = x_{1, t - 1} + z_{1, t}$$
@@ -47,12 +47,6 @@ $$\begin{pmatrix} z_{1, t} \\ z_{2, t} \end{pmatrix} \sim N(0, 0.000625\;I_{2})$
 - $\{\beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u}\}$ need to be estimated
 
 - $\tilde{\eta}_{t}$ is bound to be between 2.9 and 4.35
-
-```{r, source_basic_functions, include=FALSE, eval=FALSE}
-source(here::here("R", "particle_filter_functions.R"))
-source(here::here("R", "smc_nonlinear_simulation.R"))
-source(here::here("R", "pmmh_nonlinear_simulation.R"))
-```
 
 ```{r, helper_nonlinear_simulation, include = FALSE, eval=FALSE}
 generate_simulation_data <- function(n, params) {
@@ -76,13 +70,13 @@ generate_simulation_data <- function(n, params) {
     if (i == 1) {
       x_1[i] <- 0
       x_2[i] <- 0
-      latent_lpd_sim[i] <- 3.5
+      latent_lpd_sim[i] <- params["mu"]
     } else {
       while (TRUE) {
         val_2 <- x_1[i - 1] + rnorm(1, 0, 0.05)
         val_3 <- x_2[i - 1] + rnorm(1, 0, 0.05)
         val_1 <- (
-          3.5 + params["phi"] * (latent_lpd_sim[i - 1] - 3.5)
+          3.5 + tanh(params["phi"]) * (latent_lpd_sim[i - 1] - params["mu"])
           + params["beta_1"] * val_2
           + params["beta_2"] * val_3
           + rnorm(1, 0, exp(params["sigma_x"]))
@@ -113,169 +107,364 @@ generate_simulation_data <- function(n, params) {
 ```
 
 ```{r, setup_nonlinear_simulation, include = FALSE, eval=FALSE}
-N_obs <- 100
-N_sim <- 4
+N <- 50
+N_sim <- 20
 true_params_simulation <- c(
-    beta_1 = 0.8,
-    beta_2 = 0.2,
-    sigma_e = log(0.015),
-    sigma_u = log(0.05),
-    phi = 0.8
+    mu = 3.5,
+    beta_1 = 0.4,
+    beta_2 = -0.2,
+    sigma_x = log(0.05),
+    sigma_y = log(0.02),
+    phi = atanh(0.85)
 )
 params_simulation <- c(
-    beta_1 = 1.0,
-    beta_2 = 0.5,
-    sigma_e = log(0.1),
-    sigma_u = log(0.05)
+    mu = 3.5,
+    beta_1 = 0.0,
+    beta_2 = 0.0,
+    sigma_x = log(0.1),
+    sigma_y = log(0.05),
+    phi = atanh(0.5)
 )
+
+generate_start_params <- function(params){
+  return(params + rnorm(length(params), 0, 0.1))
+}
 ```
 
 ```{r, test_simulation, include=FALSE, eval=FALSE}
-data_simulation <-
-  generate_simulation_data(N_obs, true_params_simulation)
+# generate data
+generated_data <- generate_simulation_data(N, true_params_simulation)
 
-# smc find parameters
-smc_result <- optim(
-  params_simulation,
-  method = "Nelder-Mead",
-  fn = function(par, ...) {
-    smc(par, ...)$prob
-  },
-  y = data_simulation$observed,
-  n_particles = 500,
-  start_point = 2,
-  prob_state = prob_state_simulation_nonlinear,
-  sample_state = sample_state_simulation_nonlinear,
-  n_states = 1,
-  more_information = TRUE,
-  hessian = FALSE
+# transform to state x and process y
+data <- data.frame(cbind(1:N, generated_data$observed))
+colnames(data) <- c("time", "y", "d", "x1", "x2")
+y <- data[, c("time", "y")]
+covar <- data[, c("time", "d", "x1", "x2")]
+covar_2 <- covar
+covar_2[1:(N - 1), 3:4] <- covar_2[2:N, 3:4]
+x <- generated_data$latent
+head(y)
+tail(y)
+
+# visualize data
+plot(y[, 2], type = "l")
+lines(x, col = "red")
+legend(
+    "topleft",
+    legend = c("obs", "latent"),
+    col = c("black", "red"),
+    lty = c(1, 1)
 )
 
-smc_simulation <- smc(
-  smc_result$par,
-  y = data_simulation$observed,
-  n_particles = 500,
-  start_point = 2,
-  prob_state = prob_state_simulation_nonlinear,
-  sample_state = sample_state_simulation_nonlinear,
-  n_states = 1
+# create pomp object
+pomp_simulation <- pomp::pomp(
+    # init data
+    data = y, times = "time", t0 = 1,
+    # init process / state
+    rinit = function(mu, ...){
+        c(x = mu)
+    },
+    rprocess = pomp::discrete_time(
+        pomp::Csnippet(
+            "
+            x = (
+                mu + tanh(phi) * (x - mu) + beta_1 * x1 + beta_2 * x2
+                + rnorm(0, exp(sigma_x))
+            );
+            "
+        ), delta.t = 1
+    ),
+    # init meas / obs
+    dmeasure = pomp::Csnippet(
+        "
+        double rho_t = 1.0 / (1.0 + exp(-x));
+        double k_t = -log(rho_t) - ((1.0 - rho_t) * log((1.0 / rho_t) - 1.0));
+        double m = (k_t / (1 - rho_t)) + d;
+        lik = dnorm(y, m, exp(sigma_y), give_log);
+        "
+    ),
+    # state names
+    statenames = "x",
+    # obs names
+    obsnames = "y",
+    # param names
+    paramnames = c("beta_1", "beta_2", "mu", "sigma_x",
+                   "sigma_y", "phi"),
+    # covar
+    covar = pomp::covariate_table(covar_2, times = "time"),
+    covarnames = c("d", "x1", "x2")
 )
 
-# pmmh noninformative
-pmmh_result <- pmmh(
-  params = params_simulation,
-  y = data_simulation$observed,
-  start_point = 2,
-  prob_state = prob_state_simulation_nonlinear,
-  sample_state = sample_state_simulation_nonlinear,
-  likelihood_prior = likli_prior_nl_sim_ui,
-  proposal = proposal_nl_sim_ui,
-  likelihood_proposal = likli_proposal_nl_sim_ui,
-  n_states = 1,
-  n_met = 2500,
-  n_particles = 250,
-  burn_in = 0,
-  thining = 1,
-  more_information = TRUE
+# test optim parameter estimation
+theta <- c(
+    beta_1 = 0.0,
+    beta_2 = 0.0,
+    mu = 3.0,
+    sigma_x = log(0.1),
+    sigma_y = log(0.05),
+    phi = atanh(0.8)
+)
+# can use optim only for finding MLE --> not for CI
+system.time(
+    optim_result <- replicate(
+        10,
+        {
+            op_res <- optim(
+                par = theta,
+                fn = function(par){
+                    # print(par)
+                    pomp::logLik(pomp::pfilter(
+                        pomp_simulation, params = par, Np = 500
+                    ))
+                },
+                control = list(
+                    "fnscale" = -1
+                )
+            )
+            return(c(op_res$par, value = op_res$value))
+        }
+    )
 )
 
-plot(data_simulation$observed[2:N_obs, 1], type = "l")
-lines(data_simulation$latent[2:N_obs], col = "green")
-lines(smc_simulation$state[1, , 1], col = "red")
-lines(colMeans(pmmh_result$paths[1000:2000, ]), col = "blue")
+k <- which.max(optim_result["value", ])
+(est_params <- optim_result[1:length(theta), k])
+true_params_simulation
+
+# compare pfilter result
+pf1 <- pomp::pfilter(
+    pomp_simulation,
+    params = c(
+        beta_1 = as.vector(true_params_simulation["beta_1"]),
+        beta_2 = as.vector(true_params_simulation["beta_2"]),
+        sigma_y = as.vector(true_params_simulation["sigma_y"]),
+        sigma_x = as.vector(true_params_simulation["sigma_x"]),
+        phi = as.vector(true_params_simulation["phi"]),
+        mu = 3.5
+    ),
+    Np = 500,
+    filter.mean = TRUE
+)
+pomp::logLik(pf1)
+
+pf2 <- pomp::pfilter(
+    pomp_simulation,
+    params = est_params,
+    Np = 500,
+    filter.mean = TRUE
+)
+pomp::logLik(pf2)
+
+# pmcmc test - noninformative prior
+system.time(
+    pmcmc_noninformative <- pomp::pmcmc(
+        pomp_simulation,
+        Nmcmc = 6000,
+        Np = 500,
+        proposal = pomp::mvn.diag.rw(
+            c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+              beta_2 = 0.03, phi = 0.03)
+        ),
+        params = theta,
+        verbose = FALSE
+    )
+)
+
+# pmcmc test - informative prior
+system.time(
+    pmcmc_informative <- pomp::pmcmc(
+        pomp_simulation,
+        Nmcmc = 6000,
+        Np = 500,
+        proposal = pomp::mvn.diag.rw(
+            c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+              beta_2 = 0.03, phi = 0.03)
+        ),
+        params = theta,
+        verbose = FALSE,
+        dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
+          p_mu <- dnorm(mu, 3.5, 0.1)
+          p_sigma_x <- dnorm(sigma_x, log(0.05), 0.2)
+          p_sigma_y <- dnorm(sigma_y, log(0.02), 0.2)
+          p_beta_1 <- dnorm(beta_1, 0.4, 0.075)
+          p_beta_2 <- dnorm(beta_2, -0.2, 0.075)
+          p_phi <- dnorm(phi, atanh(0.85), 0.1)
+          lik <- (
+            p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+          )
+          return(ifelse(log, log(lik), lik))
+        }
+    )
+)
 ```
 
 ```{r, nonlinear_simulation, include = FALSE, eval=FALSE}
 nonlinear_simulation <- function(N_obs, true_params, start_params) {
   data_simulation <- generate_simulation_data(N_obs, true_params)
+  theta <- generate_start_params(start_params)
   
-  # smc find parameters
-  smc_result <- optim(
-    start_params,
-    method = "Nelder-Mead",
-    fn = function(par, ...) {
-      smc(par, ...)$prob
-    },
-    y = data_simulation$observed,
-    n_particles = 500,
-    start_point = 2,
-    prob_state = prob_state_simulation_nonlinear,
-    sample_state = sample_state_simulation_nonlinear,
-    n_states = 1,
-    more_information = FALSE,
-    hessian = FALSE
+  # transform to state x and process y
+  data <- data.frame(cbind(1:N, data_simulation$observed))
+  colnames(data) <- c("time", "y", "d", "x1", "x2")
+  y <- data[, c("time", "y")]
+  covar <- data[, c("time", "d", "x1", "x2")]
+  covar_2 <- covar
+  covar_2[1:(N - 1), 3:4] <- covar_2[2:N, 3:4]
+
+  # create pomp object
+  pomp_simulation <- pomp::pomp(
+      # init data
+      data = y, times = "time", t0 = 1,
+      # init process / state
+      rinit = function(mu, ...){
+          c(x = mu)
+      },
+      rprocess = pomp::discrete_time(
+          pomp::Csnippet(
+              "
+              x = (
+                  mu + tanh(phi) * (x - mu) + beta_1 * x1 + beta_2 * x2
+                  + rnorm(0, exp(sigma_x))
+              );
+              "
+          ), delta.t = 1
+      ),
+      # init meas / obs
+      dmeasure = pomp::Csnippet(
+          "
+          double rho_t = 1.0 / (1.0 + exp(-x));
+          double k_t = -log(rho_t) - ((1.0 - rho_t) * log((1.0 / rho_t) - 1.0));
+          double m = (k_t / (1 - rho_t)) + d;
+          lik = dnorm(y, m, exp(sigma_y), give_log);
+          "
+      ),
+      # state names
+      statenames = "x",
+      # obs names
+      obsnames = "y",
+      # param names
+      paramnames = c("beta_1", "beta_2", "mu", "sigma_x",
+                     "sigma_y", "phi"),
+      # covar
+      covar = pomp::covariate_table(covar_2, times = "time"),
+      covarnames = c("d", "x1", "x2")
+  )
+
+  # can use optim only for finding MLE --> not for CI
+  optim_result <- replicate(
+      10,
+      {
+          op_res <- optim(
+              par = theta,
+              fn = function(par){
+                  # print(par)
+                  pomp::logLik(pomp::pfilter(
+                      pomp_simulation, params = par, Np = 500
+                  ))
+              },
+              control = list(
+                  "fnscale" = -1
+              )
+          )
+          return(c(op_res$par, value = op_res$value))
+      }
+  )
+
+  k <- which.max(optim_result["value", ])
+  est_params <- optim_result[1:length(theta), k]
+  pf <- pomp::pfilter(
+    pomp_simulation, params = est_params, Np = 500, filter.mean = TRUE
   )
   
-  # smc find states
-  smc_simulation <- smc(
-    smc_result$par,
-    y = data_simulation$observed,
-    n_particles = 500,
-    start_point = 2,
-    prob_state = prob_state_simulation_nonlinear,
-    sample_state = sample_state_simulation_nonlinear,
-    n_states = 1
+  pmmh_noninformative <- pomp::pmcmc(
+      pomp_simulation,
+      Nmcmc = 6000,
+      Np = 500,
+      proposal = pomp::mvn.diag.rw(
+          c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+            beta_2 = 0.03, phi = 0.03)
+      ),
+      params = theta,
+      verbose = FALSE
   )
   
-  # pmmh noninformative
-  pmmh_result <- pmmh(
-    params = start_params,
-    y = data_simulation$observed,
-    start_point = 2,
-    prob_state = prob_state_simulation_nonlinear,
-    sample_state = sample_state_simulation_nonlinear,
-    likelihood_prior = likli_prior_nl_sim_ui,
-    proposal = proposal_nl_sim_ui,
-    likelihood_proposal = likli_proposal_nl_sim_ui,
-    n_states = 1,
-    n_met = 2000,
-    n_particles = 250,
-    burn_in = 0,
-    thining = 1,
-    more_information = FALSE
+  pmmh_informative <- pomp::pmcmc(
+      pomp_simulation,
+      Nmcmc = 6000,
+      Np = 500,
+      proposal = pomp::mvn.diag.rw(
+          c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+            beta_2 = 0.03, phi = 0.03)
+      ),
+      params = theta,
+      verbose = FALSE,
+      dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
+        p_mu <- dnorm(mu, 3.5, 0.1)
+        p_sigma_x <- dnorm(sigma_x, log(0.05), 0.2)
+        p_sigma_y <- dnorm(sigma_y, log(0.02), 0.2)
+        p_beta_1 <- dnorm(beta_1, 0.4, 0.075)
+        p_beta_2 <- dnorm(beta_2, -0.2, 0.075)
+        p_phi <- dnorm(phi, atanh(0.85), 0.1)
+        lik <- (
+          p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+        )
+        return(ifelse(log, log(lik), lik))
+      }
   )
+  
   return(
     list(
       data_observed = data_simulation$observed,
       data_latent = data_simulation$latent,
-      smc_result = list(par = smc_result$par, 
-                        state = smc_simulation$state[1, , 1]),
-      pmmh_result = pmmh_result
+      theta = theta,
+      smc_result = list(par = est_params, pf = pf),
+      pmmh_noninformative = pmmh_noninformative,
+      pmmh_informative = pmmh_informative
     )
   )
 }
 
-cl <- parallel::makeCluster(4)
-doParallel::registerDoParallel(cl)
-system.time(results <- foreach::`%dopar%`(
-  foreach::foreach(i = 1:N_sim),
-  nonlinear_simulation(N_obs, true_params_simulation, params_simulation)
-))
-parallel::stopCluster(cl)
+# bake this stuff
+simulation_result <- pomp::bake(
+  "simulation_study_result.rds",
+  {
+    doRNG::registerDoRNG(1598260027L)
+    cl <- parallel::makeCluster(4)
+    doParallel::registerDoParallel(cl)
+    results <- foreach::`%dopar%`(
+      foreach::foreach(i = 1:N_sim),
+      nonlinear_simulation(N, true_params_simulation, params_simulation)
+    )
+    parallel::stopCluster(cl)
+    results
+  }
+)
 ```
 
 ```{r, simulation_result_plots, eval=FALSE}
-res_smc <- matrix(nrow = N_sim, ncol = 4)
-res_pmmh <- matrix(nrow = N_sim, ncol = 4)
+res_smc <- matrix(nrow = N_sim, ncol = length(params_simulation))
+res_pmmh_noninformative <- matrix(
+  nrow = N_sim, ncol = length(params_simulation)
+)
+res_pmmh_informative <- matrix(nrow = N_sim, ncol = length(params_simulation))
 
 for (i in 1:N_sim) {
-    res_smc[i, ] <- results[[i]]$smc_result$par
-    for (j in 1:4) {
-        if (j <= 2) {
-            d <- density(results[[i]]$pmmh_result$theta[, j])
-            res_pmmh[i, j] <- d$x[which.max(d$y)]
-        } else {
-            d <- density(exp(results[[i]]$pmmh_result$theta[, j]))
-            res_pmmh[i, j] <- d$x[which.max(d$y)]
-        }
-        
+    res_smc[i, ] <- simulation_result[[i]]$smc_result$par
+    for (j in 1:length(params_simulation)) {
+        di <- density(
+          simulation_result[[i]]$pmmh_informative@traces[2000:6000, j+2]
+        )
+        res_pmmh_informative[i, j] <- di$x[which.max(di$y)]
+        dn <- density(
+          simulation_result[[i]]$pmmh_noninformative@traces[2000:6000, j+2]
+        )
+        res_pmmh_noninformative[i, j] <- dn$x[which.max(dn$y)]
     }
 }
 
 # smc result
 plot(density(res_smc[, 1]), type = "l")
 plot(density(res_smc[, 2]), type = "l")
-plot(density(exp(res_smc[, 3])), type = "l")
+plot(density(res_smc[, 3]), type = "l")
 plot(density(exp(res_smc[, 4])), type = "l")
 
 # pmmh result
@@ -284,6 +473,4 @@ plot(density(res_pmmh[, 2]), type = "l")
 plot(density(res_pmmh[, 3]), type = "l")
 plot(density(res_pmmh[, 4]), type = "l")
 ```
-
-**Setup:**
 
