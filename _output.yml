@@ -6,3 +6,5 @@ bookdown::pdf_book:
   keep_tex: yes
   latex_engine: xelatex
   citation_package: natbib
+  fig_caption: yes
+  number_sections: yes

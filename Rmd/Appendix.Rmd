@@ -3,6 +3,10 @@
 # Appendix: Algorithms {#algorithms}
 
 ## Paricle Filter and Systematic resampling
+
+TODO:
+- Add pomp article reference
+
 \begin{algorithm}
   \caption{Particle Filter}
     \KwIn {Simulator $\mu_{\theta}(x_{0})$ \newline
@@ -23,7 +27,6 @@
   }
   \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|1:n-1}$ \newline
   Filter sample, $X^F_{n,1:J}$ for $n$ in 1:N}
-  \textbf{complexity:} $\mathcal{O}(J)$
 \end{algorithm}
 
 \begin{algorithm}
@@ -41,7 +44,6 @@
     \nl Assign resampling index: set $k_j = p$\;
   }
   \KwOut{Resampling indices $k_{1:J}$}
-  \textbf{complexity:} $\mathcal{O}(J)$
 \end{algorithm}
 
 

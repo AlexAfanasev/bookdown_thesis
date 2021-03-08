@@ -1,0 +1,47 @@
+\documentclass{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, backgrounds, fit, shapes}
+\begin{document}
+\begin{tikzpicture}
+    \tikzset{hfit/.style={rounded rectangle, inner xsep=10pt, fill=#1!30},
+             vfit/.style={rounded corners, fill=#1!30}}
+    \tikzset{node style/.style={state, fill=gray!20!white, rectangle}}
+    \tikzset{node style text/.style={state, line width = 0, rectangle}}
+    \node[node style text, draw=none] (XI) {\textbf{States:}};
+    \node[node style, right=of XI] (X0) {$X_{0}$};
+    \node[node style, right=of X0] (X1) {$X_{1}$};
+    \node[node style, right=of X1] (X) {$\cdots$};
+    \node[node style, right=of X] (XN1) {$X_{N-1}$};
+    \node[node style, right=of XN1] (XN) {$X_{N}$};
+    \node[node style text, above=of XI, , draw=none] (ZI) {\textbf{Covariates:}};
+    \node[node style, above=of X1] (Z1) {$Z_{1}$};
+    \node[node style, above=of XN1] (ZN1) {$Z_{N-1}$};
+    \node[node style, above=of XN] (ZN) {$Z_{N}$};
+    \node[node style text, below=of XI, draw=none] (YI) {\textbf{Data:}};
+    \node[node style, below=of X1] (Y1) {$Y_{1}$};
+    \node[node style, below=of XN1] (YN1) {$Y_{N-1}$};
+    \node[node style, below=of XN] (YN) {$Y_{N}$};
+
+\draw[>=latex, auto=left, every loop]
+    (X0) edge node {} (X1)
+    (X1) edge node {} (X)
+    (X) edge node {} (XN1)
+    (XN1) edge node {} (XN)
+    (Z1) edge node {} (X1)
+    (ZN1) edge node {} (XN1)
+    (ZN) edge node {} (XN)
+    (X1) edge node {} (Y1)
+    (XN1) edge node {} (YN1)
+    (XN) edge node {} (YN);
+
+\begin{pgfonlayer}{background}
+  \node[fit=(Z1)(ZN), hfit=orange] {};
+  \node[fit=(X0)(XN), hfit=orange] {};
+  \node[fit=(Y1)(YN), hfit=orange] {};
+\end{pgfonlayer}
+
+\end{tikzpicture}
+
+
+\end{document}

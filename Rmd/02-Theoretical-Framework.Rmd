@@ -6,13 +6,13 @@ editor_options:
 ---
 # Theoretical Framework {#theory}
 
-This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore relevant algorithms for performing likelihood based and bayesian inference will be introduced. However, the content of this thesis will be limited to the case of discrete non-Gaussian and nonlinear state space models.
+This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore relevant algorithms for performing likelihood based and bayesian inference will be introduced and their disadvantages and advantages elaborated. However, the content of this thesis will be limited to the case of discrete non-Gaussian and nonlinear state space models.
 
 ## Partially observed Markov processes
 
 Partially observed Markov processes, also known as state space models or hidden Markov models, consist of an unobserved latent Markov state process which is directly connected to the observation process. 
 
-As illustrated in [@pomp_article], let $\theta \in R^p$ be the $p$-dimensional vector of model parameters and $\{X(t;\;\theta), t\in T\}$ be the latent state process with $T \subset N$ and $X(t;\;\theta) \in R^q$. The times at which $X(t;\;\theta)$ is partially observed are denoted $\{t_i \in T, i=1, ..., N\}$ with $t_0 \leq t_1 < t_2 < ... < t_N$ and $t_0 \in T$ being the initial time. Furthermore, the following representation is set: $X_i = X(t_i; \theta)$ and $X_{i:j} = (X_i, X_{i+1}, ..., X_j)$. Besides that, one observes the latent state process by way of a so called observation process $Y_{1:N}$ with $Y_n \in R^r$.
+As illustrated in [@pomp_article], let $\theta \in R^p$ be the $p$-dimensional vector of model parameters and $\{X(t;\;\theta), t\in T\}$ be the latent state process with $T \subset \mathbb{N}$ and $X(t;\;\theta) \in R^q$. The times at which $X(t;\;\theta)$ is partially observed are denoted $\{t_i \in T, i=1, ..., N\}$ with $t_0 \leq t_1 < t_2 < ... < t_N$ and $t_0 \in T$ being the initial time. Furthermore, the following representation is set: $X_i = X(t_i; \theta)$ and $X_{i:j} = (X_i, X_{i+1}, ..., X_j)$. Besides that, one observes the latent state process by way of a so called observation process $Y_{1:N}$ with $Y_n \in R^r$.
 
 The state process can be described with an initial density $\mu_{\theta}(x_{0})$ and a transition density $f_{\theta}(x_{n}|x_{n-1})$
 \begin{equation}
@@ -27,7 +27,7 @@ and the latter with the following relation
 \end{equation}
 where $g_{\theta}(y_{n}|x_{n})$ represents the conditional marginal density, see [@doucet_inference].
 
-The transition density $f_{\theta}(x_{n}|x_{n-1})$, measurement density $g_{\theta}(y_{n}|x_{n})$ and initial density $\mu_{\theta}(x_{0})$ specify the entire joint density:
+The transition density $f_{\theta}(x_{n}|x_{n-1})$, measurement density $g_{\theta}(y_{n}|x_{n})$ and initial density $\mu_{\theta}(x_{0})$ specify the entire joint density
 \begin{equation}
     p_{\theta}(x_{0:N}, y_{1:N}) = \mu_{\theta}(x_{0})\prod^{N}_{n=1}f_{\theta}(x_{n} | x_{n-1})g_{\theta}(y_{n} | x_{n})
     (\#eq:pomp-joint-density)
@@ -37,7 +37,11 @@ Using the joint density it is possible to obtain the marginal density:
     p_{\theta}(y_{1:n}) = \int p_{\theta}(x_{0:n}, y_{1:n})dx_{0:n}
     (\#eq:pomp-marginal-density)
 \end{equation}
-Within this setup the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$ one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including covariates. The covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ or the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$.
+Within this setup the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$ one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including covariates. The covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ or the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$. Figure \@ref(fig:pomp-model-graphic) displays the structure of a pomp model containing covariates within the state process.
+
+```{r pomp-model-graphic, fig.align='center', fig.cap='Example Model with Covariates', echo=FALSE}
+knitr::include_graphics(here::here("images", "pomp_model_graph.pdf"))
+```
 
 Typically, one can separate two setups. Firstly, the case when the latent state process and the observation process are Gaussian with a linear relationship. This setup has an analytical solution to the parameter inference and hidden state estimation problem which is based upon the famous Kalman Filter [@kalman_filter]. Secondly, the general case where the processes are non-Gaussian and the relationship is nonlinear. Unfortunately, these models are difficult to fit and require powerful simulation techniques, [@doucet_inference].
 
@@ -106,12 +110,33 @@ After having iterated through this sampling, resampling procedure the full log l
 $$\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n}$$
 An exact description of these algorithms can be found in [@pomp_article] and the appendix, [Appendix Algorithms][Paricle Filter and Systematic resampling].
 
-- refer to Pitt and shephard?!
-
+TODO:
+- refer to Pitt and shephard? (first reference for particle filter?)
+- rewrite algorithms for description?(how to get filtering value for state)
+- speak about drawbacks, and properties of this approach (unbiased, consistent)
+- disadvantages for pfilter --> particle depletion
 ## Likelihood based Inference
+
+- refer to very_important_use_this.pdf :)
+
 
 - basic optimization not possible --> stochastic function to optimize
   - finite difference method for gradient and hessian not possible
-- 
+- speak about further developments and why the simple deterministic optimization is not possbile 
 
-## Bayesian Inference
+In an optimization problem using deterministic numerical methods:
+  The analytical properties of the target function (convexity, boundedness, smoothness) are often paramount
+  
+For the simulation approach:
+We are concerned with h from a probabilistic (rather than analytical) 
+point of view
+
+## Bayesian Inference - Particle Marginal Metropolis-Hastings
+
+Bayesian inference relies on the idea that the observed data updates the formulated prior believe. Hence, using a prior $p(\theta)$ on the unknown parameter $\theta$ inference is based on the joint posterior density $p(x_{0:T}, \theta|y^*_{1:T})$, [@doucet_inference]. This thesis is limited will be limited to the usage of the Particle Marginal Metropolis-Hastings (PMMH) algorithm.
+
+
+
+- credible intervals
+- algorithms (MCMC, PMCMC)
+
