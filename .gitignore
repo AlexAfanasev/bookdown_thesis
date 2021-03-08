@@ -5,3 +5,5 @@
 docs/
 _bookdown_files/
 data/
+*.log
+*.rds
