@@ -33,6 +33,8 @@ $$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$
 
 **State:**
 
+- update state process. Not correct anymore!
+
 $$\tilde{\eta}_{t} = \beta_{1}x_{1, t} + \beta_{2}x_{2, t} + u_{t}$$
 $$u_{t} \sim N(0, \sigma_{u}^2)$$
 

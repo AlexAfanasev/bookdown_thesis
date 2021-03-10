@@ -1,45 +1,50 @@
 \usepackage{booktabs}
-\usepackage[ruled,vlined]{algorithm2e}
 % setup for pseudocode generation
+\usepackage[ruled,vlined]{algorithm2e}
 \DontPrintSemicolon
 \newcommand{\To}{\mbox{\upshape\bfseries to}}
 % disable hyphenation completely
 \usepackage[none]{hyphenat}
-% \usepackage{fancyhdr}
 \usepackage{titlesec}
 % no indent new paragraph
 \usepackage[parfill]{parskip}
 
+% define argmax%
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
 % set format of chapters
+\linespread{1.15}
 \titleformat{\chapter}
   {\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
 \titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+\setlength{\parindent}{0.0cm}
+\setlength{\parskip}{0.35cm}
+\setlength{\headheight}{15pt}
 
 % % sets depth of first row for all paragraphs
-% \setlength{\parindent}{0.0cm}
-% % sets distance for all paragraphs
-% \setlength{\parskip}{0.35cm}
+\setlength{\parindent}{0.0cm}
+% sets distance for all paragraphs
+\setlength{\parskip}{0.35cm}
 % \titlespacing*{\chapter}{0pt}{0pt}{0pt}
 % \titlespacing*{\section}{0pt}{0pt}{0pt}
 % \titlespacing*{\subsection}{0pt}{0pt}{0pt}
 
 % % sets style for each page
-% \pagestyle{fancy}
-% % empty header
-% \fancyhf{}
-%
-% \renewcommand\chaptermark[1]{\markboth{\thechapter\, \,#1}{}}
-% \fancyhead[L]{\leftmark}
-% \fancyfoot[R]{Page \thepage}
-% \renewcommand{\footrulewidth}{0.4pt}
-% \fancypagestyle{plain}{
-% 	\fancyhf{}
-% 	\fancyfoot[R]{Page \thepage}
-% 	\renewcommand{\headrulewidth}{0pt}
-% 	\renewcommand{\footrulewidth}{0.4pt}
-% }
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand\chaptermark[1]{\markboth{\thechapter\, \,#1}{}}
+\fancyhead[L]{\leftmark}
+\fancyfoot[R]{Page \thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{
+	\fancyhf{}
+	\fancyfoot[R]{Page \thepage}
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0.4pt}
+}
 
 % include appendix and list of figures/tables in table of contents
 \usepackage[nottoc]{tocbibind}
-
 \frontmatter

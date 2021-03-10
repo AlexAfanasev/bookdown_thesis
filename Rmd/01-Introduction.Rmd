@@ -3,19 +3,10 @@ output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
+
 \mainmatter
 
 # Introduction {#intro}
-
-<!-- **Tips:** -->
-
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
-
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
-
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
-
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
 
 **Content:**
 
@@ -29,11 +20,11 @@ editor_options:
     
     - verification with simulation study (linear and nonlinear case)
     
-```{r, introduction_source}
+```{r, introduction_source, eval=FALSE}
 source(here::here("R", "pd_pomp.R"), local = knitr::knit_global())
 ```
 
-```{r, read_data, include=FALSE, echo=FALSE}
+```{r, read_data, include=FALSE, echo=FALSE, eval=FALSE}
 # read in data
 dataset <- readODS::read_ods(here::here("data", "final_dataset.ods"))
 relevant_columns <- c(
@@ -105,7 +96,7 @@ dataset <- dataset[complete.cases(dataset), ]
 head(dataset)
 ```
 
-```{r, consumption_volatility, include=FALSE, eval=TRUE}
+```{r, consumption_volatility, include=FALSE, eval=TRUE, eval=FALSE}
 con <- dataset$real_consumption
 quar_c_growth <- diff(con) / lag(con, k = 1)
 quar_c_growth <- quar_c_growth[!is.na(quar_c_growth)]
@@ -114,7 +105,7 @@ con_vol <- log(zoo::rollapply(abs(quar_c_growth), width = 20, FUN = sum,
                               align = "right"))
 ```
 
-```{r, middle_aged_young_ratio, include=FALSE, eval=TRUE}
+```{r, middle_aged_young_ratio, include=FALSE, eval=FALSE}
 middle_aged <- dataset$us_pop_40_44 + dataset$us_pop_45_49
 young <- dataset$us_pop_20_24 + dataset$us_pop_25_29
 middle_aged_young_ratio <- middle_aged / young
@@ -141,8 +132,6 @@ $$\tilde{\eta}_{t} = \tilde{\eta}_{t-1} + u_{t}$$
 $$\tilde{\eta}_{t} = \beta_{0} + \beta_{1}\tilde{\eta}_{t-1} + \beta_{2}cr_{t-1} + \beta_{3}my_{t-1} + \beta_{4}fr_{t-1} + \beta_{5}ms_{t-1} + u_{t}$$
 
 $$u_{t} \sim N(0, \sigma_{u}^2)$$
-
-\newpage
 
 ## Estimation
 
@@ -228,7 +217,7 @@ head(y, 10)
 ```
 
 ```{r, rw_latent_lpd_pomp_model, eval=FALSE}
-# pomp model for 
+# pomp model for random walk latent lpd
 rw_latent_lpd_pomp <- pomp::pomp(
     data = y[, c(1, 2)],
     times = "time", t0 = 1,
@@ -282,6 +271,20 @@ legend(
   col = c("black", "red"),
   lty = c(1, 1),
   legend = c("lpd", "latent_lpd")
+)
+```
+
+```{r, rw_model_pmmh, eval=FALSE}
+theta <- c(e_lpd_0 = 3.5, sigma_u = log(0.05), sigma_e = log(0.05))
+pmmh_rw_latent_lpd_model <- pomp::pmcmc(
+  rw_latent_lpd_pomp,
+  Np = 500,
+  Nmcmc = 1000,
+  params = theta,
+  proposal = pomp::mvn.diag.rw(
+    c(e_lpd_0 = 0.03, sigma_u = 0.03, sigma_e = 0.03)
+  ),
+  verbose = TRUE
 )
 ```
 
@@ -353,6 +356,97 @@ pairs(
   ~ loglik + e_lpd_0 + sigma_e + sigma_u,
   data = sigma_e_prof
 )
+```
+
+```{r, test_pmcmc, eval=FALSE}
+covars <- y[, -2]
+covars[1:(nrow(y)-1), colnames(y)[5:9]] <- covars[2:nrow(y), colnames(y)[5:9]]
+
+# pomp model for covariate latent lpd
+covariate_latent_lpd_pomp <- pomp::pomp(
+    data = y[, c(1, 2)],
+    times = "time", t0 = 1,
+    rinit = function(mu, ...) {
+        return(c(e_lpd = mu))
+    },
+    rprocess = pomp::discrete_time(
+        pomp::Csnippet(
+            "
+            e_lpd = (
+              tanh(phi) * e_lpd
+              + beta_1 * cr
+              + beta_2 * mys
+              + beta_3 * fr
+              + beta_4 * ms
+              + rnorm(0, exp(sigma_u))
+            );
+            "
+        ), 
+        delta.t = 1
+    ),
+    dmeasure = rw_latent_lpd_dmeasure,
+    statenames = "e_lpd",
+    paramnames = c("mu", "sigma_u", "sigma_e", "beta_1", 
+                   "beta_2", "beta_3", "beta_4", "phi"),
+    covar = pomp::covariate_table(covars, times = "time"),
+    covarnames = colnames(covars[, -1])
+)
+
+theta <- c(
+  mu = 3.5,
+  phi = atanh(0.95),
+  beta_1 = 0,
+  beta_2 = 0,
+  beta_3 = 0,
+  beta_4 = 0,
+  sigma_e = log(0.05),
+  sigma_u = log(0.05)
+)
+
+pf <- pomp::pfilter(
+  covariate_latent_lpd_pomp, params = theta, Np = 1000,
+  filter.mean = TRUE
+)
+pomp::logLik(pf)
+
+data <- data.frame(
+  e_lpd = particle_filter_result@filter.mean[1, ],
+  cr = y$cr, mys = y$mys, fr = y$fr, ms = y$ms
+)
+a <- ARDL::ardl(e_lpd ~ cr + mys + fr + ms, data = data, 
+                order = c(1, 0, 0, 0, 0))
+summary(a)
+
+pmmh_test <- pomp::pmcmc(
+  covariate_latent_lpd_pomp,
+  Nmcmc = 1000,
+  Np = 1000,
+  proposal = pomp::mvn.diag.rw(
+    c(mu = 0.03, sigma_e = 0.03, sigma_u = 0.03, beta_1 = 0.001,
+      beta_2 = 0.001, beta_3 = 0.001, beta_4 = 0.001, phi = 0.03)
+  ),
+  params = theta,
+  verbose = TRUE
+)
+
+pf2 <- pomp::pfilter(
+  covariate_latent_lpd_pomp, 
+  params = colMeans(pmmh_test@traces[, 3:(2+length(theta))]), 
+  Np = 1000,
+  filter.mean = TRUE
+)
+pomp::logLik(pf2)
+
+pf2 <- pomp::pfilter(
+  covariate_latent_lpd_pomp, 
+  params = pmmh_test@traces[nrow(pmmh_test@traces), 3:(2+length(theta))], 
+  Np = 1000,
+  filter.mean = TRUE
+)
+pomp::logLik(pf2)
+
+plot(dates, y$lpd, type = "l", xlab = "t", ylab = "lpd")
+lines(dates, pf2@filter.mean[1, ], col = "green")
 ```
 
 ```{r, eval=FALSE}

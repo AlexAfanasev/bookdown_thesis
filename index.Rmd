@@ -4,13 +4,14 @@ documentclass: book
 classoption: openany
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
-toc: yes
+toc: true
 toc_depth: 3
 toc_appendix: yes
 indent: true
 link-citations: yes
 lot: true
 lof: true
+fontsize: 12pt
 geometry: "left=3.5cm, right=3.5cm, top=2.5cm, bottom=2.5cm"
 ---
 

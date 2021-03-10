@@ -4,7 +4,7 @@
 
 **Content:**
 
-- Add short [@xie2015] description of the model and the data (content from previous paper) and the chosen prior distributions
+- Add short description of the model and the data (content from previous paper) and the chosen prior distributions
 
 ## Results{#application_results}
 
