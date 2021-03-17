@@ -6,49 +6,48 @@ editor_options:
 
 # Simulation Study {#simulation}
 
-**Content:**
+A simulation study will be conducted in order to compare the likelihood based inference procedure, via the Nelder-Mead algorithm, with the Bayesian approach, based on the particle marginal Metropolis Hastings algorithm. The simulation setup will be closely related to the empirical application. Hence, a variation of the log-linear present-value formulation of the log price dividend ratio will be used. 
 
-- Linear and Nonlinear Model example
+The latent state $x_n$ will be simulated according to the following process
+\begin{equation}
+\begin{split}
+& x_0 = 3.5 \\
+& x_{n} = \beta_0 + \phi x_{n-1} + \beta_{1}z_{1, n} + \beta_{2}z_{2, n} + u_{n} \\ 
+& u_{n} \sim \mathcal{N}(0, \sigma_{u}^2)
+\end{split}
+\end{equation}
+where $z_{1,n}$ and $z_{2,n}$ are exogenous covariates simulated according to
+\begin{equation}
+\begin{split}
+& \begin{pmatrix} z_{1, 0} \\ z_{2, 0} \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix} \\
+& \begin{pmatrix} z_{1, n} \\ z_{2, n} \end{pmatrix} = \begin{pmatrix} z_{1, n-1} \\ z_{2, n-1} \end{pmatrix} + \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \\
+& \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \sim N\bigg(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, 0.000625\;I_{2}\bigg)
+\end{split}
+\end{equation}
+Furthermore, the state process will be bound to be between the minimum (2.775) and the maximum (4.487) of the observed log priced dividend ratio.
 
-- Simulation for presenting benefits of the bayesian framework 
-
-    - compare with weak and informative priors and the particle filter itself and also Kalman Filter in the linear case
-
-
-## Nonlinear Simulation
-
-**Observation:**
-
-$$\rho_{t} = \frac{1}{1+exp(-\tilde{\eta_{t}})}$$
-
-$$k_{t} = -ln(\rho_{t})-(1-\rho_{t})ln\bigg(\frac{1}{\rho_{t}} - 1\bigg)$$
-
-$$d_{t} = -0.987 + 0.887(d_{t - 1} + 0.987) + 0.111v_{t-1} + v_{t}$$
-$$v_{t} \sim N(0, 0.00444)$$
-
-
-$$\eta_{t} = \frac{k_{t}}{1 - \rho_{t}} + d_{t} +  \epsilon_{t}$$
-
-$$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$
-
-**State:**
-
-- update state process. Not correct anymore!
-
-$$\tilde{\eta}_{t} = \beta_{1}x_{1, t} + \beta_{2}x_{2, t} + u_{t}$$
-$$u_{t} \sim N(0, \sigma_{u}^2)$$
-
-$$x_{1, t} = x_{1, t - 1} + z_{1, t}$$
-$$x_{2, t} = x_{2, t - 1} + z_{2, t}$$
-
-$$\begin{pmatrix} z_{1, t} \\ z_{2, t} \end{pmatrix} \sim N(0, 0.000625\;I_{2})$$
-- $\eta_{t}$, $d_{t}$, $x_{1, t}$, $x_{2, t}$ are observed
-
-- $\tilde{\eta}_{t}$ is not observed
-
-- $\{\beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u}\}$ need to be estimated
-
-- $\tilde{\eta}_{t}$ is bound to be between 2.9 and 4.35
+The observation process will be simulated according to the following equation
+\begin{equation}
+\begin{split}
+& y_{n} = \frac{k_{n}}{1 - \rho_{n}} + d_{n} +  \epsilon_{n} \\
+& \epsilon_{n}\sim \mathcal{N}(0, \sigma_{\epsilon}^2)
+\end{split}
+\end{equation}
+where $k_{t}$ and $\rho_t$ directly depend on the latent state process $x_t$ via
+\begin{equation}
+\begin{split}
+& \rho_{n} = \frac{1}{1+\text{exp}(-x_{n})}\\
+& k_{n} = -\ln(\rho_{n})-(1-\rho_{n})\ln\bigg(\frac{1}{\rho_{n}} - 1\bigg)
+\end{split}
+\end{equation}
+and $d_{t}$ will be handled as an exogenous covariate arising from the following specification
+\begin{equation}
+\begin{split}
+& d_{n} = -0.987 + 0.887(d_{n - 1} + 0.987) + 0.111v_{n-1} + v_{n} \\ 
+& v_{n} \sim \mathcal{N}(0, 0.005)
+\end{split}
+\end{equation}
+All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\{\phi, \beta_0, \beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u}\}$ will be compared.
 
 ```{r, helper_nonlinear_simulation, include = FALSE, eval=FALSE}
 generate_simulation_data <- function(n, params) {
@@ -106,11 +105,14 @@ generate_simulation_data <- function(n, params) {
     latent = latent_lpd_sim
   ))
 }
+generate_start_params <- function(params){
+  return(params + rnorm(length(params), 0, 0.1))
+}
 ```
 
 ```{r, setup_nonlinear_simulation, include = FALSE, eval=FALSE}
 N <- 50
-N_sim <- 20
+N_sim <- 100
 true_params_simulation <- c(
     mu = 3.5,
     beta_1 = 0.4,
@@ -127,14 +129,11 @@ params_simulation <- c(
     sigma_y = log(0.05),
     phi = atanh(0.5)
 )
-
-generate_start_params <- function(params){
-  return(params + rnorm(length(params), 0, 0.1))
-}
 ```
 
 ```{r, test_simulation, include=FALSE, eval=FALSE}
 # generate data
+start_time <- Sys.time()
 generated_data <- generate_simulation_data(N, true_params_simulation)
 
 # transform to state x and process y
@@ -207,25 +206,23 @@ theta <- c(
     phi = atanh(0.8)
 )
 # can use optim only for finding MLE --> not for CI
-system.time(
-    optim_result <- replicate(
-        10,
-        {
-            op_res <- optim(
-                par = theta,
-                fn = function(par){
-                    # print(par)
-                    pomp::logLik(pomp::pfilter(
-                        pomp_simulation, params = par, Np = 500
-                    ))
-                },
-                control = list(
-                    "fnscale" = -1
-                )
+optim_result <- replicate(
+    10,
+    {
+        op_res <- optim(
+            par = theta,
+            fn = function(par){
+                # print(par)
+                pomp::logLik(pomp::pfilter(
+                    pomp_simulation, params = par, Np = 500
+                ))
+            },
+            control = list(
+                "fnscale" = -1
             )
-            return(c(op_res$par, value = op_res$value))
-        }
-    )
+        )
+        return(c(op_res$par, value = op_res$value))
+    }
 )
 
 k <- which.max(optim_result["value", ])
@@ -257,46 +254,44 @@ pf2 <- pomp::pfilter(
 pomp::logLik(pf2)
 
 # pmcmc test - noninformative prior
-system.time(
-    pmcmc_noninformative <- pomp::pmcmc(
-        pomp_simulation,
-        Nmcmc = 6000,
-        Np = 500,
-        proposal = pomp::mvn.diag.rw(
-            c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
-              beta_2 = 0.03, phi = 0.03)
-        ),
-        params = theta,
-        verbose = FALSE
-    )
+pmcmc_noninformative <- pomp::pmcmc(
+    pomp_simulation,
+    Nmcmc = 6000,
+    Np = 500,
+    proposal = pomp::mvn.diag.rw(
+        c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+          beta_2 = 0.03, phi = 0.03)
+    ),
+    params = theta,
+    verbose = FALSE
 )
 
 # pmcmc test - informative prior
-system.time(
-    pmcmc_informative <- pomp::pmcmc(
-        pomp_simulation,
-        Nmcmc = 6000,
-        Np = 500,
-        proposal = pomp::mvn.diag.rw(
-            c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
-              beta_2 = 0.03, phi = 0.03)
-        ),
-        params = theta,
-        verbose = FALSE,
-        dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
-          p_mu <- dnorm(mu, 3.5, 0.1)
-          p_sigma_x <- dnorm(sigma_x, log(0.05), 0.2)
-          p_sigma_y <- dnorm(sigma_y, log(0.02), 0.2)
-          p_beta_1 <- dnorm(beta_1, 0.4, 0.075)
-          p_beta_2 <- dnorm(beta_2, -0.2, 0.075)
-          p_phi <- dnorm(phi, atanh(0.85), 0.1)
-          lik <- (
-            p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
-          )
-          return(ifelse(log, log(lik), lik))
-        }
-    )
+pmcmc_informative <- pomp::pmcmc(
+    pomp_simulation,
+    Nmcmc = 6000,
+    Np = 500,
+    proposal = pomp::mvn.diag.rw(
+        c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+          beta_2 = 0.03, phi = 0.03)
+    ),
+    params = theta,
+    verbose = FALSE,
+    dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
+      p_mu <- dnorm(mu, 3.5, 0.2)
+      p_sigma_x <- dnorm(sigma_x, log(0.06), 0.5)
+      p_sigma_y <- dnorm(sigma_y, log(0.04), 0.5)
+      p_beta_1 <- dnorm(beta_1, 0.5, 0.5)
+      p_beta_2 <- dnorm(beta_2, -0.3, 0.5)
+      p_phi <- dnorm(phi, atanh(0.75), 0.3)
+      lik <- (
+        p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+      )
+      return(ifelse(log, log(lik), lik))
+    }
 )
+end_time <- Sys.time()
+print(end_time - start_time)
 ```
 
 ```{r, nonlinear_simulation, include = FALSE, eval=FALSE}
@@ -400,16 +395,16 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
       params = theta,
       verbose = FALSE,
       dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
-        p_mu <- dnorm(mu, 3.5, 0.1)
-        p_sigma_x <- dnorm(sigma_x, log(0.05), 0.2)
-        p_sigma_y <- dnorm(sigma_y, log(0.02), 0.2)
-        p_beta_1 <- dnorm(beta_1, 0.4, 0.075)
-        p_beta_2 <- dnorm(beta_2, -0.2, 0.075)
-        p_phi <- dnorm(phi, atanh(0.85), 0.1)
-        lik <- (
-          p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
-        )
-        return(ifelse(log, log(lik), lik))
+          p_mu <- dnorm(mu, 3.5, 0.2)
+          p_sigma_x <- dnorm(sigma_x, log(0.06), 0.5)
+          p_sigma_y <- dnorm(sigma_y, log(0.04), 0.5)
+          p_beta_1 <- dnorm(beta_1, 0.5, 0.25)
+          p_beta_2 <- dnorm(beta_2, -0.3, 0.25)
+          p_phi <- dnorm(phi, atanh(0.75), 0.3)
+          lik <- (
+            p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+          )
+          return(ifelse(log, log(lik), lik))
       }
   )
   
@@ -426,19 +421,21 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
 }
 
 # bake this stuff
-simulation_result <- pomp::bake(
-  "simulation_study_result.rds",
-  {
-    doRNG::registerDoRNG(1598260027L)
-    cl <- parallel::makeCluster(4)
-    doParallel::registerDoParallel(cl)
-    results <- foreach::`%dopar%`(
-      foreach::foreach(i = 1:N_sim),
-      nonlinear_simulation(N, true_params_simulation, params_simulation)
-    )
-    parallel::stopCluster(cl)
-    results
-  }
+system.time(
+  simulation_result <- pomp::bake(
+    "simulation_study_result.rds",
+    {
+      doRNG::registerDoRNG(1598260027L)
+      cl <- parallel::makeCluster(4)
+      doParallel::registerDoParallel(cl)
+      results <- foreach::`%dopar%`(
+        foreach::foreach(i = 1:N_sim),
+        nonlinear_simulation(N, true_params_simulation, params_simulation)
+      )
+      parallel::stopCluster(cl)
+      results
+    }
+  )
 )
 ```
 
@@ -452,14 +449,12 @@ res_pmmh_informative <- matrix(nrow = N_sim, ncol = length(params_simulation))
 for (i in 1:N_sim) {
     res_smc[i, ] <- simulation_result[[i]]$smc_result$par
     for (j in 1:length(params_simulation)) {
-        di <- density(
+        res_pmmh_informative[i, j] <- mean(
           simulation_result[[i]]$pmmh_informative@traces[2000:6000, j+2]
         )
-        res_pmmh_informative[i, j] <- di$x[which.max(di$y)]
-        dn <- density(
+        res_pmmh_noninformative[i, j] <- mean(
           simulation_result[[i]]$pmmh_noninformative@traces[2000:6000, j+2]
         )
-        res_pmmh_noninformative[i, j] <- dn$x[which.max(dn$y)]
     }
 }
 
@@ -470,7 +465,7 @@ plot(density(res_smc[, 3]), type = "l")
 plot(density(exp(res_smc[, 4])), type = "l")
 
 # pmmh result
-plot(density(res_pmmh[, 1]), type = "l")
+plot(density(res_pmmh_noninformative[, 1]), type = "l")
 plot(density(res_pmmh[, 2]), type = "l")
 plot(density(res_pmmh[, 3]), type = "l")
 plot(density(res_pmmh[, 4]), type = "l")

@@ -2,15 +2,14 @@
 
 # Appendix: Algorithms {#algorithms}
 
-## Paricle Filter and Systematic resampling
+The following algorithms can be found in [@pomp_article].
 
-TODO:
-- Add pomp article reference
+## Particle Filter and Systematic resampling
 
 \begin{algorithm}
   \caption{Particle Filter}
-    \KwIn {Simulator $\mu_{\theta}(x_{0})$ \newline
-    Simulator $f_{\theta}(x_{n}|x_{n-1})$ \newline
+  \label{alg:particle-filter}
+    \KwIn {Simulators $\mu_{\theta}(x_{0})$ and $f_{\theta}(x_{n}|x_{n-1})$ \newline
     Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
     Parameter $\theta$ \newline
     Data $y^*_{1:N}$ \newline
@@ -21,16 +20,17 @@ TODO:
     \nl Simulate for prediction: $X^P_{n,j} \sim f_{\theta}(\cdot|X^F_{n-1,j})$ for $j$ in $1:J$\;
     \nl Evaluate weights: $w(n, j) = g_{\theta}(y^*_{n}|X^P_{n,j})$ for $j$ in $1:J$\;
     \nl Normalize weights: $\tilde{w}(n, j) = \frac{w(n, j)}{\sum^J_{m=1}w(n, m)}$\;
-    \nl Apply Algorithm 2 to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
+    \nl Apply Algorithm \ref{alg:systematic-resampling} to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
     \nl Resample: set $X^F_{n,j} = X^P_{n,k_j}$ for $j$ in $1:J$\;
     \nl Compute conditional log likelihood: $\hat{\ell}_{n|1:n-1} = ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
   }
   \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|1:n-1}$ \newline
-  Filter sample, $X^F_{n,1:J}$ for $n$ in 1:N}
+  Filter sample: $X^F_{n,1:J}$ for $n$ in 1:N}
 \end{algorithm}
 
 \begin{algorithm}
   \caption{Systematic Resampling}
+  \label{alg:systematic-resampling}
     \KwIn {Weights $\tilde{w}_{1:J}$, normalized so that $\sum^J_{j=1}\tilde{w}_{j} = 1$
     }
   \nl Construct cumulative sum: $c_j = \sum_{m=1}^j \tilde{w}_m$ for $j$ in $1:J$\;
@@ -46,5 +46,94 @@ TODO:
   \KwOut{Resampling indices $k_{1:J}$}
 \end{algorithm}
 
+## PMMH
 
+\begin{algorithm}
+  \caption{PMMH}
+  \label{alg:pmmh}
+    \KwIn {Simulators $\mu_{\theta}(x_{0})$ and $f_{\theta}(x_{n}|x_{n-1})$ \newline
+    Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
+    Proposal distribution $q(\theta^*|\theta^{(m-1)})$ \newline
+    Starting Parameter $\theta_0$ \newline
+    Prior $\pi(\theta)$ \newline
+    Data $y^*_{1:N}$ \newline
+    Number of particles $J$ \newline
+    Number of iterations $M$
+    }
+  \nl Initialization: Compute $\hat{\ell}_0 = \hat{\ell}(\theta_0)$ using algorithm \ref{alg:particle-filter} with $J$ particles\;
+  \nl Draw random trajectory $X^{(0)}_{0:N}$from $X^F_{0:N,1:J}$ obtained from particle filter \;
+  \nl \For{$m = 1$ \To{} $M$}{%
+    \nl Draw a parameter proposal $\theta^*\sim q(\theta^*|\theta^{(m-1)})$\;
+    \nl Compute $\hat{\ell}^* = \hat{\ell}(\theta^*)$ using algorithm \ref{alg:particle-filter} with $J$ particles\;
+    \nl Draw random trajectory $X^{*}_{0:N}$ from $X^F_{0:N,1:J}$ obtained from particle filter \;
+    \nl Compute acceptance probability $$\alpha(\theta^{*}|\theta^{(m-1)}) = \min\Bigg\{1, \frac{\text{exp}(\hat{\ell}^*)(\theta^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\text{exp}(\hat{\ell}^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}$$\;
+    \nl Generate $U \sim \mathcal{U}(0, 1)$\;
+    \nl Set $$
+    (\theta^{(m)}, \hat{\ell}^{(m)}, X^{(m)}_{0:N}) =
+    \begin{cases}
+      (\theta^{*}, \hat{\ell}^{*}, X^{*}_{0:N}), & \text{if}\;\; U < \alpha(\theta^{*}|\theta^{(m-1)}) \\
+      (\theta^{(m-1)}, \hat{\ell}^{(m-1)}, X^{(m-1)}_{0:N}), & \text{otherwise}
+    \end{cases}$$\;
+  }
+  \KwOut{Samples $X^{(1:M)}_{0:N}$ and $\theta^{(1:M)}$ from the posterior distribution $p(x_{0:N}, \theta|y^*_{1:N})$}
+\end{algorithm}
+
+# Appendix: Derivations {#derivations}
+
+## Prediction & Filtering Distribution
+
+\begin{equation*}
+\begin{split}
+  p_{\theta}(x_n|y^*_{1:n-1}) & = \int p_{\theta}(x_n, x_{n-1}|y^*_{1:n-1})dx_{n-1} \\
+  & = \int \frac{p_{\theta}(x_n, x_{n-1}, y^*_{1:n-1})}{p_{\theta}(y^*_{1:n-1})}dx_{n-1} \\
+  & = \int \frac{p_{\theta}(x_n, y^*_{1:n-1} | x_{n-1})p_{\theta}(x_{n-1})}{p_{\theta}(y^*_{1:n-1})}dx_{n-1} \\
+  & = \int \frac{p_{\theta}(x_n| y^*_{1:n-1}, x_{n-1})p_{\theta}(y^*_{1:n-1}, x_{n-1})p_{\theta}(x_{n-1})}{p_{\theta}(y^*_{1:n-1})p_{\theta}(x_{n-1})}dx_{n-1} \\
+  & = \int f_{\theta}(x_n|x_{n-1})p_{\theta}(x_{n-1}|y^*_{1:n-1})dx_{n-1}
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+  p_{\theta}(x_n|y^*_{1:n}) & = p_{\theta}(x_n|y^*_n, y^*_{1:n-1}) = \frac{
+    p_{\theta}(y^*_n, y^*_{1:n-1} | x_{n})p_{\theta}(x_n)
+  }{
+    p_{\theta}(y^*_n, y^*_{1:n-1})
+  } \\
+  & = \frac{
+    p_{\theta}(y^*_n | y^*_{1:n-1}, x_{n})p_{\theta}(y^*_{1:n-1} | x_n)p_{\theta}(x_n)
+  }{
+    p_{\theta}(y^*_n | y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})
+  } \\
+  & = \frac{
+    p_{\theta}(y^*_n | y^*_{1:n-1}, x_{n})p_{\theta}(x_n | y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})p_{\theta}(x_n)
+  }{
+    p_{\theta}(y^*_n|y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})p_{\theta}(x_n)
+  } \\
+  & = \frac{g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})}{p_{\theta}(y^*_n|y^*_{1:n-1})}
+\end{split}
+\end{equation*}
+
+## PMMH - acceptance probability
+
+\begin{equation*}
+\begin{split}
+\alpha(\theta^{*}|\theta^{(m-1)}) & = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})q(\theta^{(m-1)}, x^{(m-1)}_{0:N}|\theta^*, x^*_{0:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N})}\Bigg\} \\
+& = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})q(\theta^{(m-1)}|\theta^*)p_{\theta^{(m-1)}}(x^{(m-1)}_{0:N}|y^*_{1:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})q(\theta^*|\theta^{(m-1)})p_{\theta^*}(x^*_{0:N}|y^*_{1:N})}\Bigg\} \\
+& = \min\Bigg\{1, \frac{\mathcal{L}(\theta^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\mathcal{L}(\theta^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}
+\end{split}
+\end{equation*}
+
+Using that:
+
+\begin{equation*}
+\begin{split}
+p_{\theta}(y_{1:N}) & = \frac{p_{\theta}(y_{1:N}|x_{0:N})p_{\theta}(x_{0:N})}{p_{\theta}(x_{0:N}|y_{1:N})} \\
+& = \frac{p(y_{1:N}, x_{0:N}, \theta)p(x_{0:N}, \theta)p(y_{1:N}, \theta)}{p(y_{1:N}, x_{0:N}, \theta)p(x_{0:N}, \theta)p(\theta)} \\
+& = \frac{p(y_{1:N}, \theta)}{p(\theta)}
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+p(\theta, x_{0:N}|y_{1:N}) \propto p_{\theta}(y_{1:N}|x_{0:N})p_{\theta}(x_{0:N})\pi(\theta)
+\end{equation*}
 

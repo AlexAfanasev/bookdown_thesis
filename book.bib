@@ -70,3 +70,116 @@ and Prediction Problems},
   volume = {2},
   journal = {Markov Processes and Related Fields}
 }
+
+@article{iterated_filtering,
+	author = {Ionides, E. L. and Bret{\'o}, C. and King, A. A.},
+	title = {Inference for nonlinear dynamical systems},
+	volume = {103},
+	number = {49},
+	pages = {18438--18443},
+	year = {2006},
+	doi = {10.1073/pnas.0603181103},
+	publisher = {National Academy of Sciences},
+	abstract = {Nonlinear stochastic dynamical systems are widely used to model systems across the sciences and engineering. Such models are natural to formulate and can be analyzed mathematically and numerically. However, difficulties associated with inference from time-series data about unknown parameters in these models have been a constraint on their application. We present a new method that makes maximum likelihood estimation feasible for partially-observed nonlinear stochastic dynamical systems (also known as state-space models) where this was not previously the case. The method is based on a sequence of filtering operations which are shown to converge to a maximum likelihood parameter estimate. We make use of recent advances in nonlinear filtering in the implementation of the algorithm. We apply the method to the study of cholera in Bangladesh. We construct confidence intervals, perform residual analysis, and apply other diagnostics. Our analysis, based upon a model capturing the intrinsic nonlinear dynamics of the system, reveals some effects overlooked by previous studies.},
+	issn = {0027-8424},
+	URL = {https://www.pnas.org/content/103/49/18438},
+	eprint = {https://www.pnas.org/content/103/49/18438.full.pdf},
+	journal = {Proceedings of the National Academy of Sciences}
+}
+
+@article {iterated_filtering_improved,
+	author = {Ionides, Edward L. and Nguyen, Dao and Atchad{\'e}, Yves and Stoev, Stilian and King, Aaron A.},
+	title = {Inference for dynamic and latent variable models via iterated, perturbed Bayes maps},
+	volume = {112},
+	number = {3},
+	pages = {719--724},
+	year = {2015},
+	doi = {10.1073/pnas.1410597112},
+	publisher = {National Academy of Sciences},
+	abstract = {Many scientific challenges involve the study of stochastic dynamic systems for which only noisy or incomplete measurements are available. Inference for partially observed Markov process models provides a framework for formulating and answering questions about these systems. Except when the system is small, or approximately linear and Gaussian, state-of-the-art statistical methods are required to make efficient use of available data. Evaluation of the likelihood for a partially observed Markov process model can be formulated as a filtering problem. Iterated filtering algorithms carry out repeated Monte Carlo filtering operations to maximize the likelihood. We develop a new theoretical framework for iterated filtering and construct a new algorithm that dramatically outperforms previous approaches on a challenging inference problem in disease ecology.Iterated filtering algorithms are stochastic optimization procedures for latent variable models that recursively combine parameter perturbations with latent variable reconstruction. Previously, theoretical support for these algorithms has been based on the use of conditional moments of perturbed parameters to approximate derivatives of the log likelihood function. Here, a theoretical approach is introduced based on the convergence of an iterated Bayes map. An algorithm supported by this theory displays substantial numerical improvement on the computational challenge of inferring parameters of a partially observed Markov process.},
+	issn = {0027-8424},
+	URL = {https://www.pnas.org/content/112/3/719},
+	eprint = {https://www.pnas.org/content/112/3/719.full.pdf},
+	journal = {Proceedings of the National Academy of Sciences}
+}
+
+@article{mcap_algorithm,
+author = {Ionides, E. L.  and Breto, C.  and Park, J.  and Smith, R. A.  and King, A. A. },
+title = {Monte Carlo profile confidence intervals for dynamic systems},
+journal = {Journal of The Royal Society Interface},
+volume = {14},
+number = {132},
+pages = {20170126},
+year = {2017},
+doi = {10.1098/rsif.2017.0126},
+
+URL = {https://royalsocietypublishing.org/doi/abs/10.1098/rsif.2017.0126},
+eprint = {https://royalsocietypublishing.org/doi/pdf/10.1098/rsif.2017.0126}
+,
+    abstract = { Monte Carlo methods to evaluate and maximize the likelihood function enable the construction of confidence intervals and hypothesis tests, facilitating scientific investigation using models for which the likelihood function is intractable. When Monte Carlo error can be made small, by sufficiently exhaustive computation, then the standard theory and practice of likelihood-based inference applies. As datasets become larger, and models more complex, situations arise where no reasonable amount of computation can render Monte Carlo error negligible. We develop profile likelihood methodology to provide frequentist inferences that take into account Monte Carlo uncertainty. We investigate the role of this methodology in facilitating inference for computationally challenging dynamic latent variable models. We present examples arising in the study of infectious disease transmission, demonstrating our methodology for inference on nonlinear dynamic models using genetic sequence data and panel time-series data. We also discuss applicability to nonlinear time-series and spatio-temporal data. }
+}
+
+@article{nelder_mead,
+    author = {Nelder, J. A. and Mead, R.},
+    title = "{A Simplex Method for Function Minimization}",
+    journal = {The Computer Journal},
+    volume = {7},
+    number = {4},
+    pages = {308-313},
+    year = {1965},
+    month = {01},
+    abstract = "{A method is described for the minimization of a function of n variables, which depends on the comparison of function values at the (n + 1) vertices of a general simplex, followed by the replacement of the vertex with the highest value by another point. The simplex adapts itself to the local landscape, and contracts on to the final minimum. The method is shown to be effective and computationally compact. A procedure is given for the estimation of the Hessian matrix in the neighbourhood of the minimum, needed in statistical estimation problems.}",
+    issn = {0010-4620},
+    doi = {10.1093/comjnl/7.4.308},
+    url = {https://doi.org/10.1093/comjnl/7.4.308},
+    eprint = {https://academic.oup.com/comjnl/article-pdf/7/4/308/1013182/7-4-308.pdf},
+}
+
+@article{pseudo_marginal,
+    author = {Christophe Andrieu and Gareth O. Roberts},
+    title = {{The pseudo-marginal approach for efficient Monte Carlo computations}},
+    volume = {37},
+    journal = {The Annals of Statistics},
+    number = {2},
+    publisher = {Institute of Mathematical Statistics},
+    pages = {697 -- 725},
+    keywords = {auxiliary variable, convergence, marginal, Markov chain Monte Carlo},
+    year = {2009},
+    doi = {10.1214/07-AOS574},
+    URL = {https://doi.org/10.1214/07-AOS574}
+}
+
+@article{doucet_pmmh,
+ ISSN = {13697412, 14679868},
+ URL = {http://www.jstor.org/stable/40802151},
+ abstract = {Markov chain Monte Carlo and sequential Monte Carlo methods have emerged as the two main tools to sample from high dimensional probability distributions. Although asymptotic convergence of Markov chain Monte Carlo algorithms is ensured under weak assumptions, the performance of these algorithms is unreliable when the proposal distributions that are used to explore the space are poorly chosen and/or if highly correlated variables are updated independently.We show here how it is possible to build efficient high dimensional proposal distributions by using sequential Monte Carlo methods. This allows us not only to improve over standard Markov chain Monte Carlo schemes but also to make Bayesian inference feasible for a large class of statistical models where this was not previously so. We demonstrate these algorithms on a non-linear state space model and a Lévy-driven stochastic volatility model.},
+ author = {Christophe Andrieu and Arnaud Doucet and Roman Holenstein},
+ journal = {Journal of the Royal Statistical Society. Series B (Statistical Methodology)},
+ number = {3},
+ pages = {269--342},
+ publisher = {[Royal Statistical Society, Wiley]},
+ title = {Particle Markov chain Monte Carlo methods},
+ volume = {72},
+ year = {2010}
+}
+
+@article{
+  bootstrap_filter,
+  added-at = {2015-06-25T17:23:39.000+0200},
+  author = {Gordon, N.J. and Salmond, D.J. and Smith, A.F.M.},
+  biburl = {https://www.bibsonomy.org/bibtex/25d68cec171c2615b9c27df6d1752d57e/krassi},
+  doi = {10.1049/ip-f-2.1993.0015},
+  interhash = {6c4824b6332258aeca1a50f8549697d5},
+  intrahash = {5d68cec171c2615b9c27df6d1752d57e},
+  journal = {{IEE} Proc. F Radar Signal Process. {UK}},
+  keywords = {carlo monte sequential},
+  number = 2,
+  pages = 107,
+  publisher = {Institution of Engineering and Technology ({IET})},
+  timestamp = {2015-06-25T17:23:39.000+0200},
+  title = {Novel approach to nonlinear/non-Gaussian Bayesian state estimation},
+  url = {http://dx.doi.org/10.1049/ip-f-2.1993.0015},
+  volume = 140,
+  year = 1993
+}
+

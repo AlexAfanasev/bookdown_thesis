@@ -22,93 +22,12 @@ editor_options:
     
 ```{r, introduction_source, eval=FALSE}
 source(here::here("R", "pd_pomp.R"), local = knitr::knit_global())
+# source(here::here("R", "prepare_raw_data.R"), local = knitr::knit_global())
 ```
 
 ```{r, read_data, include=FALSE, echo=FALSE, eval=FALSE}
-# read in data
-dataset <- readODS::read_ods(here::here("data", "final_dataset.ods"))
-relevant_columns <- c(
-    "Date",
-    "Real Consumption (per Capita)",
-    "Consumption (per Capita)",
-    "USPOPTO",
-    "USPOP24Y",
-    "USPOP29Y",
-    "USPOP44Y",
-    "USPOP49Y",
-    "S&P",
-    "Dividend",
-    "Earnings",
-    "CPI",
-    "rf",
-    "fund_rate",
-    "real_m1"
-)
-# filter relevant columns
-dataset <- dataset[, relevant_columns]
-
-# rename columns
-renamed_columns <- c(
-    "date",
-    "real_consumption",
-    "consumption",
-    "us_pop_total",
-    "us_pop_20_24",
-    "us_pop_25_29",
-    "us_pop_40_44",
-    "us_pop_45_49",
-    "price",
-    "dividend",
-    "earnings",
-    "cpi",
-    "rf",
-    "fund_rate",
-    "real_m1"
-)
-colnames(dataset) <- renamed_columns
-row.names(dataset) <- dataset$date
-dataset <- dataset[, colnames(dataset)[2:length(colnames(dataset))]]
-
-# transform to xts object
-dataset <- xts::xts(
-    dataset, order.by = as.Date(row.names(dataset), "%Y-%m-%d")
-)
-dataset <- dataset["1949-12-31/2019-12-31"]
-
-# linear interpolation for population data
-pop_columns <- c(
-    "us_pop_total",
-    "us_pop_20_24",
-    "us_pop_25_29",
-    "us_pop_40_44",
-    "us_pop_45_49"
-)
-dataset[
-    -dataset[xts:::endof(dataset, "years"), which.i = TRUE],
-    pop_columns
-] <- NA
-storage.mode(dataset) <- "numeric"
-
-dataset[, pop_columns] <- zoo::na.approx(dataset[, pop_columns])
-dataset <- dataset[complete.cases(dataset), ]
-# dataset <- dataset[xts:::endof(dataset, "years")]
-
-head(dataset)
-```
-
-```{r, consumption_volatility, include=FALSE, eval=TRUE, eval=FALSE}
-con <- dataset$real_consumption
-quar_c_growth <- diff(con) / lag(con, k = 1)
-quar_c_growth <- quar_c_growth[!is.na(quar_c_growth)]
-quar_c_growth <- quar_c_growth - mean(quar_c_growth)
-con_vol <- log(zoo::rollapply(abs(quar_c_growth), width = 20, FUN = sum, 
-                              align = "right"))
-```
-
-```{r, middle_aged_young_ratio, include=FALSE, eval=FALSE}
-middle_aged <- dataset$us_pop_40_44 + dataset$us_pop_45_49
-young <- dataset$us_pop_20_24 + dataset$us_pop_25_29
-middle_aged_young_ratio <- middle_aged / young
+y <- read.csv(here::here("data", "final_dataset.csv"))
+head(y)
 ```
 
 ## Model
@@ -145,82 +64,12 @@ $$u_{t} \sim N(0, \sigma_{u}^2)$$
 - *my*: middle aged to young ratio
 - *fr*: effective federal funds rate
 - *ms*: log real money supply m1
-
-```{r, data_for_estimation, echo=FALSE, eval=FALSE}
-sub_dataset <- dataset
-
-r_e <- (
-  log((sub_dataset$price + sub_dataset$dividend) / 
-        stats::lag(sub_dataset$price, k = 1))
-  - log(1 + (sub_dataset$rf / 100))
-)
-d_e <- (
-  log(sub_dataset$dividend / stats::lag(sub_dataset$dividend, k = 1))
-  - log(1 + (sub_dataset$rf / 100))
-)
-con_vol <- con_vol
-my <- middle_aged_young_ratio
-fr <- log(1 + (sub_dataset$fund_rate/100))
-ms <- log(sub_dataset$real_m1)
-inflation <- (diff(sub_dataset$cpi) / stats::lag(sub_dataset$cpi, k = 1))
-lpd <- log((sub_dataset$price / sub_dataset$dividend))
-
-var_data <- cbind(lpd, d_e, r_e, inflation, con_vol, my, fr, ms)
-var_data <- var_data[complete.cases(var_data),]
-
-## dynamic var
-starting_point <- 31
-params <- matrix(nrow = nrow(var_data) - starting_point + 1, ncol = 20)
-for (i in starting_point:nrow(var_data)) {
-    residuals_model <- vector("numeric", length = 11)
-    for (w in 20:30) {
-        var_model <- vars::VAR(var_data[(i - w):i, 1:4], p = 1,
-                               type = "const")
-        residuals_j <- tail(residuals(var_model), 10)[, c(2, 3)]
-        residuals_model[w - 19] <- sqrt(
-            mean((residuals_j[, 1] - residuals_j[, 2])^2)
-        )
-    }
-    best_model <- which.min(residuals_model)
-    model <- vars::VAR(var_data[(i - best_model - 19):i, 1:4], type = "const")
-    params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
-}
-
-var_data <- cbind(var_data[starting_point:nrow(var_data), ], params)
-
-## static var
-# starting_point <- 21
-# params <- matrix(nrow = nrow(var_data) - starting_point + 1, ncol = 20)
-# for (i in starting_point:nrow(var_data)) {
-#   model <- vars::VAR(var_data[(i - starting_point + 1):i, 1:4], type = "const")
-#   params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
-# }
-# var_data <- cbind(var_data[starting_point:nrow(var_data), ], params)
-
-## complete var
-# starting_point <- 21
-# params <- matrix(nrow = nrow(var_data) - starting_point + 1, ncol = 20)
-# for (i in starting_point:nrow(var_data)) {
-#   model <- vars::VAR(var_data[1:i, 1:4], type = "const")
-#   params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
-# }
-# var_data <- cbind(var_data[starting_point:nrow(var_data), ], params)
-
-y <- var_data[complete.cases(var_data),]
-y <- cbind(1:nrow(y), y)
-colnames(y) <- c("time", "lpd", "d_e", "r_e", "inflation", "cr", "mys", "fr", 
-                 "ms", sapply(1:20, function(x){sprintf("param_%i", x)}))
-dates <- zoo::index(y)
-y <- as.data.frame(y, row.names = NULL)
-
-head(y, 10)
-```
+- *gdp*: log gdp
 
 ```{r, rw_latent_lpd_pomp_model, eval=FALSE}
 # pomp model for random walk latent lpd
 rw_latent_lpd_pomp <- pomp::pomp(
-    data = y[, c(1, 2)],
-    times = "time", t0 = 1,
+    data = y[, c(1, 2)], times = "time", t0 = 0,
     rinit = function(e_lpd_0, ...) {
         return(c(e_lpd = e_lpd_0))
     },
@@ -233,8 +82,9 @@ rw_latent_lpd_pomp <- pomp::pomp(
     dmeasure = rw_latent_lpd_dmeasure,
     statenames = "e_lpd",
     paramnames = c("e_lpd_0", "sigma_u", "sigma_e"),
-    covar = pomp::covariate_table(y[, -c(2, 6, 7, 8, 9)], times = "time"),
-    covarnames = colnames(y[, -c(1, 2, 6, 7, 8, 9)])
+    covar = pomp::covariate_table(rbind(0, y[, -c(2, 6, 7, 8, 9)]), 
+                                  times = "time"),
+    covarnames = colnames(rbind(0, y[, -c(1, 2, 6, 7, 8, 9)]))
 )
 ```
 
@@ -248,13 +98,13 @@ rw_latent_lpd_optim_result <- optim(
     fn = function(par){
         print(par)
         return(-pomp::logLik(pomp::pfilter(
-            rw_latent_lpd_pomp, params = par, Np = 1000
+            rw_latent_lpd_pomp, params = par, Np = 500
         )))
     },
 )
 
 theta_result <- rw_latent_lpd_optim_result$par
-theta_result <- c(e_lpd_0 = 3.373877, sigma_u = -3.202661, sigma_e = -4.690985)
+# theta_result <- c(e_lpd_0 = 3.373877, sigma_u = -3.202661, sigma_e = -4.690985)
 
 particle_filter_result <- pomp::pfilter(
   rw_latent_lpd_pomp, params = theta_result, Np = 1000, 
@@ -266,6 +116,7 @@ pomp::logLik(particle_filter_result)
 
 plot(dates, y$lpd, type = "l", xlab = "t", ylab = "lpd")
 lines(dates, particle_filter_result@filter.mean[1, ], col = "red")
+# lines(dates, pomp::filter.traj(particle_filter_result)[1, 1, ], col = "green")
 legend(
   "topleft",
   col = c("black", "red"),
@@ -281,130 +132,79 @@ pmmh_rw_latent_lpd_model <- pomp::pmcmc(
   Np = 500,
   Nmcmc = 1000,
   params = theta,
-  proposal = pomp::mvn.diag.rw(
-    c(e_lpd_0 = 0.03, sigma_u = 0.03, sigma_e = 0.03)
+  proposal = pomp::mvn.rw.adaptive(
+    c(e_lpd_0 = 0.03, sigma_u = 0.03, sigma_e = 0.03), 
+    scale.start = 100,
+    scale.cooling = 0.9,
+    max.scaling = 10,
+    shape.start = 150
   ),
   verbose = TRUE
 )
-```
-
-```{r, iterated_filtering, eval=FALSE}
-# profile for sigma_e
-profile_params <- pomp::profile_design(
-    sigma_e = seq(log(0.001), log(0.05), length.out = 11),
-    lower = c(e_lpd_0 = 3.0, sigma_u = log(0.01)),
-    upper = c(e_lpd_0 = 4.0, sigma_u = log(0.1)),
-    nprof = 20
-)
-
-
-# store profile for e_lpd_0
-pomp::bake("simple_sigma_e_profile.rds", {
-
-  library(doRNG)
-  library(foreach)
-  registerDoRNG(1598260027L)
-  
-  cl <- parallel::makeCluster(4)
-  doParallel::registerDoParallel(cl)
-  
-  result <- foreach(
-    p = iterators::iter(profile_params, "row"), .combine = bind_rows, 
-    .inorder = FALSE
-  ) %dopar% {
-    tic <- Sys.time()
-    source(here::here("R", "pd_pomp.R"))
-    
-    library(pomp)
-    library(tidyverse)
-    
-    rw_latent_lpd_pomp %>% 
-      mif2(
-        params = p,
-        Nmif = 25, 
-        rw.sd = rw.sd(
-          e_lpd_0 = ivp(0.05), sigma_e = 0.04, sigma_u = 0.04
-        ),
-        Np = 250,
-        cooling.type = "geometric",
-        cooling.fraction.50 = 0.5
-      ) -> mf
-    
-    ## Runs 10 particle filters to assess Monte Carlo error in likelihood
-    pf <- replicate(10, pfilter(mf, Np = 250))
-    ll <- sapply(pf, logLik)
-    ll <- logmeanexp(ll, se = TRUE)
-    
-    toc <- Sys.time()
-    etime <- toc - tic
-    units(etime) <- "hours"
-    
-    data.frame(
-      as.list(coef(mf)),
-      loglik = ll[1],
-      loglik.se = ll[2],
-      etime = as.numeric(etime)
-    )
-  }
-  
-  parallel::stopCluster(cl)
-  
-  result
-}) %>% filter(is.finite(loglik)) -> sigma_e_prof
-
-pairs(
-  ~ loglik + e_lpd_0 + sigma_e + sigma_u,
-  data = sigma_e_prof
-)
+pomp::plot(pmmh_rw_latent_lpd_model)
 ```
 
 ```{r, test_pmcmc, eval=FALSE}
-covars <- y[, -2]
-covars[1:(nrow(y)-1), colnames(y)[5:9]] <- covars[2:nrow(y), colnames(y)[5:9]]
+source(here::here("R", "covars.R"), local = knitr::knit_global())
 
 # pomp model for covariate latent lpd
 covariate_latent_lpd_pomp <- pomp::pomp(
     data = y[, c(1, 2)],
-    times = "time", t0 = 1,
-    rinit = function(mu, ...) {
-        return(c(e_lpd = mu))
+    times = "time", t0 = 0,
+    rinit = function(e_lpd_0, ...) {
+        return(c(e_lpd = e_lpd_0))
     },
     rprocess = pomp::discrete_time(
         pomp::Csnippet(
             "
             e_lpd = (
-              tanh(phi) * e_lpd
-              + beta_1 * cr
-              + beta_2 * mys
-              + beta_3 * fr
-              + beta_4 * ms
+              beta_0
+              + tanh(phi) * e_lpd
+              + beta_1*cr
+              + beta_2*mys
+              + beta_3*fr
+              + beta_4*ms
+              + beta_5*gdp
               + rnorm(0, exp(sigma_u))
             );
             "
-        ), 
+        ),
         delta.t = 1
     ),
     dmeasure = rw_latent_lpd_dmeasure,
-    statenames = "e_lpd",
-    paramnames = c("mu", "sigma_u", "sigma_e", "beta_1", 
-                   "beta_2", "beta_3", "beta_4", "phi"),
+    statenames = c("e_lpd"),
+    paramnames = c("sigma_u", "sigma_e", "phi", "e_lpd_0", "beta_0",
+                   "beta_1", "beta_2", "beta_3", "beta_4", "beta_5"),
     covar = pomp::covariate_table(covars, times = "time"),
     covarnames = colnames(covars[, -1])
 )
 
 theta <- c(
-  mu = 3.5,
+  e_lpd_0 = 3.5,
   phi = atanh(0.95),
+  beta_0 = 0.175,
   beta_1 = 0,
   beta_2 = 0,
   beta_3 = 0,
   beta_4 = 0,
+  beta_5 = 0,
   sigma_e = log(0.05),
   sigma_u = log(0.05)
 )
 
+covar_latent_lpd_optim_result <- optim(
+    par = theta, 
+    fn = function(par){
+        print(par)
+        return(-pomp::logLik(pomp::pfilter(
+            covariate_latent_lpd_pomp, params = par, Np = 500
+        )))
+    },
+)
+
 pf <- pomp::pfilter(
-  covariate_latent_lpd_pomp, params = theta, Np = 1000,
+  covariate_latent_lpd_pomp, params = covar_latent_lpd_optim_result$par, 
+  Np = 1000,
   filter.mean = TRUE
 )
 pomp::logLik(pf)
@@ -417,16 +217,56 @@ a <- ARDL::ardl(e_lpd ~ cr + mys + fr + ms, data = data,
                 order = c(1, 0, 0, 0, 0))
 summary(a)
 
-pmmh_test <- pomp::pmcmc(
-  covariate_latent_lpd_pomp,
-  Nmcmc = 1000,
-  Np = 1000,
-  proposal = pomp::mvn.diag.rw(
-    c(mu = 0.03, sigma_e = 0.03, sigma_u = 0.03, beta_1 = 0.001,
-      beta_2 = 0.001, beta_3 = 0.001, beta_4 = 0.001, phi = 0.03)
-  ),
-  params = theta,
-  verbose = TRUE
+m <- lm(
+  e_lpd ~ 1 + cr + mys + fr + ms, data = data
+)
+summary(m)
+
+beta <- as.vector(coef(a))
+theta <- c(
+    e_lpd_0 = 3.5,
+    phi = atanh(beta[2]),
+    beta_0 = beta[1], 
+    beta_1 = beta[3],
+    beta_2 = beta[4],
+    beta_3 = beta[5],
+    beta_4 = beta[6],
+    sigma_e = -4.8,
+    sigma_u = -3.1
+)
+
+# how to set proposal jump size
+simulation_result <- pomp::bake(
+  "pmmh_test.rds",
+  {
+    doRNG::registerDoRNG(1598260027L)
+    cl <- parallel::makeCluster(4)
+    doParallel::registerDoParallel(cl)
+    results <- foreach::`%dopar%`(
+      foreach::foreach(i = 1:4),
+      {
+        source(here::here("R", "pd_pomp.R"), local = knitr::knit_global())
+        pomp::pmcmc(
+          covariate_latent_lpd_pomp,
+          Nmcmc = 1000,
+          Np = 250,
+          proposal = pomp::mvn.rw.adaptive(
+            c(e_lpd_0 = 0.03, sigma_e = 0.03, sigma_u = 0.03,  
+              beta_0 = 0.005, beta_1 = 0.005, beta_2 = 0.005, beta_3 = 0.005, 
+              beta_4 = 0.005, 
+              phi = 0.03), 
+            scale.start = 1,
+            scale.cooling = 0.9,
+            max.scaling = 10,
+            shape.start = 50
+          ),
+          params = theta
+        )
+      }
+    )
+    parallel::stopCluster(cl)
+    results
+  }
 )
 
 pf2 <- pomp::pfilter(

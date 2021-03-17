@@ -11,7 +11,7 @@ indent: true
 link-citations: yes
 lot: true
 lof: true
-fontsize: 12pt
+fontsize: 11pt
 geometry: "left=3.5cm, right=3.5cm, top=2.5cm, bottom=2.5cm"
 ---
 
