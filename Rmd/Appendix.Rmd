@@ -34,7 +34,7 @@ The following algorithms can be found in [@pomp_article].
     \KwIn {Weights $\tilde{w}_{1:J}$, normalized so that $\sum^J_{j=1}\tilde{w}_{j} = 1$
     }
   \nl Construct cumulative sum: $c_j = \sum_{m=1}^j \tilde{w}_m$ for $j$ in $1:J$\;
-  \nl Draw a uniform initial sampling point: $U_1 \sim U(0, \frac{1}{J})$\;
+  \nl Draw a uniform initial sampling point: $U_1 \sim \mathcal{U}(0, \frac{1}{J})$\;
   \nl Construct evenly spaced sampling points: $U_j = U_1 + (j - 1)\frac{1}{J}$ for $j$ in $2:J$\;
   \nl Initialize: set $p=1$\;
   \nl \For{$j = 1$ \To{} $J$}{%
@@ -75,7 +75,7 @@ The following algorithms can be found in [@pomp_article].
       (\theta^{(m-1)}, \hat{\ell}^{(m-1)}, X^{(m-1)}_{0:N}), & \text{otherwise}
     \end{cases}$$\;
   }
-  \KwOut{Samples $X^{(1:M)}_{0:N}$ and $\theta^{(1:M)}$ from the posterior distribution $p(x_{0:N}, \theta|y^*_{1:N})$}
+  \KwOut{Samples $X^{(1:M)}_{0:N}$, $\theta^{(1:M)}$ from posterior distribution $p(x_{0:N}, \theta|y^*_{1:N})$}
 \end{algorithm}
 
 # Appendix: Derivations {#derivations}

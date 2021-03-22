@@ -8,21 +8,21 @@ editor_options:
 
 # Introduction {#intro}
 
-**Content:**
+<!-- **Content:** -->
 
-- Describe Goals of thesis and relation to previous work (Determinants of the price dividend ratio)
-    
-    - Extend estimation of latent state (mean price dividend ratio) by including possible economic determinants
-    
-- Describe the purpose of the MCMC Extension (benefits and possible disadvantages)
+<!-- - Describe Goals of thesis and relation to previous work (Determinants of the price dividend ratio) -->
 
-    - Advantage because of short time series (prior information from previous study)???
+<!--     - Extend estimation of latent state (mean price dividend ratio) by including possible economic determinants -->
+
+<!-- - Describe the purpose of the MCMC Extension (benefits and possible disadvantages) -->
+
+<!--     - Advantage because of short time series (prior information from previous study)??? -->
+
+<!--     - verification with simulation study (linear and nonlinear case) -->
     
-    - verification with simulation study (linear and nonlinear case)
-    
-```{r, introduction_source, eval=FALSE}
+```{r, introduction_source, eval=FALSE, echo=FALSE}
 source(here::here("R", "pd_pomp.R"), local = knitr::knit_global())
-# source(here::here("R", "prepare_raw_data.R"), local = knitr::knit_global())
+#source(here::here("R", "prepare_raw_data.R"), local = knitr::knit_global())
 ```
 
 ```{r, read_data, include=FALSE, echo=FALSE, eval=FALSE}
@@ -30,43 +30,43 @@ y <- read.csv(here::here("data", "final_dataset.csv"))
 head(y)
 ```
 
-## Model
+<!-- ## Model -->
 
-**Measurement:**
+<!-- **Measurement:** -->
 
-$$\eta_{t} = \frac{k_{t}}{1-\rho_{t}}+\sum_{i\;=\;1}^{\infty}\rho^{i-1}_{t}\tilde{E}[\Delta d^{e}_{t+i}-r_{t+i}^{e}] + \epsilon_{t}$$
+<!-- $$\eta_{t} = \frac{k_{t}}{1-\rho_{t}}+\sum_{i\;=\;1}^{\infty}\rho^{i-1}_{t}\tilde{E}[\Delta d^{e}_{t+i}-r_{t+i}^{e}] + \epsilon_{t}$$ -->
 
-$$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$
+<!-- $$\epsilon_{t} \sim N(0, \sigma_{\epsilon}^2)$$ -->
 
-$$\rho_{t} = \frac{1}{1+exp(-\tilde{\eta_{t}})}$$
+<!-- $$\rho_{t} = \frac{1}{1+exp(-\tilde{\eta_{t}})}$$ -->
 
-$$k_{t} = -ln(\rho_{t})-(1-\rho_{t})ln\bigg(\frac{1}{\rho_{t}} - 1\bigg)$$
+<!-- $$k_{t} = -ln(\rho_{t})-(1-\rho_{t})ln\bigg(\frac{1}{\rho_{t}} - 1\bigg)$$ -->
 
-**State:**
+<!-- **State:** -->
 
-$$\tilde{\eta}_{t} = \tilde{\eta}_{t-1} + u_{t}$$
+<!-- $$\tilde{\eta}_{t} = \tilde{\eta}_{t-1} + u_{t}$$ -->
 
-**Model with covariates:**
+<!-- **Model with covariates:** -->
 
-$$\tilde{\eta}_{t} = \beta_{0} + \beta_{1}\tilde{\eta}_{t-1} + \beta_{2}cr_{t-1} + \beta_{3}my_{t-1} + \beta_{4}fr_{t-1} + \beta_{5}ms_{t-1} + u_{t}$$
+<!-- $$\tilde{\eta}_{t} = \beta_{0} + \beta_{1}\tilde{\eta}_{t-1} + \beta_{2}cr_{t-1} + \beta_{3}my_{t-1} + \beta_{4}fr_{t-1} + \beta_{5}ms_{t-1} + u_{t}$$ -->
 
-$$u_{t} \sim N(0, \sigma_{u}^2)$$
+<!-- $$u_{t} \sim N(0, \sigma_{u}^2)$$ -->
 
-## Estimation
+<!-- ## Estimation -->
 
-**Data:**
+<!-- **Data:** -->
 
-- *lpd*: log price dividend ratio
-- *d_e*: excess dividends
-- *r_e*: excess returns
-- *infl*: inflation
-- *cr*: consumption risk
-- *my*: middle aged to young ratio
-- *fr*: effective federal funds rate
-- *ms*: log real money supply m1
-- *gdp*: log gdp
+<!-- - *lpd*: log price dividend ratio -->
+<!-- - *d_e*: excess dividends -->
+<!-- - *r_e*: excess returns -->
+<!-- - *infl*: inflation -->
+<!-- - *cr*: consumption risk -->
+<!-- - *my*: middle aged to young ratio -->
+<!-- - *fr*: effective federal funds rate -->
+<!-- - *ms*: log real money supply m1 -->
+<!-- - *gdp*: log gdp -->
 
-```{r, rw_latent_lpd_pomp_model, eval=FALSE}
+```{r, rw_latent_lpd_pomp_model, eval=FALSE, echo=FALSE}
 # pomp model for random walk latent lpd
 rw_latent_lpd_pomp <- pomp::pomp(
     data = y[, c(1, 2)], times = "time", t0 = 0,
@@ -88,7 +88,7 @@ rw_latent_lpd_pomp <- pomp::pomp(
 )
 ```
 
-```{r, nelder_mead_optimization, eval=FALSE}
+```{r, nelder_mead_optimization, eval=FALSE, echo=FALSE}
 # need to use log sigma_u and sigma_e!
 theta <- c(e_lpd_0 = 3.5, sigma_u = log(0.05), sigma_e = log(0.05))
 
@@ -125,7 +125,7 @@ legend(
 )
 ```
 
-```{r, rw_model_pmmh, eval=FALSE}
+```{r, rw_model_pmmh, eval=FALSE, echo=FALSE}
 theta <- c(e_lpd_0 = 3.5, sigma_u = log(0.05), sigma_e = log(0.05))
 pmmh_rw_latent_lpd_model <- pomp::pmcmc(
   rw_latent_lpd_pomp,
@@ -144,7 +144,7 @@ pmmh_rw_latent_lpd_model <- pomp::pmcmc(
 pomp::plot(pmmh_rw_latent_lpd_model)
 ```
 
-```{r, test_pmcmc, eval=FALSE}
+```{r, test_pmcmc, eval=FALSE, echo=FALSE}
 source(here::here("R", "covars.R"), local = knitr::knit_global())
 
 # pomp model for covariate latent lpd
@@ -289,7 +289,7 @@ plot(dates, y$lpd, type = "l", xlab = "t", ylab = "lpd")
 lines(dates, pf2@filter.mean[1, ], col = "green")
 ```
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo=FALSE}
 # plot discounted difference between d_e and r_e
 e <- vector("numeric", length = 205)
 for (i in 1:205) {
@@ -307,7 +307,7 @@ for (i in 1:205) {
 plot(e, type = "l")
 ```
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo=FALSE}
 # regression d_e on latent_lpd
 y1 <- y$d_e - y$r_e
 m1 <- lm(y1[2:length(y1)] ~ particle_filter_result@filter.mean[1, 1:(length(y1)-1)])

@@ -40,7 +40,7 @@ theta <- c(
     beta_0 = 0.175, beta_1 = 0, beta_2 = 0, beta_3 = 0, beta_4 = 0, beta_5 = 0
 )
 res <- pomp::pmcmc(
-    model_2, Nmcmc = 5000, Np = 350,
+    model_2, Nmcmc = 10000, Np = 1000,
     proposal = pomp::mvn.diag.rw(
         c(e_lpd_0 = 0.01, sigma_e = 0.01, sigma_u = 0.01, phi = 0.01,
           beta_0 = 0.01, beta_1 = 0.01, beta_2 = 0.01,

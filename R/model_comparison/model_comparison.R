@@ -11,9 +11,9 @@ system.time(
             cl <- parallel::makeCluster(4)
             doParallel::registerDoParallel(cl)
             out <- foreach::`%dopar%`(
-                foreach::foreach(i = 1:8),
+                foreach::foreach(i = 1:4),
                 {
-                    source(here::here("R", models[i]))
+                    source(here::here("R", "model_comparison", models[i]))
                     res
                 }
             )

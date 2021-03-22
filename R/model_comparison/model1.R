@@ -35,12 +35,12 @@ model_1 <- pomp::pomp(
 )
 
 theta <- c(
-    beta_0 = 2.8, beta_1 = 0.0, beta_2 = 0.0, beta_3 = 0.0,
-    beta_4 = 0.0, beta_5 = 0.0,
-    sigma_u = log(0.05), sigma_e = log(0.05), e_lpd_0 = 3.4
+    beta_0 = 3.174, beta_1 = 0.3, beta_2 = 1.47, beta_3 = -0.8,
+    beta_4 = 0.31, beta_5 = 0.04,
+    sigma_u = log(0.09), sigma_e = log(0.015), e_lpd_0 = 3.4
 )
 res <- pomp::pmcmc(
-    model_1, Nmcmc = 5000, Np = 350,
+    model_1, Nmcmc = 10000, Np = 1000,
     proposal = pomp::mvn.diag.rw(
         c(e_lpd_0 = 0.02, sigma_e = 0.02, sigma_u = 0.02,
           beta_0 = 0.02, beta_1 = 0.02, beta_2 = 0.02,

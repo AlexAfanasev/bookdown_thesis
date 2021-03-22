@@ -8,48 +8,137 @@ editor_options:
 
 A simulation study will be conducted in order to compare the likelihood based inference procedure, via the Nelder-Mead algorithm, with the Bayesian approach, based on the particle marginal Metropolis Hastings algorithm. The simulation setup will be closely related to the empirical application. Hence, a variation of the log-linear present-value formulation of the log price dividend ratio will be used. 
 
-The latent state $x_n$ will be simulated according to the following process
+Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag (ARDL) model and will be simulated according to the following process
 \begin{equation}
 \begin{split}
 & x_0 = 3.5 \\
 & x_{n} = \beta_0 + \phi x_{n-1} + \beta_{1}z_{1, n} + \beta_{2}z_{2, n} + u_{n} \\ 
 & u_{n} \sim \mathcal{N}(0, \sigma_{u}^2)
+(\#eq:simulation-study-state)
 \end{split}
 \end{equation}
-where $z_{1,n}$ and $z_{2,n}$ are exogenous covariates simulated according to
+with restriction $\left|\phi\right|<1$ and where $z_{1,n}$ and $z_{2,n}$ are exogenous covariates simulated according to
 \begin{equation}
 \begin{split}
 & \begin{pmatrix} z_{1, 0} \\ z_{2, 0} \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix} \\
 & \begin{pmatrix} z_{1, n} \\ z_{2, n} \end{pmatrix} = \begin{pmatrix} z_{1, n-1} \\ z_{2, n-1} \end{pmatrix} + \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \\
-& \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \sim N\bigg(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, 0.000625\;I_{2}\bigg)
+& \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \sim \mathcal{N}\Bigg(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, 0.0025\;I_{2}\Bigg)
 \end{split}
 \end{equation}
-Furthermore, the state process will be bound to be between the minimum (2.775) and the maximum (4.487) of the observed log priced dividend ratio.
+This setup is an indirect specification of an error correction mechanism. The relationship to the error correction model can be seen by subtracting $x_{n-1}$ and adding and subtracting $\beta_{1}z_{1, n-1}$, $\beta_{2}z_{2, n-1}$ from both sides of the state process \@ref(eq:simulation-study-state)
+\begin{equation*}
+\begin{split}
+ \Delta x_{n} & = \beta_{1}\Delta z_{1, n} + \beta_{2}\Delta z_{2, n} - (1 - \phi) x_{n-1} + \beta_0 + \beta_{1}z_{1, n-1} + \beta_{2}z_{2, n-1} + u_{n} \\ 
+ & = \beta_{1} \Delta z_{1, n} + \beta_{2} \Delta z_{2, n} - (1 - \phi)(x_{n-1} - \frac{\beta_0}{1 - \phi} - \frac{\beta_{1}}{1 - \phi}z_{1, n} - \frac{\beta_{2}}{1 - \phi}z_{2, n}) + u_{n}
+\end{split}
+\end{equation*}
+Hence, given that $\left|\phi\right|<1$, the long run relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
+$$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}$$
+The state process will be bound to be between the minimum - 2.775 - and the maximum - 4.487 - of the observed log price dividend ratio.
 
-The observation process will be simulated according to the following equation
+Furthermore, the observation process has the following specification
 \begin{equation}
 \begin{split}
 & y_{n} = \frac{k_{n}}{1 - \rho_{n}} + d_{n} +  \epsilon_{n} \\
 & \epsilon_{n}\sim \mathcal{N}(0, \sigma_{\epsilon}^2)
 \end{split}
 \end{equation}
-where $k_{t}$ and $\rho_t$ directly depend on the latent state process $x_t$ via
+where $k_{n}$ and $\rho_n$ directly depend on the latent state $x_n$ via
 \begin{equation}
 \begin{split}
 & \rho_{n} = \frac{1}{1+\text{exp}(-x_{n})}\\
 & k_{n} = -\ln(\rho_{n})-(1-\rho_{n})\ln\bigg(\frac{1}{\rho_{n}} - 1\bigg)
 \end{split}
 \end{equation}
-and $d_{t}$ will be handled as an exogenous covariate arising from the following specification
+and $d_{n}$ will be handled as an exogenous covariate arising from the following specification
 \begin{equation}
 \begin{split}
 & d_{n} = -0.987 + 0.887(d_{n - 1} + 0.987) + 0.111v_{n-1} + v_{n} \\ 
 & v_{n} \sim \mathcal{N}(0, 0.005)
 \end{split}
 \end{equation}
-All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\{\phi, \beta_0, \beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u}\}$ will be compared.
+All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\theta = (\phi, \beta_0, \beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u})^T$ will be compared. For this simulation, the parameters will be set to
+$$
+\theta = \begin{pmatrix} \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
+$$
+Since the particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run, at each iteration, and the result with the highest estimated likelihood will be taken as the Maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, all methods will be applied using a cloud of $J=500$ particles.
 
-```{r, helper_nonlinear_simulation, include = FALSE, eval=FALSE}
+The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
+\begin{align}
+\phi &= \text{tanh}(\psi) & \sigma_u &= \text{exp}(\varsigma_u) & \sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon})
+\end{align}
+where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for theses hyperparameters can than easily be converted in order to obtain the initial parameters. 
+
+Furthermore, parameter transformations are also beneficial to random walk MCMC approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov Chain. Hence, the presented parameter transformation will be applied for the particle Marginal Metropolis Hastings procedure as well. Therefore, both applications will use the following parameter vector $\theta = (\psi, \beta_0, \beta_{1}, \beta_{2}, \varsigma_{\epsilon}, \varsigma_{u})^T$ instead of the initially presented for inference purposes.
+
+The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **Setup 1** will use a flat improper prior specification that incorporates almost no prior information about the initially presented parameters. **Setup 2** and **Setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a very small probability to the initial parameters.
+
+The change of variable technique has to be applied in order to transfer the prior beliefs about the parameters $\phi$, $\sigma_u$ and $\sigma_\epsilon$ to the hyperparameters $\psi$, $\varsigma_u$, $\varsigma_{\epsilon}$.
+
+Since the transformation for $\sigma_u$ and $\sigma_{\epsilon}$ is equivalent, the following derivations will be presented for a parameter $\sigma$ exemplary. Given the prior believe $p_{\phi}(\phi)$, $p_{\sigma}(\sigma)$ the accompanying prior believes $p_{\psi}(\psi)$, $p_{\varsigma}(\varsigma)$ can be derived using
+\begin{align*}
+\phi(\psi) &= \text{tanh}(\psi) & \Longleftrightarrow && \psi(\phi) &= \text{atanh}(\phi) \\
+\sigma(\varsigma) &= \text{exp}(\varsigma) & \Longleftrightarrow && \varsigma(\sigma) &= \ln(\sigma)
+\end{align*}
+Differentiating the initial parameters $\phi$ and $\sigma$ with respect to the hyperparameter yields
+\begin{equation*}
+\begin{split}
+  \frac{\partial \phi(\psi)}{\partial \psi} &= 1 - \text{tanh}(\psi)^2 \\
+  \frac{\partial \sigma(\varsigma)}{\partial \varsigma} &= \text{exp}(\varsigma)
+\end{split}
+\end{equation*}
+Hence, the change of variable technique yields the following prior specifications for the hyperparameters
+\begin{equation}
+\begin{split}
+  p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) \\
+  p_{\varsigma}(\varsigma) &= p_{\sigma}(\text{exp}(\varsigma))\text{exp}(\varsigma)
+(\#eq:hyperparamter-prior)
+\end{split}
+\end{equation}
+For **Setup 1**, the initially presented parameters will have the following prior specification
+\begin{align*}
+  p_\phi(\phi) &= 
+  \begin{cases} 
+    1, & \text{if}\;\; -1 < \phi < 1  \\ 
+    0, & \text{otherwise}
+  \end{cases} \\
+ p_{\sigma_u}(\sigma_u) &= 
+ \begin{cases} 
+    1, & \text{if}\;\; \sigma_u > 0  \\ 
+    0, & \text{otherwise}
+  \end{cases}
+ & p_{\sigma_\epsilon}(\sigma_\epsilon) &= 
+ \begin{cases} 
+    1, & \text{if}\;\; \sigma_{\epsilon} > 0  \\ 
+    0, & \text{otherwise}
+  \end{cases} \\
+ p_{\beta_0}(\beta_0) &= 1 & p_{\beta_1}(\beta_1) &= 1 & p_{\beta_2}(\beta_2) &= 1
+\end{align*}
+Therefore, using result \@ref(eq:hyperparamter-prior) the accompanying prior specification for the hyperparameters for **Setup 1** will be
+\begin{equation*}
+\begin{split}
+p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \text{tanh}(\psi)^2) \\
+  p_{\varsigma_u}(\varsigma_u) &= p_{\sigma_u}(\text{exp}(\varsigma_u))\text{exp}(\varsigma_u) = \text{exp}(\varsigma_u) \\
+  p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= p_{\varsigma_\epsilon}(\text{exp}(\varsigma_\epsilon))\text{exp}(\varsigma_\epsilon) = \text{exp}(\varsigma_\epsilon)
+\end{split}
+\end{equation*}
+
+**Setup 2** will use normal priors
+\begin{align*}
+  p_\phi(\phi) &= \mathcal{T}\mathcal{N}_{(-1, 1)}(\phi, 0.75, 0.3^2) \\
+  p_{\sigma_u}(\sigma_u) &= \mathcal{T}\mathcal{N}_{(0, \inf)}(\phi, 0.75, 0.3^2) \\
+  p_{\sigma_\epsilon}(\sigma_\epsilon) &= \mathcal{T}\mathcal{N}_{(-1, 1)}(\phi, 0.75, 0.3^2) \\\\
+ p_{\beta_0}(\beta_0) &= 1 & p_{\beta_1}(\beta_1) &= 1 & p_{\beta_2}(\beta_2) &= 1
+\end{align*}
+where $\mathcal{T}\mathcal{N}_{(a, b)}(x, \mu, \sigma^2)$ is the truncated normal distribution on the interval $(a, b)$. Inside of the interval the prior will be a normal distribution with mean $\mu$ and variance $\sigma^2$ and outside of this interval the prior will have the value zero.
+
+
+
+<!-- - prior specification for setups -->
+<!-- - show one particular result -->
+<!-- - complete Results -->
+
+```{r, helper_nonlinear_simulation, eval=FALSE, echo=FALSE}
 generate_simulation_data <- function(n, params) {
   # simulate d_t
   d_t <- arima.sim(
@@ -71,18 +160,19 @@ generate_simulation_data <- function(n, params) {
     if (i == 1) {
       x_1[i] <- 0
       x_2[i] <- 0
-      latent_lpd_sim[i] <- params["mu"]
+      latent_lpd_sim[i] <- params["beta_0"] / (1 - tanh(params["phi"]))
     } else {
       while (TRUE) {
         val_2 <- x_1[i - 1] + rnorm(1, 0, 0.05)
         val_3 <- x_2[i - 1] + rnorm(1, 0, 0.05)
         val_1 <- (
-          3.5 + tanh(params["phi"]) * (latent_lpd_sim[i - 1] - params["mu"])
+          params["beta_0"] 
+          + tanh(params["phi"]) *latent_lpd_sim[i - 1]
           + params["beta_1"] * val_2
           + params["beta_2"] * val_3
           + rnorm(1, 0, exp(params["sigma_x"]))
         )
-        if (val_1 > 2.7 & val_1 < 4.5) {
+        if (val_1 > 2.775 & val_1 < 4.487) {
           x_1[i] <- val_2
           x_2[i] <- val_3
           latent_lpd_sim[i] <- val_1
@@ -110,11 +200,11 @@ generate_start_params <- function(params){
 }
 ```
 
-```{r, setup_nonlinear_simulation, include = FALSE, eval=FALSE}
+```{r, setup_nonlinear_simulation, eval=FALSE, echo=FALSE}
 N <- 50
 N_sim <- 100
 true_params_simulation <- c(
-    mu = 3.5,
+    beta_0 = 0.525,
     beta_1 = 0.4,
     beta_2 = -0.2,
     sigma_x = log(0.05),
@@ -122,7 +212,7 @@ true_params_simulation <- c(
     phi = atanh(0.85)
 )
 params_simulation <- c(
-    mu = 3.5,
+    beta_0 = 1.75,
     beta_1 = 0.0,
     beta_2 = 0.0,
     sigma_x = log(0.1),
@@ -131,7 +221,7 @@ params_simulation <- c(
 )
 ```
 
-```{r, test_simulation, include=FALSE, eval=FALSE}
+```{r, test_simulation, eval=FALSE, echo=FALSE}
 # generate data
 start_time <- Sys.time()
 generated_data <- generate_simulation_data(N, true_params_simulation)
@@ -162,14 +252,14 @@ pomp_simulation <- pomp::pomp(
     # init data
     data = y, times = "time", t0 = 1,
     # init process / state
-    rinit = function(mu, ...){
-        c(x = mu)
+    rinit = function(beta_0, phi, ...){
+        c(x = beta_0 / (1 - tanh(phi)))
     },
     rprocess = pomp::discrete_time(
         pomp::Csnippet(
             "
             x = (
-                mu + tanh(phi) * (x - mu) + beta_1 * x1 + beta_2 * x2
+                beta_0 + tanh(phi) * x + beta_1 * x1 + beta_2 * x2
                 + rnorm(0, exp(sigma_x))
             );
             "
@@ -189,28 +279,19 @@ pomp_simulation <- pomp::pomp(
     # obs names
     obsnames = "y",
     # param names
-    paramnames = c("beta_1", "beta_2", "mu", "sigma_x",
+    paramnames = c("beta_1", "beta_2", "beta_0", "sigma_x",
                    "sigma_y", "phi"),
     # covar
     covar = pomp::covariate_table(covar_2, times = "time"),
     covarnames = c("d", "x1", "x2")
 )
 
-# test optim parameter estimation
-theta <- c(
-    beta_1 = 0.0,
-    beta_2 = 0.0,
-    mu = 3.0,
-    sigma_x = log(0.1),
-    sigma_y = log(0.05),
-    phi = atanh(0.8)
-)
 # can use optim only for finding MLE --> not for CI
 optim_result <- replicate(
     10,
     {
         op_res <- optim(
-            par = theta,
+            par = params_simulation,
             fn = function(par){
                 # print(par)
                 pomp::logLik(pomp::pfilter(
@@ -226,20 +307,13 @@ optim_result <- replicate(
 )
 
 k <- which.max(optim_result["value", ])
-(est_params <- optim_result[1:length(theta), k])
+(est_params <- optim_result[1:length(true_params_simulation), k])
 true_params_simulation
 
 # compare pfilter result
 pf1 <- pomp::pfilter(
     pomp_simulation,
-    params = c(
-        beta_1 = as.vector(true_params_simulation["beta_1"]),
-        beta_2 = as.vector(true_params_simulation["beta_2"]),
-        sigma_y = as.vector(true_params_simulation["sigma_y"]),
-        sigma_x = as.vector(true_params_simulation["sigma_x"]),
-        phi = as.vector(true_params_simulation["phi"]),
-        mu = 3.5
-    ),
+    params = true_params_simulation,
     Np = 500,
     filter.mean = TRUE
 )
@@ -259,10 +333,10 @@ pmcmc_noninformative <- pomp::pmcmc(
     Nmcmc = 6000,
     Np = 500,
     proposal = pomp::mvn.diag.rw(
-        c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+        c(beta_0 = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
           beta_2 = 0.03, phi = 0.03)
     ),
-    params = theta,
+    params = params_simulation,
     verbose = FALSE
 )
 
@@ -272,20 +346,20 @@ pmcmc_informative <- pomp::pmcmc(
     Nmcmc = 6000,
     Np = 500,
     proposal = pomp::mvn.diag.rw(
-        c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
+        c(beta_0 = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
           beta_2 = 0.03, phi = 0.03)
     ),
-    params = theta,
+    params = params_simulation,
     verbose = FALSE,
-    dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
-      p_mu <- dnorm(mu, 3.5, 0.2)
+    dprior = function(beta_0, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
+      p_beta_0 <- dnorm(beta_0, 0.4, 0.1)
       p_sigma_x <- dnorm(sigma_x, log(0.06), 0.5)
       p_sigma_y <- dnorm(sigma_y, log(0.04), 0.5)
       p_beta_1 <- dnorm(beta_1, 0.5, 0.5)
       p_beta_2 <- dnorm(beta_2, -0.3, 0.5)
       p_phi <- dnorm(phi, atanh(0.75), 0.3)
       lik <- (
-        p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+        p_beta_0 * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
       )
       return(ifelse(log, log(lik), lik))
     }
@@ -294,7 +368,7 @@ end_time <- Sys.time()
 print(end_time - start_time)
 ```
 
-```{r, nonlinear_simulation, include = FALSE, eval=FALSE}
+```{r, nonlinear_simulation, eval=FALSE, echo=FALSE}
 nonlinear_simulation <- function(N_obs, true_params, start_params) {
   data_simulation <- generate_simulation_data(N_obs, true_params)
   theta <- generate_start_params(start_params)
@@ -396,11 +470,11 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
       verbose = FALSE,
       dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
           p_mu <- dnorm(mu, 3.5, 0.2)
-          p_sigma_x <- dnorm(sigma_x, log(0.06), 0.5)
-          p_sigma_y <- dnorm(sigma_y, log(0.04), 0.5)
-          p_beta_1 <- dnorm(beta_1, 0.5, 0.25)
-          p_beta_2 <- dnorm(beta_2, -0.3, 0.25)
-          p_phi <- dnorm(phi, atanh(0.75), 0.3)
+          p_sigma_x <- dnorm(sigma_x, log(0.06), 0.35)
+          p_sigma_y <- dnorm(sigma_y, log(0.03), 0.5)
+          p_beta_1 <- dnorm(beta_1, 0.5, 0.2)
+          p_beta_2 <- dnorm(beta_2, -0.3, 0.2)
+          p_phi <- dnorm(phi, atanh(0.8), 0.3)
           lik <- (
             p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
           )
@@ -413,7 +487,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
       data_observed = data_simulation$observed,
       data_latent = data_simulation$latent,
       theta = theta,
-      smc_result = list(par = est_params, pf = pf),
+      smc_result = list(par = est_params, pf = pf, optim_result = optim_result),
       pmmh_noninformative = pmmh_noninformative,
       pmmh_informative = pmmh_informative
     )
@@ -439,7 +513,7 @@ system.time(
 )
 ```
 
-```{r, simulation_result_plots, eval=FALSE}
+```{r, simulation_result_plots, eval=FALSE, echo=FALSE}
 res_smc <- matrix(nrow = N_sim, ncol = length(params_simulation))
 res_pmmh_noninformative <- matrix(
   nrow = N_sim, ncol = length(params_simulation)
@@ -458,16 +532,15 @@ for (i in 1:N_sim) {
     }
 }
 
-# smc result
-plot(density(res_smc[, 1]), type = "l")
-plot(density(res_smc[, 2]), type = "l")
-plot(density(res_smc[, 3]), type = "l")
-plot(density(exp(res_smc[, 4])), type = "l")
+for (i in 1:ncol(res_smc)) {
+  a <- data.frame(
+    a1 = res_smc[, i], a2 = res_pmmh_noninformative[, i],
+    a3 = res_pmmh_informative[, i]
+  )
+  a <- reshape2::melt(a)
+  boxplot(value ~ variable, a)
+  abline(h = true_params_simulation[])
+}
 
-# pmmh result
-plot(density(res_pmmh_noninformative[, 1]), type = "l")
-plot(density(res_pmmh[, 2]), type = "l")
-plot(density(res_pmmh[, 3]), type = "l")
-plot(density(res_pmmh[, 4]), type = "l")
 ```
 

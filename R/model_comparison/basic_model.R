@@ -26,8 +26,8 @@ rw_latent_lpd_pomp <- pomp::pomp(
 theta <- c(e_lpd_0 = 3.5, sigma_u = log(0.05), sigma_e = log(0.05))
 res <- pomp::pmcmc(
     rw_latent_lpd_pomp,
-    Np = 350,
-    Nmcmc = 5000,
+    Np = 1000,
+    Nmcmc = 10000,
     params = theta,
     proposal = pomp::mvn.diag.rw(
         c(e_lpd_0 = 0.02, sigma_u = 0.02, sigma_e = 0.02)
