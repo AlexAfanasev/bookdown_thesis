@@ -4,11 +4,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Simulation Study {#simulation}
+# Simulation study {#simulation}
 
 A simulation study will be conducted in order to compare the likelihood based inference procedure, via the Nelder-Mead algorithm, with the Bayesian approach, based on the particle marginal Metropolis Hastings algorithm. The simulation setup will be closely related to the empirical application. Hence, a variation of the log-linear present-value formulation of the log price dividend ratio will be used. 
 
-Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag (ARDL) model and will be simulated according to the following process
+Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag model and will be simulated according to the following process
 \begin{equation}
 \begin{split}
 & x_0 = 3.5 \\
@@ -29,12 +29,12 @@ This setup is an indirect specification of an error correction mechanism. The re
 \begin{equation*}
 \begin{split}
  \Delta x_{n} & = \beta_{1}\Delta z_{1, n} + \beta_{2}\Delta z_{2, n} - (1 - \phi) x_{n-1} + \beta_0 + \beta_{1}z_{1, n-1} + \beta_{2}z_{2, n-1} + u_{n} \\ 
- & = \beta_{1} \Delta z_{1, n} + \beta_{2} \Delta z_{2, n} - (1 - \phi)(x_{n-1} - \frac{\beta_0}{1 - \phi} - \frac{\beta_{1}}{1 - \phi}z_{1, n} - \frac{\beta_{2}}{1 - \phi}z_{2, n}) + u_{n}
+ & = \beta_{1} \Delta z_{1, n} + \beta_{2} \Delta z_{2, n} - (1 - \phi)\Bigg(x_{n-1} - \frac{\beta_0}{1 - \phi} - \frac{\beta_{1}}{1 - \phi}z_{1, n} - \frac{\beta_{2}}{1 - \phi}z_{2, n}\Bigg) + u_{n}
 \end{split}
 \end{equation*}
 Hence, given that $\left|\phi\right|<1$, the long run relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
 $$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}$$
-The state process will be bound to be between the minimum - 2.775 - and the maximum - 4.487 - of the observed log price dividend ratio.
+The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed log price dividend ratio.
 
 Furthermore, the observation process has the following specification
 \begin{equation}
@@ -53,29 +53,29 @@ where $k_{n}$ and $\rho_n$ directly depend on the latent state $x_n$ via
 and $d_{n}$ will be handled as an exogenous covariate arising from the following specification
 \begin{equation}
 \begin{split}
-& d_{n} = -0.987 + 0.887(d_{n - 1} + 0.987) + 0.111v_{n-1} + v_{n} \\ 
-& v_{n} \sim \mathcal{N}(0, 0.005)
+& d_{n} = -1 + 0.85(d_{n - 1} + 1) + 0.15v_{n-1} + v_{n} \\ 
+& v_{n} \sim \mathcal{N}(0, 0.003)
 \end{split}
 \end{equation}
 All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\theta = (\phi, \beta_0, \beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u})^T$ will be compared. For this simulation, the parameters will be set to
 $$
 \theta = \begin{pmatrix} \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
 $$
-Since the particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run, at each iteration, and the result with the highest estimated likelihood will be taken as the Maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, all methods will be applied using a cloud of $J=500$ particles.
+Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run, at each of the $1000$ iterations, and the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, all methods will be applied using a cloud of $J=500$ particles.
 
 The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
 \begin{align}
 \phi &= \text{tanh}(\psi) & \sigma_u &= \text{exp}(\varsigma_u) & \sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon})
 \end{align}
-where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for theses hyperparameters can than easily be converted in order to obtain the initial parameters. 
+where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for these hyperparameters can than easily be converted in order to obtain the initial parameters. 
 
-Furthermore, parameter transformations are also beneficial to random walk MCMC approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov Chain. Hence, the presented parameter transformation will be applied for the particle Marginal Metropolis Hastings procedure as well. Therefore, both applications will use the following parameter vector $\theta = (\psi, \beta_0, \beta_{1}, \beta_{2}, \varsigma_{\epsilon}, \varsigma_{u})^T$ instead of the initially presented for inference purposes.
+Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the particle marginal Metropolis Hastings procedure as well. Therefore, both applications will use the following parameter vector $\theta = (\psi, \beta_0, \beta_{1}, \beta_{2}, \varsigma_{\epsilon}, \varsigma_{u})^T$ instead of the initially presented for inference purposes.
 
-The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **Setup 1** will use a flat improper prior specification that incorporates almost no prior information about the initially presented parameters. **Setup 2** and **Setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a very small probability to the initial parameters.
+The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **setup 1** will use a flat improper prior specification that incorporates almost no prior information about the initially presented parameters. **Setup 2** and **setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a small probability to the initial parameters.
 
 The change of variable technique has to be applied in order to transfer the prior beliefs about the parameters $\phi$, $\sigma_u$ and $\sigma_\epsilon$ to the hyperparameters $\psi$, $\varsigma_u$, $\varsigma_{\epsilon}$.
 
-Since the transformation for $\sigma_u$ and $\sigma_{\epsilon}$ is equivalent, the following derivations will be presented for a parameter $\sigma$ exemplary. Given the prior believe $p_{\phi}(\phi)$, $p_{\sigma}(\sigma)$ the accompanying prior believes $p_{\psi}(\psi)$, $p_{\varsigma}(\varsigma)$ can be derived using
+Since the transformation for $\sigma_u$ and $\sigma_{\epsilon}$ is equivalent, the following derivations will be presented for an exemplary parameter $\sigma$. Given the prior $p_{\phi}(\phi)$, $p_{\sigma}(\sigma)$ the accompanying prior $p_{\psi}(\psi)$, $p_{\varsigma}(\varsigma)$ can be derived using
 \begin{align*}
 \phi(\psi) &= \text{tanh}(\psi) & \Longleftrightarrow && \psi(\phi) &= \text{atanh}(\phi) \\
 \sigma(\varsigma) &= \text{exp}(\varsigma) & \Longleftrightarrow && \varsigma(\sigma) &= \ln(\sigma)
@@ -95,7 +95,7 @@ Hence, the change of variable technique yields the following prior specification
 (\#eq:hyperparamter-prior)
 \end{split}
 \end{equation}
-For **Setup 1**, the initially presented parameters will have the following prior specification
+For **setup 1**, the initially presented parameters will have the following prior specification
 \begin{align*}
   p_\phi(\phi) &= 
   \begin{cases} 
@@ -114,7 +114,7 @@ For **Setup 1**, the initially presented parameters will have the following prio
   \end{cases} \\
  p_{\beta_0}(\beta_0) &= 1 & p_{\beta_1}(\beta_1) &= 1 & p_{\beta_2}(\beta_2) &= 1
 \end{align*}
-Therefore, using result \@ref(eq:hyperparamter-prior) the accompanying prior specification for the hyperparameters for **Setup 1** will be
+Note that within this uninformative flat prior setup all possibly valid parameter values will have a prior density of one. Using result \@ref(eq:hyperparamter-prior) the belonging prior specification for the hyperparameters for **setup 1** simplifies to
 \begin{equation*}
 \begin{split}
 p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \text{tanh}(\psi)^2) \\
@@ -122,425 +122,524 @@ p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \t
   p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= p_{\varsigma_\epsilon}(\text{exp}(\varsigma_\epsilon))\text{exp}(\varsigma_\epsilon) = \text{exp}(\varsigma_\epsilon)
 \end{split}
 \end{equation*}
-
-**Setup 2** will use normal priors
+**Setup 2** represents the informative prior setup. The truncated normal distribution will be used for parameter $\phi$ and the Gamma distribution for the parameters $\sigma_u$ and $\sigma_\epsilon$. Hence, this specification is applied
 \begin{align*}
-  p_\phi(\phi) &= \mathcal{T}\mathcal{N}_{(-1, 1)}(\phi, 0.75, 0.3^2) \\
-  p_{\sigma_u}(\sigma_u) &= \mathcal{T}\mathcal{N}_{(0, \inf)}(\phi, 0.75, 0.3^2) \\
-  p_{\sigma_\epsilon}(\sigma_\epsilon) &= \mathcal{T}\mathcal{N}_{(-1, 1)}(\phi, 0.75, 0.3^2) \\\\
- p_{\beta_0}(\beta_0) &= 1 & p_{\beta_1}(\beta_1) &= 1 & p_{\beta_2}(\beta_2) &= 1
+  p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.8, 0.1^2, -1, 1) &  p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.4, 0.1^2) \\
+  p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 12, 0.005) &
+  p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.5, 0.2^2) \\
+  p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 6, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | -0.3, 0.2^2)
 \end{align*}
-where $\mathcal{T}\mathcal{N}_{(a, b)}(x, \mu, \sigma^2)$ is the truncated normal distribution on the interval $(a, b)$. Inside of the interval the prior will be a normal distribution with mean $\mu$ and variance $\sigma^2$ and outside of this interval the prior will have the value zero.
+where $f^{\mathcal{N}}(x | \mu, \sigma^2)$ is the density function of the normal distribution with mean $\mu$ and variance $\sigma^2$ and $f^{\mathcal{G}}(x | \alpha, \beta)$ is the density function of the gamma distribution with shape parameter $\alpha$ and scale parameter $\beta$. Additionally, the truncated normal density function is denoted by $f^{\mathcal{T}\mathcal{N}}(x|\mu, \sigma^2, a, b)$ and has the following definition
+$$
+f^{\mathcal{T}\mathcal{N}}(x|\mu, \sigma^2, a, b) = 
+\begin{cases} 
+  \dfrac{1}{\sigma}\dfrac{\phi\Big(\dfrac{x-\mu}{\sigma}\Big)}{\Phi\Big(\dfrac{b-\mu}{\sigma}\Big) - \Phi\Big(\dfrac{a-\mu}{\sigma}\Big)}, & \text{if}\;\; a < x < b  \\ 
+  0, & \text{otherwise}
+\end{cases}
+$$
+with $\phi(\cdot)$ being the density function of the standard normal distribution and $\Phi(\cdot)$ its cumulative distribution function. Again, the accompanying prior specification for the hyperparameters can be obtained using \@ref(eq:hyperparamter-prior).
 
+**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used however with varying parameters.
+\begin{align*}
+  p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.3, 0.1^2, -1, 1) & p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.8, 0.1^2) \\
+  p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 10, 0.01) & p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.0, 0.1^2)  \\
+  p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 10, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | 0.0, 0.1^2)
+\end{align*}
+Note that the initial value problem of obtaining an estimate for $x_0$ can be solved within the Bayesian setup as well. In order to do this a prior for $x_0$ has to be assigned. **Setup 1** will use a flat prior similar to the other parameters. **Setup 2** uses a normal prior with mean $3.5$ and variance $0.1^2$ whereas **setup 3** uses a normal prior with mean $3.0$ and variance $0.1^2$. 
 
+The MCMC approaches will use $7500$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.025^2)$$
+Furthermore, the starting parameter $\theta^{(0)} = (\psi^{(0)}, \beta_0^{(0)}, \beta_{1}^{(0)}, \beta_{2}^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)})^T$, for the inference methods, will be set randomly at each iteration of the simulation study with
+$$\theta^{(0)} \sim \mathcal{N}((\text{atanh}(0.7), 1.05, 0, 0, \ln(0.05), \ln(0.1))^T, 0.1^2\; I_6)$$
+One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted on simulation $4$.
 
-<!-- - prior specification for setups -->
-<!-- - show one particular result -->
-<!-- - complete Results -->
+```{r, nonlinear-simulation, eval=TRUE, echo=FALSE}
+source(here::here("R", "simulation_study", "simulation.R"))
+```
 
-```{r, helper_nonlinear_simulation, eval=FALSE, echo=FALSE}
-generate_simulation_data <- function(n, params) {
-  # simulate d_t
-  d_t <- arima.sim(
-    model = list(
-      order = c(1, 0, 1),
-      ar = 0.887,
-      ma = 0.111
-    ),
-    n = n,
-    sd = sqrt(0.00444)
-  )
-  d_t <- d_t - 0.987
-  
-  # simulate latent mean
-  latent_lpd_sim <- vector("numeric", length = n)
-  x_1 <- vector("numeric", length = n)
-  x_2 <- vector("numeric", length = n)
-  for (i in 1:n) {
-    if (i == 1) {
-      x_1[i] <- 0
-      x_2[i] <- 0
-      latent_lpd_sim[i] <- params["beta_0"] / (1 - tanh(params["phi"]))
-    } else {
-      while (TRUE) {
-        val_2 <- x_1[i - 1] + rnorm(1, 0, 0.05)
-        val_3 <- x_2[i - 1] + rnorm(1, 0, 0.05)
-        val_1 <- (
-          params["beta_0"] 
-          + tanh(params["phi"]) *latent_lpd_sim[i - 1]
-          + params["beta_1"] * val_2
-          + params["beta_2"] * val_3
-          + rnorm(1, 0, exp(params["sigma_x"]))
-        )
-        if (val_1 > 2.775 & val_1 < 4.487) {
-          x_1[i] <- val_2
-          x_2[i] <- val_3
-          latent_lpd_sim[i] <- val_1
-          break
-        }
-      }
-    }
-  }
-  
-  # compute observed lpd
-  observed_lpd <- vector("numeric", length = n)
-  for (i in 1:n) {
-    rho <- 1 / (1 + exp(-latent_lpd_sim[i]))
-    k <- -log(rho) - ((1 - rho) * log((1 / rho) - 1))
-    observed_lpd[i] <- ((k / (1 - rho)) + d_t[i]
-                        + rnorm(1, 0, exp(params["sigma_y"])))
-  }
-  return(list(
-    observed = cbind(observed_lpd, d_t, x_1, x_2),
-    latent = latent_lpd_sim
-  ))
+Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter lags behind the former.
+
+```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=5, fig.height=2.5, warning=FALSE}
+# Plot data
+sim_4 <- simulation_result[[4]]
+
+library(ggplot2)
+
+df <- data.frame(time = 0:(N - 1), x = sim_4$data_latent, 
+                 y = sim_4$data_observed[, 1])
+df <- reshape2::melt(df, id.vars = "time")
+ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable)) + 
+  scale_color_manual(
+    values = c("red", "black"), 
+    labels = c(expression(x[n]), expression(y[n]))
+  ) +
+  theme_light() +
+  theme(
+    legend.justification = c(0, 1), legend.position = c(0, 1), 
+    legend.title = element_blank(), 
+    legend.background = element_rect(fill = "transparent"),
+    plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"),
+    axis.title = element_blank()
+  ) + 
+  labs(x = "n", y = "")
+```
+
+The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). All approaches indicate a necessary burn in phase of roughly $3000$ iterations. Hence, for the next visualizations and figures the first $3000$ iterations of the Bayesian approaches have been discarded. Furthermore, for this particular example **setup 2** seems to have the fastest and **setup 1** the slowest convergence. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
+
+Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviation from the true parameters.
+
+Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ credible intervals have been added with **setup 2** having the narrowest estimates.
+
+\vfill
+```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=5, fig.height=6.675, warning=FALSE}
+# Filtering Results
+sim_4 <- simulation_result[[4]]
+
+library(ggplot2)
+library(gridExtra)
+
+# Plot theme:
+p_theme <- theme(
+  legend.position = "bottom", 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title = element_blank()
+)
+
+# Plot nelder mead result
+df <- data.frame(
+  time = 0:(N - 1), x = sim_4$data_latent,  
+  x1 = sim_4$smc_result$pf
+)
+df <- reshape2::melt(df, id.vars = "time")
+nm <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  scale_color_manual(
+    values = c("black", "red"), 
+    labels = c(expression(x[n]), expression(hat(x)[n]))
+  ) +
+  theme_light() +
+  labs(title = latex2exp::TeX("State Estimate: \\textbf{Nelder-Mead Approach}"), 
+       x = "", y = "") +
+  p_theme
+
+# Plot Noninformative Prior result
+df <- data.frame(
+  time = 0:(N - 1), x = sim_4$data_latent, 
+  x1 = sim_4$pmmh_noninformative$state_mean
+)
+df <- reshape2::melt(df, id.vars = "time")
+q <- data.frame(
+  time = 0:(N - 1),
+  variable = "x1",
+  lower = sim_4$pmmh_noninformative$state_lower,
+  upper = sim_4$pmmh_noninformative$state_upper
+)
+pm_1 <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_ribbon(
+    data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red"),  
+    inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
+    colour = "red", size = 0.25
+  ) +
+  scale_color_manual(
+    values = c("black", "red"), 
+    labels = c(expression(x[n]), expression(hat(x)[n]))
+  ) +
+  theme_light() +
+  labs(title = latex2exp::TeX("State Estimate: \\textbf{Setup 1}"), 
+       x = "", y = "") +
+  p_theme
+
+# Plot true informative Prior result
+df <- data.frame(
+  time = 0:(N - 1), x = sim_4$data_latent,  
+  x1 = sim_4$pmmh_true_informative$state_mean
+)
+df <- reshape2::melt(df, id.vars = "time")
+q <- data.frame(
+  time = 0:(N - 1),
+  variale = "x1",
+  lower = sim_4$pmmh_true_informative$state_lower,
+  upper = sim_4$pmmh_true_informative$state_upper
+)
+pm_2 <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_ribbon(
+    data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red"),  
+    inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
+    colour = "red", size = 0.25
+  ) +
+  scale_color_manual(
+    values = c("black", "red"), 
+    labels = c(expression(x[n]), expression(hat(x)[n]))
+  ) +
+  theme_light() +
+  labs(title = latex2exp::TeX("State Estimate: \\textbf{Setup 2}"), 
+       x = "", y = "") +
+  p_theme
+
+# Plot false informative prior result
+df <- data.frame(
+  time = 0:(N - 1), x = sim_4$data_latent,  
+  x1 = sim_4$pmmh_false_informative$state_mean
+)
+df <- reshape2::melt(df, id.vars = "time")
+q <- data.frame(
+  time = 0:(N - 1),
+  variable = "x1",
+  lower = sim_4$pmmh_false_informative$state_lower,
+  upper = sim_4$pmmh_false_informative$state_upper
+)
+pm_3 <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_ribbon(
+    data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red"),  
+    inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
+    colour = "red", size = 0.25
+  ) +
+  scale_color_manual(
+    values = c("black", "red"), 
+    labels = c(expression(x[n]), expression(hat(x)[n]))
+  ) +
+  theme_light() +
+  labs(title = latex2exp::TeX("State Estimate: \\textbf{Setup 3}"), 
+       x = "", y = "") +
+  p_theme
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
 }
-generate_start_params <- function(params){
-  return(params + rnorm(length(params), 0, 0.1))
-}
-```
+legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(pm_2)), "guide-box")
 
-```{r, setup_nonlinear_simulation, eval=FALSE, echo=FALSE}
-N <- 50
-N_sim <- 100
-true_params_simulation <- c(
-    beta_0 = 0.525,
-    beta_1 = 0.4,
-    beta_2 = -0.2,
-    sigma_x = log(0.05),
-    sigma_y = log(0.02),
-    phi = atanh(0.85)
-)
-params_simulation <- c(
-    beta_0 = 1.75,
-    beta_1 = 0.0,
-    beta_2 = 0.0,
-    sigma_x = log(0.1),
-    sigma_y = log(0.05),
-    phi = atanh(0.5)
+grid.arrange(
+  nm + theme(legend.position = "none"), 
+  pm_1 + theme(legend.position = "none"), 
+  pm_2 + theme(legend.position = "none"), 
+  pm_3 + theme(legend.position = "none"), 
+  ncol = 1, legend = legend, nrow = 5, 
+  heights = c(1.1, 1.1, 1.1, 1.1, 0.2)
 )
 ```
+\vfill
+\newpage
 
-```{r, test_simulation, eval=FALSE, echo=FALSE}
-# generate data
-start_time <- Sys.time()
-generated_data <- generate_simulation_data(N, true_params_simulation)
+Additionally, the results from the $10$ runs of the likelihood based approach using the Nelder-Mead algorithm can be inspected by looking at Table \@ref(tab:nm-result-table). The resulting parameter estimates within the $10$ repetitions vary a lot, which can be seen by the minimum and maximum estimates displayed. Furthermore, some parameter estimates are far of the true values.
 
-# transform to state x and process y
-data <- data.frame(cbind(1:N, generated_data$observed))
-colnames(data) <- c("time", "y", "d", "x1", "x2")
-y <- data[, c("time", "y")]
-covar <- data[, c("time", "d", "x1", "x2")]
-covar_2 <- covar
-covar_2[1:(N - 1), 3:4] <- covar_2[2:N, 3:4]
-x <- generated_data$latent
-head(y)
-tail(y)
-
-# visualize data
-plot(y[, 2], type = "l")
-lines(x, col = "red")
-legend(
-    "topleft",
-    legend = c("obs", "latent"),
-    col = c("black", "red"),
-    lty = c(1, 1)
+```{r, nm-result-table, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+result_table <- data.frame(
+  true = c(true_params_simulation, NA),
+  mle = sim_4$smc_result$optim_result[
+    , which.max(sim_4$smc_result$optim_result[8, ])
+  ],
+  min = apply(sim_4$smc_result$optim_result, MARGIN = 1, min),
+  max = apply(sim_4$smc_result$optim_result, MARGIN = 1, max)
 )
-
-# create pomp object
-pomp_simulation <- pomp::pomp(
-    # init data
-    data = y, times = "time", t0 = 1,
-    # init process / state
-    rinit = function(beta_0, phi, ...){
-        c(x = beta_0 / (1 - tanh(phi)))
-    },
-    rprocess = pomp::discrete_time(
-        pomp::Csnippet(
-            "
-            x = (
-                beta_0 + tanh(phi) * x + beta_1 * x1 + beta_2 * x2
-                + rnorm(0, exp(sigma_x))
-            );
-            "
-        ), delta.t = 1
-    ),
-    # init meas / obs
-    dmeasure = pomp::Csnippet(
-        "
-        double rho_t = 1.0 / (1.0 + exp(-x));
-        double k_t = -log(rho_t) - ((1.0 - rho_t) * log((1.0 / rho_t) - 1.0));
-        double m = (k_t / (1 - rho_t)) + d;
-        lik = dnorm(y, m, exp(sigma_y), give_log);
-        "
-    ),
-    # state names
-    statenames = "x",
-    # obs names
-    obsnames = "y",
-    # param names
-    paramnames = c("beta_1", "beta_2", "beta_0", "sigma_x",
-                   "sigma_y", "phi"),
-    # covar
-    covar = pomp::covariate_table(covar_2, times = "time"),
-    covarnames = c("d", "x1", "x2")
+rownames(result_table) <- c(
+  "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\sigma_u$", 
+  "$\\sigma_\\epsilon$", "$\\phi$", "$x_0$","$\\mathcal{L}(\\theta)$"
 )
-
-# can use optim only for finding MLE --> not for CI
-optim_result <- replicate(
-    10,
-    {
-        op_res <- optim(
-            par = params_simulation,
-            fn = function(par){
-                # print(par)
-                pomp::logLik(pomp::pfilter(
-                    pomp_simulation, params = par, Np = 500
-                ))
-            },
-            control = list(
-                "fnscale" = -1
-            )
-        )
-        return(c(op_res$par, value = op_res$value))
-    }
-)
-
-k <- which.max(optim_result["value", ])
-(est_params <- optim_result[1:length(true_params_simulation), k])
-true_params_simulation
-
-# compare pfilter result
-pf1 <- pomp::pfilter(
-    pomp_simulation,
-    params = true_params_simulation,
-    Np = 500,
-    filter.mean = TRUE
-)
-pomp::logLik(pf1)
-
-pf2 <- pomp::pfilter(
-    pomp_simulation,
-    params = est_params,
-    Np = 500,
-    filter.mean = TRUE
-)
-pomp::logLik(pf2)
-
-# pmcmc test - noninformative prior
-pmcmc_noninformative <- pomp::pmcmc(
-    pomp_simulation,
-    Nmcmc = 6000,
-    Np = 500,
-    proposal = pomp::mvn.diag.rw(
-        c(beta_0 = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
-          beta_2 = 0.03, phi = 0.03)
-    ),
-    params = params_simulation,
-    verbose = FALSE
-)
-
-# pmcmc test - informative prior
-pmcmc_informative <- pomp::pmcmc(
-    pomp_simulation,
-    Nmcmc = 6000,
-    Np = 500,
-    proposal = pomp::mvn.diag.rw(
-        c(beta_0 = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
-          beta_2 = 0.03, phi = 0.03)
-    ),
-    params = params_simulation,
-    verbose = FALSE,
-    dprior = function(beta_0, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
-      p_beta_0 <- dnorm(beta_0, 0.4, 0.1)
-      p_sigma_x <- dnorm(sigma_x, log(0.06), 0.5)
-      p_sigma_y <- dnorm(sigma_y, log(0.04), 0.5)
-      p_beta_1 <- dnorm(beta_1, 0.5, 0.5)
-      p_beta_2 <- dnorm(beta_2, -0.3, 0.5)
-      p_phi <- dnorm(phi, atanh(0.75), 0.3)
-      lik <- (
-        p_beta_0 * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
-      )
-      return(ifelse(log, log(lik), lik))
-    }
-)
-end_time <- Sys.time()
-print(end_time - start_time)
+result_table[4:5, ] <- exp(result_table[4:5, ])
+result_table[6, ] <- tanh(result_table[6, ])
+result_table <- round(result_table, 4)
+opts <- options(knitr.kable.NA = "")
+knitr::kable(
+  result_table, 
+  row.names = TRUE,
+  col.names = c("True Values", "Estimates", "Min", "Max"),
+  caption = "Exemplary simulation: Results of the Nelder-Mead approach", booktabs = TRUE, escape = FALSE,
+  linesep = "\\addlinespace", 
+  align = rep("c", 4)
+) %>% 
+  kableExtra::kable_paper() %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-```{r, nonlinear_simulation, eval=FALSE, echo=FALSE}
-nonlinear_simulation <- function(N_obs, true_params, start_params) {
-  data_simulation <- generate_simulation_data(N_obs, true_params)
-  theta <- generate_start_params(start_params)
-  
-  # transform to state x and process y
-  data <- data.frame(cbind(1:N, data_simulation$observed))
-  colnames(data) <- c("time", "y", "d", "x1", "x2")
-  y <- data[, c("time", "y")]
-  covar <- data[, c("time", "d", "x1", "x2")]
-  covar_2 <- covar
-  covar_2[1:(N - 1), 3:4] <- covar_2[2:N, 3:4]
+As expected, the first indication from inspecting the exemplary simulation results is that the informative **setup 2** results in the most precise parameter estimates. The aggregate analysis will clarify this observation.
 
-  # create pomp object
-  pomp_simulation <- pomp::pomp(
-      # init data
-      data = y, times = "time", t0 = 1,
-      # init process / state
-      rinit = function(mu, ...){
-          c(x = mu)
-      },
-      rprocess = pomp::discrete_time(
-          pomp::Csnippet(
-              "
-              x = (
-                  mu + tanh(phi) * (x - mu) + beta_1 * x1 + beta_2 * x2
-                  + rnorm(0, exp(sigma_x))
-              );
-              "
-          ), delta.t = 1
-      ),
-      # init meas / obs
-      dmeasure = pomp::Csnippet(
-          "
-          double rho_t = 1.0 / (1.0 + exp(-x));
-          double k_t = -log(rho_t) - ((1.0 - rho_t) * log((1.0 / rho_t) - 1.0));
-          double m = (k_t / (1 - rho_t)) + d;
-          lik = dnorm(y, m, exp(sigma_y), give_log);
-          "
-      ),
-      # state names
-      statenames = "x",
-      # obs names
-      obsnames = "y",
-      # param names
-      paramnames = c("beta_1", "beta_2", "mu", "sigma_x",
-                     "sigma_y", "phi"),
-      # covar
-      covar = pomp::covariate_table(covar_2, times = "time"),
-      covarnames = c("d", "x1", "x2")
-  )
+Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other 3 Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error for the latent state estimation for all approaches.
 
-  # can use optim only for finding MLE --> not for CI
-  optim_result <- replicate(
-      10,
-      {
-          op_res <- optim(
-              par = theta,
-              fn = function(par){
-                  # print(par)
-                  pomp::logLik(pomp::pfilter(
-                      pomp_simulation, params = par, Np = 500
-                  ))
-              },
-              control = list(
-                  "fnscale" = -1
-              )
-          )
-          return(c(op_res$par, value = op_res$value))
-      }
-  )
+The aggregate results show that the likelihood based approach has the highest variation and average deviation for the parameter and latent state estimates.  Moreover, the informative and uninformative prior setups, **setup 2** and **setup 1**, have the smallest average deviations with **setup 2** having also the smallest variance. The misspecified prior setup, **setup 3**, seems to have a smaller variance compared to the uninformative setup but a higher average deviation. All in all, it can be concluded that within the simulation study all Bayesian approaches outperform the likelihood based approach.
 
-  k <- which.max(optim_result["value", ])
-  est_params <- optim_result[1:length(theta), k]
-  pf <- pomp::pfilter(
-    pomp_simulation, params = est_params, Np = 500, filter.mean = TRUE
-  )
-  
-  pmmh_noninformative <- pomp::pmcmc(
-      pomp_simulation,
-      Nmcmc = 6000,
-      Np = 500,
-      proposal = pomp::mvn.diag.rw(
-          c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
-            beta_2 = 0.03, phi = 0.03)
-      ),
-      params = theta,
-      verbose = FALSE
-  )
-  
-  pmmh_informative <- pomp::pmcmc(
-      pomp_simulation,
-      Nmcmc = 6000,
-      Np = 500,
-      proposal = pomp::mvn.diag.rw(
-          c(mu = 0.03, sigma_x = 0.03, sigma_y = 0.03, beta_1 = 0.03,
-            beta_2 = 0.03, phi = 0.03)
-      ),
-      params = theta,
-      verbose = FALSE,
-      dprior = function(mu, sigma_x, sigma_y, beta_1, beta_2, phi, ..., log){
-          p_mu <- dnorm(mu, 3.5, 0.2)
-          p_sigma_x <- dnorm(sigma_x, log(0.06), 0.35)
-          p_sigma_y <- dnorm(sigma_y, log(0.03), 0.5)
-          p_beta_1 <- dnorm(beta_1, 0.5, 0.2)
-          p_beta_2 <- dnorm(beta_2, -0.3, 0.2)
-          p_phi <- dnorm(phi, atanh(0.8), 0.3)
-          lik <- (
-            p_mu * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
-          )
-          return(ifelse(log, log(lik), lik))
-      }
-  )
-  
-  return(
-    list(
-      data_observed = data_simulation$observed,
-      data_latent = data_simulation$latent,
-      theta = theta,
-      smc_result = list(par = est_params, pf = pf, optim_result = optim_result),
-      pmmh_noninformative = pmmh_noninformative,
-      pmmh_informative = pmmh_informative
-    )
-  )
-}
-
-# bake this stuff
-system.time(
-  simulation_result <- pomp::bake(
-    "simulation_study_result.rds",
-    {
-      doRNG::registerDoRNG(1598260027L)
-      cl <- parallel::makeCluster(4)
-      doParallel::registerDoParallel(cl)
-      results <- foreach::`%dopar%`(
-        foreach::foreach(i = 1:N_sim),
-        nonlinear_simulation(N, true_params_simulation, params_simulation)
-      )
-      parallel::stopCluster(cl)
-      results
-    }
-  )
-)
-```
-
-```{r, simulation_result_plots, eval=FALSE, echo=FALSE}
+```{r, aggregate-simulation-result-plot, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Aggregate simulation: Result", fig.width=7, fig.height=10, warning=FALSE, message=FALSE}
 res_smc <- matrix(nrow = N_sim, ncol = length(params_simulation))
+mse_smc <- vector("numeric", length = N_sim)
 res_pmmh_noninformative <- matrix(
   nrow = N_sim, ncol = length(params_simulation)
 )
-res_pmmh_informative <- matrix(nrow = N_sim, ncol = length(params_simulation))
+mse_pmmh_noninformative <- vector("numeric", length = N_sim)
+res_pmmh_true_informative <- matrix(
+  nrow = N_sim, ncol = length(params_simulation)
+)
+mse_pmmh_true_informative <- vector("numeric", length = N_sim)
+res_pmmh_false_informative <- matrix(
+  nrow = N_sim, ncol = length(params_simulation)
+)
+mse_pmmh_false_informative <- vector("numeric", length = N_sim)
 
 for (i in 1:N_sim) {
     res_smc[i, ] <- simulation_result[[i]]$smc_result$par
+    mse_smc[i] <- mean(sqrt((
+      simulation_result[[i]]$smc_result$pf - 
+        simulation_result[[i]]$data_latent
+    )^2))
     for (j in 1:length(params_simulation)) {
-        res_pmmh_informative[i, j] <- mean(
-          simulation_result[[i]]$pmmh_informative@traces[2000:6000, j+2]
-        )
         res_pmmh_noninformative[i, j] <- mean(
-          simulation_result[[i]]$pmmh_noninformative@traces[2000:6000, j+2]
+          simulation_result[[i]]$pmmh_noninformative$traces[3000:7500, j+2]
         )
+        mse_pmmh_noninformative[i] <- mean(sqrt((
+          simulation_result[[i]]$pmmh_noninformative$state_mean - 
+            simulation_result[[i]]$data_latent
+        )^2))
+        res_pmmh_true_informative[i, j] <- mean(
+          simulation_result[[i]]$pmmh_true_informative$traces[3000:7500, j+2]
+        )
+        mse_pmmh_true_informative[i] <- mean(sqrt((
+          simulation_result[[i]]$pmmh_true_informative$state_mean - 
+            simulation_result[[i]]$data_latent
+        )^2))
+        res_pmmh_false_informative[i, j] <- mean(
+          simulation_result[[i]]$pmmh_false_informative$traces[3000:7500, j+2]
+        )
+        mse_pmmh_false_informative[i] <- mean(sqrt((
+          simulation_result[[i]]$pmmh_false_informative$state_mean - 
+            simulation_result[[i]]$data_latent
+        )^2))
     }
 }
 
-for (i in 1:ncol(res_smc)) {
-  a <- data.frame(
-    a1 = res_smc[, i], a2 = res_pmmh_noninformative[, i],
-    a3 = res_pmmh_informative[, i]
-  )
-  a <- reshape2::melt(a)
-  boxplot(value ~ variable, a)
-  abline(h = true_params_simulation[])
-}
+# Plot theme
+p_theme <- theme(
+  legend.position = "bottom",
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  #axis.title = element_blank(),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, vjust = 0.5, angle = 0),
+  legend.key = element_rect(fill = NA)
+)
 
+# Beta 0
+df <- data.frame(
+  lik = res_smc[, 1], setup1 = res_pmmh_noninformative[, 1],
+  setup2 = res_pmmh_true_informative[, 1], 
+  setup3 = res_pmmh_false_informative[, 1] 
+)
+df <- reshape2::melt(df)
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p1 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_0"], colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\beta}_0$"), x = "")
+
+# Beta 1
+df <- data.frame(
+  lik = res_smc[, 2], setup1 = res_pmmh_noninformative[, 2],
+  setup2 = res_pmmh_true_informative[, 2], 
+  setup3 = res_pmmh_false_informative[, 2] 
+)
+df <- reshape2::melt(df)
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p2 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_1"], colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\beta}_1$"), x = "")
+
+# Beta 2
+df <- data.frame(
+  lik = res_smc[, 3], setup1 = res_pmmh_noninformative[, 3],
+  setup2 = res_pmmh_true_informative[, 3], 
+  setup3 = res_pmmh_false_informative[, 3] 
+)
+df <- reshape2::melt(df)
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p3 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_2"], colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\beta}_2$"), x = "")
+
+# sigma_x
+df <- data.frame(
+  lik = res_smc[, 4], setup1 = res_pmmh_noninformative[, 4],
+  setup2 = res_pmmh_true_informative[, 4], 
+  setup3 = res_pmmh_false_informative[, 4] 
+)
+df <- reshape2::melt(exp(df))
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p4 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_x"]), colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\sigma}_u$"), x = "")
+
+# sigma_y
+df <- data.frame(
+  lik = res_smc[, 5], setup1 = res_pmmh_noninformative[, 5],
+  setup2 = res_pmmh_true_informative[, 5], 
+  setup3 = res_pmmh_false_informative[, 5] 
+)
+df <- reshape2::melt(exp(df))
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p5 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_y"]), colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\sigma}_\\epsilon$"), x = "")
+
+# phi
+df <- data.frame(
+  lik = res_smc[, 6], setup1 = res_pmmh_noninformative[, 6],
+  setup2 = res_pmmh_true_informative[, 6], 
+  setup3 = res_pmmh_false_informative[, 6] 
+)
+df <- reshape2::melt(tanh(df))
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p6 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = tanh(true_params_simulation["phi"]), colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\phi}$"), x = "")
+
+# x_0
+df <- data.frame(
+  lik = res_smc[, 7], setup1 = res_pmmh_noninformative[, 7],
+  setup2 = res_pmmh_true_informative[, 7], 
+  setup3 = res_pmmh_false_informative[, 7] 
+)
+df <- reshape2::melt(df)
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p7 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  geom_hline(
+    aes(yintercept = true_params_simulation["x_0"], colour = "True"), 
+    linetype = 2, show.legend = TRUE
+  ) + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("$\\hat{\\x}_0$"), x = "")
+
+# mse
+df <- data.frame(
+  lik = mse_smc, setup1 = mse_pmmh_noninformative,
+  setup2 = mse_pmmh_true_informative, 
+  setup3 = mse_pmmh_false_informative
+)
+df <- reshape2::melt(df)
+df$type <- sapply(df$variable, function(x){ifelse(
+  x == "lik", "Likelihood based", "Bayesian")
+})
+p8 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
+  stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
+  theme_light() + p_theme +
+  scale_x_discrete(
+    labels = c(
+      "lik" = "Nelder-Mead", "setup1" = "Setup 1", "setup2" = "Setup 2",
+      "setup3" = "Setup 3"
+    )
+  ) +
+  labs(y = latex2exp::TeX("RMSE"), x = "")
+
+legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
+
+grid.arrange(
+  arrangeGrob(
+    p1 + theme(legend.position = "none"), 
+    p2 + theme(legend.position = "none"), 
+    p3 + theme(legend.position = "none"), 
+    p4 + theme(legend.position = "none"), 
+    p5 + theme(legend.position = "none"), 
+    p6 + theme(legend.position = "none"), 
+    p7 + theme(legend.position = "none"), 
+    p8 + theme(legend.position = "none", 
+               axis.title.y = element_text(angle = 90)),
+    ncol = 2
+  ),
+  arrangeGrob(grid::nullGrob(), legend, grid::nullGrob(), nrow = 1),
+  heights = c(4.5, 0.1), ncol = 1
+)
 ```
-

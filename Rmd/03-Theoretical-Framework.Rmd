@@ -4,7 +4,7 @@ bibliography: ../book.bib
 editor_options: 
   chunk_output_type: console
 ---
-# Theoretical Framework {#theory}
+# Theoretical framework {#theory}
 
 This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore relevant algorithms for performing likelihood based and bayesian inference will be introduced and their disadvantages and advantages elaborated. However, the content of this thesis will be limited to the case of discrete non-Gaussian and nonlinear state space models and it will be based on the literature of [@pomp_article; @doucet_inference; @doucet_johansen_tutorial; @cappe_smc; @doucet_pmmh].
 
@@ -39,13 +39,13 @@ Using the joint density it is possible to obtain the marginal density
 \end{equation}
 Within this setup the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$ one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including exogenous covariates. The observed covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ and the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$. Figure \@ref(fig:pomp-model-graphic) displays the structure of a state space model containing exogenous covariates within the state process.
 
-```{r pomp-model-graphic, fig.align='center', fig.cap='Example Model with Covariates', echo=FALSE}
+```{r pomp-model-graphic, fig.align='center', fig.cap='Example model with covariates', echo=FALSE}
 knitr::include_graphics(here::here("images", "pomp_model_graph.pdf"))
 ```
 
-Typically, one can separate two setups. Firstly, the case when the latent state and the observation processes are Gaussian with a linear relationship. This setup has an analytical solution to the parameter inference and hidden state estimation problem which is based upon the famous Kalman Filter [@kalman_filter]. Secondly, there is the general case where the processes are not necessary Gaussian and the relationship between the states and observations does not have to be linear. Unfortunately, these models are more difficult to fit and require powerful simulation techniques, [@doucet_inference].
+Typically, one can separate two setups. Firstly, the case when the latent state and the observation processes are Gaussian with a linear relationship. This setup has an analytical solution to the parameter inference and hidden state estimation problem which is based upon the famous Kalman Filter [@kalman_filter]. Secondly, there is the general case where the processes are not necessary Gaussian and the relationship between the states and observations and their processes do not have to be linear. Unfortunately, these models are more difficult to fit and require powerful simulation techniques, [@doucet_inference].
 
-## Particle Filtering
+## Particle filtering
 
 Given a fixed collection of observations $y^*_{1:N} = (y^*_1, ..., y^*_N)$ one is interested in carrying out inference about $\theta$ and $x_{0:N} = (x_0, ..., x_N)$. The two methods at hand, likelihood based inference and Bayesian inference, require the evaluation of the likelihood function.
 
@@ -65,7 +65,7 @@ and the marginal likelihood for parameter $\theta$ is the marginal density \@ref
   (\#eq:pomp-likelihood)
 \end{split}
 \end{equation}
-For now, parameter inference will be the main goal. Hence, the marginal likelihood will be referred to as likelihood in the following sections.
+Given that parameter inference will be the main goal, the focus will be on the marginal likelihood and it will be called likelihood in the following.
 
 For finite state-space hidden Markov models the integrals would correspond to finite sums and the likelihood could be computed exactly. Furthermore, for linear Gaussian models Kalman techniques can be used. However, for non linear and non-Gaussian models it is not possible to compute the likelihood in closed-form and numerical methods have to be employed, [@doucet_johansen_tutorial]. 
 
@@ -78,9 +78,9 @@ A naive approach for estimating the likelihood \@ref(eq:pomp-likelihood) functio
 \end{equation*}
 Hence, by directly sampling a set of trajectories $\{X_{0:N}^j, j = 1,..., J\}$ of size $J$, each with length $N$, from $p_{\theta}(x_{0:N})$, one can compute a numerical approximation of the likelihood
 $$\mathcal{L}(\theta) = \mathbb{E}\Bigg[\prod^{N}_{n=1}g_{\theta}(y^*_{n} | X_{n})\Bigg] \approx \frac{1}{J}\sum^J_{j=1}\prod^{N}_{n=1}g_{\theta}(y^*_{n} | X^j_{n})$$
-However, this setup would require a very large number of samples $J$ in order to obtain a relatively good approximation since most of the trajectories diverge a lot from the true state and therefore yield extremely small likelihoods. Additionally, as a trajectory diverges from the true process, it will almost never come back.
+However, this setup would require a very large number of samples $J$ in order to obtain a relatively good approximation, since most of the trajectories diverge a lot from the true state and therefore yield extremely small likelihoods. Additionally, as a trajectory diverges from the true process, it will almost never come back.
 
-A better approach would be to generate samples of the state process $X_{0:N}$ conditional on the observed data $y^*_{1:N}$. Sequential Monte Carlo methods, alias Particle Filters, pick up this idea by combining importance sampling and resampling steps using a cloud of particles. In the following the basic idea of the bootstrap particle filter [@bootstrap_filter] will be explained.
+A better approach would be to generate samples of the state process $X_{0:N}$ conditional on the observed data $y^*_{1:N}$. Sequential Monte Carlo methods, alias particle filters, pick up this idea by combining importance sampling and resampling steps using a cloud of particles. In the following the basic idea of the bootstrap particle filter, see [@bootstrap_filter], will be explained.
 
 As a first step, the likelihood of the partially observed Markov model can be factorized differently, see [@doucet_inference]
 \begin{equation*}
@@ -90,37 +90,39 @@ As a first step, the likelihood of the partially observed Markov model can be fa
   & =\prod^{N}_{n=1} \int g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})dx_n
 \end{split}
 \end{equation*}
-Now, the likelihood can be estimated by approximating the integral at each time point $t_n$ as shown in [@cappe_smc]. One can think of this task as applying Monte Carlo integration by drawing samples from the so called prediction distribution $p_{\theta}(x_n|y^*_{1:n-1})$. Drawing samples from this distribution can only be done by using a so called filtering or updating distribution $p_{\theta}(x_n|y^*_{1:n})$, as can be seen by extending the prediction distribution, see [Appendix Derivations][Prediction & Filtering Distribution]
+Now, the likelihood can be estimated by approximating the integral at each time point $t_n$ as shown in [@cappe_smc]. One can think of this task as applying Monte Carlo integration by drawing samples from the so called prediction distribution $p_{\theta}(x_n|y^*_{1:n-1})$. Drawing samples from this distribution can only be done by using a so called filtering or updating distribution $p_{\theta}(x_n|y^*_{1:n})$, as can be seen by extending the prediction distribution, see [appendix derivations][Prediction & Filtering distribution]
 \begin{equation*}
 \begin{split}
   p_{\theta}(x_n|y^*_{1:n-1}) & = \int p_{\theta}(x_n, x_{n-1}|y^*_{1:n-1})dx_{n-1} \\
   & = \int f_{\theta}(x_n|x_{n-1})p_{\theta}(x_{n-1}|y^*_{1:n-1})dx_{n-1}
 \end{split}
 \end{equation*}
-The filtering distribution is obtained by applying Bayes theorem, see [Appendix Derivations][Prediction & Filtering Distribution]
+The filtering distribution is obtained by applying Bayes theorem, see [appendix derivations][Prediction & Filtering distribution]
 \begin{equation*}
 \begin{split}
   p_{\theta}(x_n|y^*_{1:n}) & = p_{\theta}(x_n|y^*_n, y^*_{1:n-1}) = \frac{g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})}{p_{\theta}(y^*_n|y^*_{1:n-1})}
 \end{split}
 \end{equation*}
-Hence, for each time point, $t_n, n= 1, ...., N$, it is possible to obtain the prediction distribution using the filtering distribution from $t_{n-1}$. Furthermore, one can obtain the filtering distribution at $t_n$ from the prediction distribution at $t_n$. Furthermore, the filtering distribution at $t_0$ is just the initial value distribution $\mu_{\theta}(x_0)$.
+Hence, for each time point, $t_n, n= 1, ...., N$, it is possible to obtain the prediction distribution using the filtering distribution from $t_{n-1}$. One can obtain the filtering distribution at $t_n$ from the prediction distribution at $t_n$. Furthermore, the filtering distribution at $t_0$ is just the initial value distribution $\mu_{\theta}(x_0)$.
 
-At $t_0$ one starts by sampling values from $\mu_{\theta}(\cdot)$ in order to get a sample from the filtering distribution $X^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$, a sample from the prediction distribution, $X^P_{1,j}$, $j = 1, ..., J$, can be obtained by sampling from $f_{\theta}(\cdot|X^F_{0, j})$. Particles with low weights are discarded by resampling $\{X^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|X^P_{n, j})$ and one obtains a sample from the filtering distribution at $t_1$, $X^F_{1, j}$, $j = 1, ..., J$.
+At $t_0$ one starts by sampling values from $\mu_{\theta}(\cdot)$ in order to get a sample from the filtering distribution, $X^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$, a sample from the prediction distribution, $X^P_{1,j}$, $j = 1, ..., J$, can be obtained by sampling from $f_{\theta}(\cdot|X^F_{0, j})$. Particles with low weights are discarded by resampling $\{X^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|X^P_{n, j})$ and one obtains a sample from the filtering distribution at $t_1$, $X^F_{1, j}$, $j = 1, ..., J$.
 
-Hence, at each time point the log likelihood can be approximated and a filtering estimate for the state can be computed
+A variety of resampling schemes are available with the basic schema being multinomial resampling. However, based on the results in [@resampling_schemes] the systematic resampling approach will be used.
+
+Moreover, at each time point the conditional log likelihood can be approximated and a filtering estimate for the state can be computed
 \begin{equation*}
 \begin{split}
-  \hat{\ell}_{n} & = \ln\Bigg(\frac{1}{J}\sum^J_{j=1}w_{n, j}\Bigg) \\
-  E\big[X_n|y^*_{1:n}\big] & = \frac{1}{J}\sum^J_{j=1}X^F_{n, j}
+  \hat{\ell}_{n|n-1} & = \ln\Bigg(\frac{1}{J}\sum^J_{j=1}w_{n, j}\Bigg) \\
+  E\big[X_n|y^*_{1:n}\big] = \hat{x}_n & = \frac{1}{J}\sum^J_{j=1}X^F_{n, j}
 \end{split}
 \end{equation*}
 After having iterated through this sampling, resampling procedure the full log likelihood approximation can be computed:
-$$\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n}$$
-An exact description of these algorithms can be found in [@pomp_article] and the appendix, [Appendix Algorithms][Particle Filter and Systematic resampling]. 
+$$\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|n-1}$$
+An exact description of these algorithms can be found in [@pomp_article] and the [appendix algorithms][Particle Filter and Systematic resampling]. 
 
-## Likelihood based Inference
+## Likelihood based inference
 
-The objective of likelihood based inference is to find the vector of parameters $\theta$ for which the observations $y^*_{1:N}$ are most likely under the chosen model setup. Hence, this process can be translated into maximizing the objective function, the likelihood function \@ref(eq:pomp-likelihood), with respect to $\theta$ evaluated at the collected data $y^*_{1:N}$. The parameter vector that maximizes the likelihood is called the maximum likelihood estimate (MLE)
+The objective of likelihood based inference is to find the vector of parameters $\theta$ for which the observations $y^*_{1:N}$ are most likely under the chosen model setup. Hence, this process can be translated into maximizing the objective function, the likelihood function \@ref(eq:pomp-likelihood), with respect to $\theta$ evaluated at the collected data $y^*_{1:N}$. The parameter vector that maximizes the likelihood is called the maximum likelihood estimate
 \begin{equation*}
   \hat{\theta} = \argmax_{\theta}\mathcal{L}(\theta)
 \end{equation*}
@@ -130,7 +132,7 @@ The particle filter returns a stochastic estimate of the likelihood function whi
 
 Unfortunately, the stochasticity of the likelihood estimate creates issues for most optimizers, as the ones defined in the \texttt{R} \texttt{optim} function, which assume that the objective function is evaluated deterministically. Furthermore, the analytical properties of the target function assumed by most dterministic numerical optimization algorithms (convexity, boundedness, smoothness) are often paramount.
 
-The particle filter returns just an estimate of the likelihood and no information about the derivative. Approximating the derivative via finite differencing is not promising. Since the likelihood function is already a noisy estimate, one can expect the derivative estimates to be even noisier. Equivalently, confidence intervals can not be obtained numerically since approximating the hessian via finite difference methods, in order to get the observed fisher information, is not feasible. Hence, a derivative-free optimization algorithm has to be chosen. \texttt{R}'s \texttt{optim} default method, the Nelder-Mead algorithm [@nelder_mead], can be used for this case.
+The particle filter does not return information about the derivative. Approximating the derivative via finite differencing is not promising. Since the likelihood function is already a noisy estimate, one can expect the derivative estimates to be even noisier. Equivalently, confidence intervals can not be obtained numerically since approximating the hessian via finite difference methods, in order to get the observed fisher information, is not feasible. Hence, a derivative-free optimization algorithm has to be chosen. \texttt{R}'s \texttt{optim} default method, the Nelder-Mead algorithm [@nelder_mead], can be used for this case.
 
 However, using this optimization algorithm comes not without drawbacks. Firstly, repediately applying the Nelder-Mead procedure will yield different maximum likelihood estimates due to the stochasticity of the likelihood estimate. Hence, it makes sense to use a very large number of particles in order to get small Monte Carlo errors in the likelihood estimates and to compare likelihood estimates from multiple rounds of applying the Nelder-Mead optimization. Unfortunately, this adds more computational complexity and amplifies the slowness, one of the major drawbacks of this optimization algorithm.
 
@@ -138,13 +140,15 @@ There have been recent scientific advances that solve the mentioned problems wit
 
 Iterated filtering is a simulation based algorithm that uses a partical filter for an artificial state space model where the parameters are following a random walk process. The perturbations of the parameters are successively reduced and it has been shown that the algorithm converges towards the maximum likelihood estimate [@iterated_filtering_improved]. Furthermore, it is possible to compute confidence intervals by constructing profile likelihoods for each parameter and applying the so called Monte Carlo adjusted profile algorithm, see [@mcap_algorithm]. This approach is complicated and computationally intensive but the advantage of this methodology is that it adjusts the width of the confidence interval by accounting for the Monte Carlo error in the likelihood approximation. 
 
-## Bayesian Inference
+## Bayesian inference
 
-Bayesian inference relies on the idea that the observed data updates the formulated prior believe yielding the posterior distribution. Within the context of partially observed Markov processes it is possible to define two related approaches that require a prior specification $\pi(\theta)$ on the unknown parameter vector $\theta$.
+Bayesian inference relies on the idea that the observed data updates the formulated prior believe, yielding the posterior distribution. Within the context of partially observed Markov processes it is possible to define two related approaches that require a prior specification $\pi(\theta)$ on the unknown parameter vector $\theta$.
 
-Both cases will be described in the context of the Random Walk Metropolis Hastings algorithm. This procedure provides a simulation based approach for obtaining samples from a posterior distribution. The basic idea is that for a given starting parameter $\theta^{(0)}$ and a requested number of runs $M$, at each point $m = 1, ..., M$ a random walk proposal for each parameter $\theta^*_i$ is generated based on 
-$$\theta_i^{*}\sim N(\theta_i^{(m-1)}, \lambda_i^2)$$
-The proposal density will be denoted with $q(\theta^*|\theta^{(m-1)})$ and the proposal will then be accepted with probability $\alpha(\theta^{*}|\theta^{(m-1)})$. If it is accepted one sets $\theta^{(m)} = \theta^{*}$ and otherwise $\theta^{(m)} = \theta^{(m-1)}$. Typically, these algorithms require the evaluation of the likelihood function. However, in the case of nonlinear, non-Gaussian state space models it is only possible to obtain estimates of the likelihood function. Hence, both cases use the particle filter within the Metropolis Hastings algorithm in order get an unbiased estimate of the likelihood \@ref(eq:pomp-likelihood). Note that this makes these algorithms very computational intensive since at each iteration $m$ a likelihood estimate has to be obtained via the particle filter.
+Both cases will be described in the context of the random walk Metropolis Hastings algorithm. This procedure provides a simulation based approach for obtaining samples from a posterior distribution. The basic idea is that for a given starting parameter $\theta^{(0)}$ and a requested number of runs $M$, at each point $m = 1, ..., M$ a random walk proposal for each parameter $\theta^*_i$ is generated based on 
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, \lambda_i^2)$$
+where $\lambda_i$ is the jump size of the random walk proposal for parameter $\theta^*_i$.
+
+The proposal density will be denoted with $q(\theta^*|\theta^{(m-1)})$ and the proposal will then be accepted with probability $\alpha(\theta^{*}|\theta^{(m-1)})$. If it is accepted one sets $\theta^{(m)} = \theta^{*}$ and otherwise $\theta^{(m)} = \theta^{(m-1)}$. Typically, these algorithms require the evaluation of the likelihood function. However, in the case of nonlinear, non-Gaussian state space models it is only possible to obtain estimates of the likelihood function. Hence, both approaches use the particle filter within the Metropolis Hastings algorithm in order get an unbiased estimate of the likelihood \@ref(eq:pomp-likelihood). Note that this makes these algorithms very computationally intensive since at each iteration $m$ a likelihood estimate has to be obtained via the particle filter.
 
 The first case, the pseudo marginal Metropolis Hastings algorithm [@pseudo_marginal], targets the posterior distribution
 $$p(\theta|y^*_{1:N}) = \frac{\mathcal{L}(\theta)\pi(\theta)}{p(y^*_{1:N})}$$
@@ -162,17 +166,17 @@ The second case targets the joint posterior density $p(x_{0:N}, \theta|y^*_{1:N}
 $$
 p(x_{0:N}, \theta|y^*_{1:N}) = \frac{\mathcal{L}(\theta, x_{0:N})\pi(\theta)}{p(y^*_{1:N})}
 $$
-Besides requiring a proposal for the parameter vector $\theta$ this approach needs an additional proposal for the latent state process. A naive approach would be to generate the state proposal independent of the observed data $y^*_{1:N}$. As with the naive Monte Carlo integration example, explained within the [Particle Filtering chapter][Particle Filtering], this approach would yield trajectories that diverge a lot from the true state.
+Besides requiring a proposal for the parameter vector $\theta$, this approach needs an additional proposal for the latent state process. A simple approach would be to generate the state proposal independent of the observed data $y^*_{1:N}$. As with the naive Monte Carlo integration example, explained within the previous section, this approach would yield trajectories that diverge a lot from the true state.
 
-Hence, the particle marginal Metropolis Hastings approach uses the proposal $\theta^*$ and the observed data in order to generate a proposal $x^*_{0:N}$. The pair $(\theta^*, x^*_{0:N})$ can be generated from the following proposal density, see [@doucet_pmmh]
+Hence, the particle marginal Metropolis Hastings approach, uses the proposal $\theta^*$ and the observed data in order to generate a proposal $x^*_{0:N}$. The pair $(\theta^*, x^*_{0:N})$ can be generated from the following proposal density, see [@doucet_pmmh]
 $$q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N}) = q(\theta^*|\theta^{(m-1)})p_{\theta^*}(x^*_{0:N}|y^*_{1:N})$$
-The resulting acceptance probability reduces to the same probability as for the marginal approach \@ref(eq:acceptance-marginal-approach), see [Appendix Derivations][PMMH - acceptance probability] and [@doucet_pmmh]
+The resulting acceptance probability reduces to the same probability as for the marginal approach \@ref(eq:acceptance-marginal-approach), see the [appendix derivations][PMMH - acceptance probability] and [@doucet_pmmh]
 \begin{equation}
 \begin{split}
 \alpha(\theta^{*}|\theta^{(m-1)}) & = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})q(\theta^{(m-1)}, x^{(m-1)}_{0:N}|\theta^*, x^*_{0:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N})}\Bigg\} \\
 & = \min\Bigg\{1, \frac{\mathcal{L}(\theta^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\mathcal{L}(\theta^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}
 \end{split}
 \end{equation}
-Hence, drawing samples from the joint posterior density can be achieved by using the easy to compute acceptance probability from the marginal approach \@ref(eq:acceptance-marginal-approach). The posterior samples for the latent state process will be obtained by storing a random trajectory from the particle cloud at each step $m$, obtained by the particle filter.
+Hence, drawing samples from the joint posterior density can be achieved by using the previous acceptance probability from the pseudo marginal approach \@ref(eq:acceptance-marginal-approach). The posterior samples for the latent state process can be obtained by storing a random trajectory from the particle cloud at each step $m$, obtained by the particle filter.
 
-By sampling from the posterior distribution it is possible to obtain point estimates for the parameters and states (e.g., mean or mode) as well as bayesian credible intervals as measures of uncertainty. In the following, this thesis will be limited to the application of the Particle Marginal Metropolis-Hastings (PMMH) algorithm. An overview of the procedure can be found in [@pomp_article] and in the [Appendix Algorithms][PMMH].
+By sampling from the posterior distribution it is possible to obtain point estimates for the parameters and states (e.g., mean or mode) as well as bayesian credible intervals as measures of uncertainty. In the following, this thesis will be limited to the application of the particle marginal Metropolis-Hastings (PMMH) algorithm. An overview of the procedure can be found in [@pomp_article] and in the [appendix algorithms][PMMH].

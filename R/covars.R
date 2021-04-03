@@ -1,5 +1,5 @@
 # get covars
-read.csv(here::here("data", "final_dataset.csv"))
+y <- read.csv(here::here("data", "final_dataset.csv"))
 covars <- rbind(0, y[, -2])
 covars <- cbind(
     covars[, 1:9], covars[, 5:9], covars[, 10:29]

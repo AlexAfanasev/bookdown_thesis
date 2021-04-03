@@ -1,10 +1,1194 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 # (APPENDIX) Appendix {-}
+
+# Appendix: Figures {#figures}
+
+```{r, sim-4-appendix, eval=TRUE, echo=FALSE}
+# get simulation result
+source(here::here("R", "simulation_study", "simulation.R"))
+
+# Plot trace noninformative
+sim_4 <- simulation_result[[4]]
+
+library(ggplot2)
+library(gridExtra)
+```
+
+```{r, sim-4-appendix-trace-plot-setup-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot setup 1", fig.width=6, fig.height=6.5, warning=FALSE}
+traces <- sim_4$pmmh_noninformative$traces
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+)
+
+# Beta 0
+df <- data.frame(
+  time = 1:nrow(traces), variable = "beta_0", beta_0 = traces[, 3]
+)
+p1 <- ggplot(data = df, aes(x = time, y = beta_0)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_0"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_0$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_0$")) +
+  p_theme
+
+# Beta 1
+df <- data.frame(
+  time = 1:nrow(traces), beta_1 = traces[, 4], variable = "Trace"
+)
+p2 <- ggplot(data = df, aes(x = time, y = beta_1)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_1"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_1$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_1$")) +
+  p_theme
+
+# Beta 2
+df <- data.frame(
+  time = 1:nrow(traces), beta_2 = traces[, 5], variable = "Trace"
+)
+p3 <- ggplot(data = df, aes(x = time, y = beta_2)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_2"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_2$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_2$")) +
+  p_theme
+
+# Sigma x
+df <- data.frame(
+  time = 1:nrow(traces), sigma_x = exp(traces[, 6]), variable = "Trace"
+)
+p4 <- ggplot(data = df, aes(x = time, y = sigma_x)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_x"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
+  p_theme
+
+# Sigma y
+df <- data.frame(
+  time = 1:nrow(traces), sigma_y = exp(traces[, 7]), variable = "Trace"
+)
+p5 <- ggplot(data = df, aes(x = time, y = sigma_y)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_y"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
+  p_theme
+
+# Phi
+df <- data.frame(
+  time = 1:nrow(traces), phi = tanh(traces[, 8]), variable = "Trace"
+)
+p6 <- ggplot(data = df, aes(x = time, y = phi)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = tanh(true_params_simulation["phi"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\phi$}"),
+       x = "m", y = latex2exp::TeX("$\\phi$")) +
+  p_theme
+
+# X 0
+df <- data.frame(
+  time = 1:nrow(traces), x_0 = traces[, 9], variable = "Trace"
+)
+p7 <- ggplot(data = df, aes(x = time, y = x_0)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["x_0"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\x_0$}"),
+       x = "m", y = latex2exp::TeX("$\\x_0$")) +
+  p_theme
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
+)
+```
+
+```{r, sim-4-appendix-marginal-posterior-setup-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the marginal posterior distributions for setup 1", fig.width=6, fig.height=6.5, warning=FALSE}
+traces <- sim_4$pmmh_noninformative$traces[3000:7500, ]
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, vjust = 0.5),
+  legend.key = element_rect(fill = NA)
+)
+
+# Beta 0
+df <- data.frame(time = 1:nrow(traces), beta_0 = traces[, 3])
+p1 <- ggplot(data = df, aes(x = beta_0)) +
+  geom_density(aes(x = beta_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_0"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 3]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_0$}"),
+       x = latex2exp::TeX("$\\beta_0$"))
+
+# Beta 1
+df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
+p2 <- ggplot(data = df, aes(x = beta_1)) +
+  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_1"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 4]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_1$}"),
+       x = latex2exp::TeX("$\\beta_1$"))
+
+# Beta 2
+df <- data.frame(time = 1:nrow(traces), beta_2 = traces[, 5])
+p3 <- ggplot(data = df, aes(x = beta_2)) +
+  geom_density(aes(x = beta_2, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_2"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 5]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_2$}"),
+       x = latex2exp::TeX("$\\beta_2$"))
+
+# Sigma x
+df <- data.frame(time = 1:nrow(traces), sigma_x = exp(traces[, 6]))
+p4 <- ggplot(data = df, aes(x = sigma_x)) +
+  geom_density(aes(x = sigma_x, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = exp(true_params_simulation["sigma_x"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 6])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+       x = latex2exp::TeX("$\\sigma_u$"))
+
+# Sigma y
+df <- data.frame(time = 1:nrow(traces), sigma_y = exp(traces[, 7]))
+p5 <- ggplot(data = df, aes(x = sigma_y)) +
+  geom_density(aes(x = sigma_y, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = exp(true_params_simulation["sigma_y"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 7])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"),
+       x = latex2exp::TeX("$\\sigma_\\epsilon$"))
+
+# Phi
+df <- data.frame(time = 1:nrow(traces), phi = tanh(traces[, 8]))
+p6 <- ggplot(data = df, aes(x = phi)) +
+  geom_density(aes(x = phi, colour = "Posterior", linetype = "Posterior"),
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = tanh(true_params_simulation["phi"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(tanh(traces[, 8])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\phi$}"),
+       x = latex2exp::TeX("$\\phi$"))
+
+# X 0
+df <- data.frame(time = 1:nrow(traces), x_0 = traces[, 9])
+p7 <- ggplot(data = df, aes(x = x_0)) +
+  geom_density(aes(x = x_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["x_0"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 9]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\x_0$}"),
+       x = latex2exp::TeX("$\\x_0$"))
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
+)
+```
+
+```{r, sim-4-appendix-trace-plot-setup-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot setup 2", fig.width=6, fig.height=6.5, warning=FALSE}
+traces <- sim_4$pmmh_true_informative$traces
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+)
+
+# Beta 0
+df <- data.frame(
+  time = 1:nrow(traces), variable = "beta_0", beta_0 = traces[, 3]
+)
+p1 <- ggplot(data = df, aes(x = time, y = beta_0)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_0"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_0$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_0$")) +
+  p_theme
+
+# Beta 1
+df <- data.frame(
+  time = 1:nrow(traces), beta_1 = traces[, 4], variable = "Trace"
+)
+p2 <- ggplot(data = df, aes(x = time, y = beta_1)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_1"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_1$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_1$")) +
+  p_theme
+
+# Beta 2
+df <- data.frame(
+  time = 1:nrow(traces), beta_2 = traces[, 5], variable = "Trace"
+)
+p3 <- ggplot(data = df, aes(x = time, y = beta_2)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_2"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_2$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_2$")) + 
+  p_theme
+
+# Sigma x
+df <- data.frame(
+  time = 1:nrow(traces), sigma_x = exp(traces[, 6]), variable = "Trace"
+)
+p4 <- ggplot(data = df, aes(x = time, y = sigma_x)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_x"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
+  p_theme
+
+# Sigma y
+df <- data.frame(
+  time = 1:nrow(traces), sigma_y = exp(traces[, 7]), variable = "Trace"
+)
+p5 <- ggplot(data = df, aes(x = time, y = sigma_y)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_y"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
+  p_theme
+
+# Phi
+df <- data.frame(
+  time = 1:nrow(traces), phi = tanh(traces[, 8]), variable = "Trace"
+)
+p6 <- ggplot(data = df, aes(x = time, y = phi)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = tanh(true_params_simulation["phi"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\phi$}"),
+       x = "m", y = latex2exp::TeX("$\\phi$")) +
+  p_theme
+
+# X 0
+df <- data.frame(
+  time = 1:nrow(traces), x_0 = traces[, 9], variable = "Trace"
+)
+p7 <- ggplot(data = df, aes(x = time, y = x_0)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["x_0"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\x_0$}"),
+       x = "m", y = latex2exp::TeX("$\\x_0$")) +
+  p_theme
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
+)
+```
+
+```{r, sim-4-appendix-marginal-posterior-setup-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the marginal posterior distributions for setup 2", fig.width=6, fig.height=6.5, warning=FALSE}
+traces <- sim_4$pmmh_true_informative$traces[3000:7500, ]
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, vjust = 0.5),
+  legend.key = element_rect(fill = NA)
+)
+
+# Beta 0
+df <- data.frame(time = 1:nrow(traces), beta_0 = traces[, 3])
+p1 <- ggplot(data = df, aes(x = beta_0)) +
+  geom_density(aes(x = beta_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_0"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 3]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 0.4, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_0$}"),
+       x = latex2exp::TeX("$\\beta_0$"))
+
+# Beta 1
+df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
+p2 <- ggplot(data = df, aes(x = beta_1)) +
+  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_1"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 4]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 0.5, sd = 0.2)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_1$}"),
+       x = latex2exp::TeX("$\\beta_1$"))
+
+# Beta 2
+df <- data.frame(time = 1:nrow(traces), beta_2 = traces[, 5])
+p3 <- ggplot(data = df, aes(x = beta_2)) +
+  geom_density(aes(x = beta_2, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_2"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 5]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = -0.3, sd = 0.2)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_2$}"),
+       x = latex2exp::TeX("$\\beta_2$"))
+
+# Sigma x
+df <- data.frame(time = 1:nrow(traces), sigma_x = exp(traces[, 6]))
+p4 <- ggplot(data = df, aes(x = sigma_x)) +
+  geom_density(aes(x = sigma_x, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = exp(true_params_simulation["sigma_x"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 6])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dgamma, aes(colour = "Prior", linetype = "Prior"),
+    args = list(shape = 12, scale = 0.005)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+       x = latex2exp::TeX("$\\sigma_u$"))
+
+# Sigma y
+df <- data.frame(time = 1:nrow(traces), sigma_y = exp(traces[, 7]))
+p5 <- ggplot(data = df, aes(x = sigma_y)) +
+  geom_density(aes(x = sigma_y, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = exp(true_params_simulation["sigma_y"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 7])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dgamma, aes(colour = "Prior", linetype = "Prior"),
+    args = list(shape = 6, scale = 0.005)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"),
+       x = latex2exp::TeX("$\\sigma_\\epsilon$"))
+
+# Phi
+df <- data.frame(time = 1:nrow(traces), phi = tanh(traces[, 8]))
+p6 <- ggplot(data = df, aes(x = phi)) +
+  geom_density(aes(x = phi, colour = "Posterior", linetype = "Posterior"),
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = tanh(true_params_simulation["phi"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(tanh(traces[, 8])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = truncnorm::dtruncnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(a = -1, b = 1, mean = 0.8, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\phi$}"),
+       x = latex2exp::TeX("$\\phi$"))
+
+# X 0
+df <- data.frame(time = 1:nrow(traces), x_0 = traces[, 9])
+p7 <- ggplot(data = df, aes(x = x_0)) +
+  geom_density(aes(x = x_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["x_0"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 9]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 3.5, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\x_0$}"),
+       x = latex2exp::TeX("$\\x_0$"))
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
+)
+```
+
+```{r, sim-4-appendix-trace-plot-setup-3, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot setup 3", fig.width=6, fig.height=6.5, warning=FALSE}
+traces <- sim_4$pmmh_false_informative$traces
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+)
+
+# Beta 0
+df <- data.frame(
+  time = 1:nrow(traces), variable = "beta_0", beta_0 = traces[, 3]
+)
+p1 <- ggplot(data = df, aes(x = time, y = beta_0)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_0"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_0$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_0$")) +
+  p_theme
+
+# Beta 1
+df <- data.frame(
+  time = 1:nrow(traces), beta_1 = traces[, 4], variable = "Trace"
+)
+p2 <- ggplot(data = df, aes(x = time, y = beta_1)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_1"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_1$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_1$")) +
+  p_theme
+
+# Beta 2
+df <- data.frame(
+  time = 1:nrow(traces), beta_2 = traces[, 5], variable = "Trace"
+)
+p3 <- ggplot(data = df, aes(x = time, y = beta_2)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["beta_2"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_2$}"),
+       x = "m", y = latex2exp::TeX("$\\beta_2$")) +
+  p_theme
+
+# Sigma x
+df <- data.frame(
+  time = 1:nrow(traces), sigma_x = exp(traces[, 6]), variable = "Trace"
+)
+p4 <- ggplot(data = df, aes(x = time, y = sigma_x)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_x"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
+  p_theme
+
+# Sigma y
+df <- data.frame(
+  time = 1:nrow(traces), sigma_y = exp(traces[, 7]), variable = "Trace"
+)
+p5 <- ggplot(data = df, aes(x = time, y = sigma_y)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = exp(true_params_simulation["sigma_y"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
+  p_theme
+
+# Phi
+df <- data.frame(
+  time = 1:nrow(traces), phi = tanh(traces[, 8]), variable = "Trace"
+)
+p6 <- ggplot(data = df, aes(x = time, y = phi)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = tanh(true_params_simulation["phi"]), color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\phi$}"),
+       x = "m", y = latex2exp::TeX("$\\phi$")) +
+  p_theme
+
+# X 0
+df <- data.frame(
+  time = 1:nrow(traces), x_0 = traces[, 9], variable = "Trace"
+)
+p7 <- ggplot(data = df, aes(x = time, y = x_0)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  geom_hline(
+    aes(yintercept = true_params_simulation["x_0"], color = "True"),
+    show.legend = TRUE, linetype = "dashed"
+  ) +
+  scale_color_manual(values = c("black", "red"), labels = c("Trace", "True")) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\x_0$}"),
+       x = "m", y = latex2exp::TeX("$\\x_0$")) +
+  p_theme
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
+)
+```
+
+```{r, sim-4-appendix-marginal-posterior-setup-3, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the marginal posterior distributions for setup 3", fig.width=6, fig.height=6.5, warning=FALSE}
+traces <- sim_4$pmmh_false_informative$traces[3000:7500, ]
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, vjust = 0.5),
+  legend.key = element_rect(fill = NA)
+)
+
+# Beta 0
+df <- data.frame(time = 1:nrow(traces), beta_0 = traces[, 3])
+p1 <- ggplot(data = df, aes(x = beta_0)) +
+  geom_density(aes(x = beta_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_0"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 3]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 0.8, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_0$}"),
+       x = latex2exp::TeX("$\\beta_0$"))
+
+# Beta 1
+df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
+p2 <- ggplot(data = df, aes(x = beta_1)) +
+  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_1"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 4]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 0.0, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_1$}"),
+       x = latex2exp::TeX("$\\beta_1$"))
+
+# Beta 2
+df <- data.frame(time = 1:nrow(traces), beta_2 = traces[, 5])
+p3 <- ggplot(data = df, aes(x = beta_2)) +
+  geom_density(aes(x = beta_2, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["beta_2"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 5]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 0.0, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_2$}"),
+       x = latex2exp::TeX("$\\beta_2$"))
+
+# Sigma x
+df <- data.frame(time = 1:nrow(traces), sigma_x = exp(traces[, 6]))
+p4 <- ggplot(data = df, aes(x = sigma_x)) +
+  geom_density(aes(x = sigma_x, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = exp(true_params_simulation["sigma_x"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 6])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dgamma, aes(colour = "Prior", linetype = "Prior"),
+    args = list(shape = 10, scale = 0.01)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+       x = latex2exp::TeX("$\\sigma_u$"))
+
+# Sigma y
+df <- data.frame(time = 1:nrow(traces), sigma_y = exp(traces[, 7]))
+p5 <- ggplot(data = df, aes(x = sigma_y)) +
+  geom_density(aes(x = sigma_y, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = exp(true_params_simulation["sigma_y"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 7])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dgamma, aes(colour = "Prior", linetype = "Prior"),
+    args = list(shape = 10, scale = 0.005)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"),
+       x = latex2exp::TeX("$\\sigma_\\epsilon$"))
+
+# Phi
+df <- data.frame(time = 1:nrow(traces), phi = tanh(traces[, 8]))
+p6 <- ggplot(data = df, aes(x = phi)) +
+  geom_density(aes(x = phi, colour = "Posterior", linetype = "Posterior"),
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = tanh(true_params_simulation["phi"]), colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(tanh(traces[, 8])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = truncnorm::dtruncnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(a = -1, b = 1, mean = 0.3, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\phi$}"),
+       x = latex2exp::TeX("$\\phi$"))
+
+# X 0
+df <- data.frame(time = 1:nrow(traces), x_0 = traces[, 9])
+p7 <- ggplot(data = df, aes(x = x_0)) +
+  geom_density(aes(x = x_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = true_params_simulation["x_0"], colour = "True",
+        linetype = "True"), show.legend = FALSE
+  ) +
+  geom_vline(
+    aes(xintercept = mean(traces[, 9]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = dnorm, aes(colour = "Prior", linetype = "Prior"),
+    args = list(mean = 3.0, sd = 0.1)
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+               "Prior" = 1, "True" = 3), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\x_0$}"),
+       x = latex2exp::TeX("$\\x_0$"))
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
+)
+```
 
 # Appendix: Algorithms {#algorithms}
 
 The following algorithms can be found in [@pomp_article].
 
-## Particle Filter and Systematic resampling
+## Particle filter and systematic resampling
 
 \begin{algorithm}
   \caption{Particle Filter}
@@ -22,9 +1206,9 @@ The following algorithms can be found in [@pomp_article].
     \nl Normalize weights: $\tilde{w}(n, j) = \frac{w(n, j)}{\sum^J_{m=1}w(n, m)}$\;
     \nl Apply Algorithm \ref{alg:systematic-resampling} to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
     \nl Resample: set $X^F_{n,j} = X^P_{n,k_j}$ for $j$ in $1:J$\;
-    \nl Compute conditional log likelihood: $\hat{\ell}_{n|1:n-1} = ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
+    \nl Compute conditional log likelihood: $\hat{\ell}_{n|n-1} = ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
   }
-  \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|1:n-1}$ \newline
+  \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|n-1}$ \newline
   Filter sample: $X^F_{n,1:J}$ for $n$ in 1:N}
 \end{algorithm}
 
@@ -60,7 +1244,7 @@ The following algorithms can be found in [@pomp_article].
     Number of particles $J$ \newline
     Number of iterations $M$
     }
-  \nl Initialization: Compute $\hat{\ell}_0 = \hat{\ell}(\theta_0)$ using algorithm \ref{alg:particle-filter} with $J$ particles\;
+  \nl Initialization: Compute $\hat{\ell}_0 = \hat{\ell}(\theta_0)$ using Algorithm \ref{alg:particle-filter} with $J$ particles\;
   \nl Draw random trajectory $X^{(0)}_{0:N}$from $X^F_{0:N,1:J}$ obtained from particle filter \;
   \nl \For{$m = 1$ \To{} $M$}{%
     \nl Draw a parameter proposal $\theta^*\sim q(\theta^*|\theta^{(m-1)})$\;
@@ -80,7 +1264,7 @@ The following algorithms can be found in [@pomp_article].
 
 # Appendix: Derivations {#derivations}
 
-## Prediction & Filtering Distribution
+## Prediction & Filtering distribution
 
 \begin{equation*}
 \begin{split}
