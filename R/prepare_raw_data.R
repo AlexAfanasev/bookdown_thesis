@@ -48,8 +48,8 @@ dataset <- dataset[, colnames(dataset)[2:length(colnames(dataset))]]
 dataset <- xts::xts(
     dataset, order.by = as.Date(row.names(dataset), "%Y-%m-%d")
 )
-# dataset <- dataset["1949-12-31/"]
-dataset <- dataset["1949-12-31/2019-12-31"]
+dataset <- dataset["1949-12-31/"]
+# dataset <- dataset["1949-12-31/2019-12-31"]
 
 # linear interpolation for population data
 pop_columns <- c(
@@ -70,7 +70,7 @@ dataset <- dataset[complete.cases(dataset), ]
 
 # consumption volatility
 con <- dataset$real_consumption
-quar_c_growth <- diff(con) / lag(con, k = 1)
+quar_c_growth <- diff(con) / stats::lag(con, k = 1)
 quar_c_growth <- quar_c_growth[!is.na(quar_c_growth)]
 ar_mod <- arima(quar_c_growth, order = c(1, 0, 0))
 con_vol <- log(
@@ -100,27 +100,42 @@ my <- middle_aged_young_ratio
 fr <- log(1 + (dataset$fund_rate/100))
 ms <- log(dataset$real_m1/1000)
 gdp <- log(dataset$real_gdp/10000)
-inflation <- (diff(dataset$cpi) / stats::lag(dataset$cpi, k = 1))
+inflation <- log(dataset$cpi / stats::lag(dataset$cpi, k = 1))
 lpd <- log((dataset$price / dataset$dividend))
 
 var_data <- cbind(lpd, d_e, r_e, inflation, con_vol, my, fr, ms, gdp)
 var_data <- var_data[complete.cases(var_data),]
 
 ## dynamic var
-starting_point <- 31
+starting_point <- 30
+start_w <- 10
 params <- matrix(nrow = nrow(var_data) - starting_point + 1, ncol = 20)
 for (i in starting_point:nrow(var_data)) {
-    residuals_model <- vector("numeric", length = 11)
-    for (w in 20:30) {
-        var_model <- vars::VAR(var_data[(i - w):i, 1:4], p = 1,
+    residuals_model <- vector("numeric")
+    for (w in start_w:(starting_point - 1)) {
+        var_model <- vars::VAR(var_data[(i - w + 1):i, 1:4], p = 1,
                                type = "const")
-        residuals_j <- tail(residuals(var_model), 10)[, c(2, 3)]
-        residuals_model[w - 19] <- sqrt(
-            mean((residuals_j[, 1] - residuals_j[, 2])^2)
-        )
+        # test root
+        e <- abs(eigen(vars::Acoef(var_model)[[1]])$values)
+        if (any(e >= 1)) {
+            residuals_model[w - start_w + 1] <- Inf
+        } else {
+            residuals_j <- tail(residuals(var_model), 5)[, c(2, 3)]
+            residuals_model[w - start_w + 1] <- sqrt(
+                mean((residuals_j[, 1] - residuals_j[, 2])^2)
+            )
+        }
     }
-    best_model <- which.min(residuals_model)
-    model <- vars::VAR(var_data[(i - best_model - 19):i, 1:4], type = "const")
+    best_model <- ifelse(all(residuals_model == Inf),
+                         start_w,
+                         which.min(residuals_model) + start_w - 1)
+    print(min(residuals_model))
+    print(best_model)
+    model <- vars::VAR(var_data[(i - best_model + 1):i, 1:4], type = "const")
+    e <- abs(eigen(vars::Acoef(model)[[1]])$values)
+    if (any(e >= 1)) {
+        print(paste("Problem", i))
+    }
     params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
 }
 

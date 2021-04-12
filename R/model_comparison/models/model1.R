@@ -17,9 +17,8 @@ model_1 <- pomp::pomp(
               beta_0
               + beta_1*cr
               + beta_2*mys
-              + beta_3*fr
-              + beta_4*ms
-              + beta_5*gdp
+              + beta_3*ms
+              + beta_4*gdp
               + rnorm(0, exp(sigma_u))
             );
             "
@@ -29,22 +28,22 @@ model_1 <- pomp::pomp(
     dmeasure = rw_latent_lpd_dmeasure,
     statenames = c("e_lpd"),
     paramnames = c("sigma_u", "sigma_e", "e_lpd_0", "beta_0",
-                   "beta_1", "beta_2", "beta_3", "beta_4", "beta_5"),
+                   "beta_1", "beta_2", "beta_3", "beta_4"),
     covar = pomp::covariate_table(covars, times = "time"),
     covarnames = colnames(covars[, -1])
 )
+rm(covars, y)
 
 theta <- c(
-    beta_0 = 3.174, beta_1 = 0.3, beta_2 = 1.47, beta_3 = -0.8,
-    beta_4 = 0.31, beta_5 = 0.04,
-    sigma_u = log(0.09), sigma_e = log(0.015), e_lpd_0 = 3.4
+    beta_0 = 3.174, beta_1 = 0.3, beta_2 = 1.47, beta_3 = 0.31, beta_4 = 0.04,
+    sigma_u = log(0.09), sigma_e = log(0.05), e_lpd_0 = 3.5
 )
 res <- pomp::pmcmc(
-    model_1, Nmcmc = 10000, Np = 1000,
+    model_1, Nmcmc = 250, Np = 1000,
     proposal = pomp::mvn.diag.rw(
-        c(e_lpd_0 = 0.02, sigma_e = 0.02, sigma_u = 0.02,
-          beta_0 = 0.02, beta_1 = 0.02, beta_2 = 0.02,
-          beta_3 = 0.02, beta_4 = 0.02, beta_5 = 0.02)
+        c(sigma_e = 0.01, sigma_u = 0.01,
+          beta_0 = 0.01, beta_1 = 0.01, beta_2 = 0.01,
+          beta_3 = 0.01, beta_4 = 0.01)
     ),
     params = theta
 )

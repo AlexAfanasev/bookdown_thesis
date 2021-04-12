@@ -57,11 +57,11 @@ and $d_{n}$ will be handled as an exogenous covariate arising from the following
 & v_{n} \sim \mathcal{N}(0, 0.003)
 \end{split}
 \end{equation}
-All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\theta = (\phi, \beta_0, \beta_{1}, \beta_{2}, \sigma_{\epsilon}, \sigma_{u})^T$ will be compared. For this simulation, the parameters will be set to
+All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Note that the initial value problem of obtaining an estimate for $x_0$ can be solved within the Bayesian setup as well. In order to do this a prior for $x_0$ has to be assigned. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\theta = \begin{pmatrix} x_0 & \phi & \beta_0 & \beta_{1} & \beta_{2} & \sigma_{\epsilon} & \sigma_{u} \end{pmatrix}^T$ will be compared. For this simulation, the parameters will be set to
 $$
-\theta = \begin{pmatrix} \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
+\theta = \begin{pmatrix} x_0 \\ \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 3.5 \\0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
 $$
-Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run, at each of the $1000$ iterations, and the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, all methods will be applied using a cloud of $J=500$ particles.
+Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run, at each of the $1000$ iterations, and the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=1000$ particles and the particle marginal Metropolis Hastings procedures will use $J=500$ particles.
 
 The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
 \begin{align}
@@ -69,7 +69,7 @@ The Nelder–Mead algorithm was developed for unbounded optimization problems. H
 \end{align}
 where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for these hyperparameters can than easily be converted in order to obtain the initial parameters. 
 
-Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the particle marginal Metropolis Hastings procedure as well. Therefore, both applications will use the following parameter vector $\theta = (\psi, \beta_0, \beta_{1}, \beta_{2}, \varsigma_{\epsilon}, \varsigma_{u})^T$ instead of the initially presented for inference purposes.
+Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the particle marginal Metropolis Hastings procedure as well. Therefore, both applications will use the following parameter vector $\theta = \begin{pmatrix} x_0 & \psi & \beta_0 & \beta_{1} & \beta_{2} & \varsigma_{\epsilon} & \varsigma_{u}\end{pmatrix}^T$ instead of the initially presented for inference purposes.
 
 The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **setup 1** will use a flat improper prior specification that incorporates almost no prior information about the initially presented parameters. **Setup 2** and **setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a small probability to the initial parameters.
 
@@ -97,6 +97,7 @@ Hence, the change of variable technique yields the following prior specification
 \end{equation}
 For **setup 1**, the initially presented parameters will have the following prior specification
 \begin{align*}
+  p_{x_0} &= 1 &
   p_\phi(\phi) &= 
   \begin{cases} 
     1, & \text{if}\;\; -1 < \phi < 1  \\ 
@@ -124,6 +125,7 @@ p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \t
 \end{equation*}
 **Setup 2** represents the informative prior setup. The truncated normal distribution will be used for parameter $\phi$ and the Gamma distribution for the parameters $\sigma_u$ and $\sigma_\epsilon$. Hence, this specification is applied
 \begin{align*}
+  p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.5, 0.1^2) \\
   p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.8, 0.1^2, -1, 1) &  p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.4, 0.1^2) \\
   p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 12, 0.005) &
   p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.5, 0.2^2) \\
@@ -141,16 +143,16 @@ with $\phi(\cdot)$ being the density function of the standard normal distributio
 
 **Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used however with varying parameters.
 \begin{align*}
+  p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.0, 0.1^2) \\
   p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.3, 0.1^2, -1, 1) & p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.8, 0.1^2) \\
   p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 10, 0.01) & p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.0, 0.1^2)  \\
   p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 10, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | 0.0, 0.1^2)
 \end{align*}
-Note that the initial value problem of obtaining an estimate for $x_0$ can be solved within the Bayesian setup as well. In order to do this a prior for $x_0$ has to be assigned. **Setup 1** will use a flat prior similar to the other parameters. **Setup 2** uses a normal prior with mean $3.5$ and variance $0.1^2$ whereas **setup 3** uses a normal prior with mean $3.0$ and variance $0.1^2$. 
 
 The MCMC approaches will use $7500$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
 $$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.025^2)$$
-Furthermore, the starting parameter $\theta^{(0)} = (\psi^{(0)}, \beta_0^{(0)}, \beta_{1}^{(0)}, \beta_{2}^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)})^T$, for the inference methods, will be set randomly at each iteration of the simulation study with
-$$\theta^{(0)} \sim \mathcal{N}((\text{atanh}(0.7), 1.05, 0, 0, \ln(0.05), \ln(0.1))^T, 0.1^2\; I_6)$$
+Furthermore, the starting parameter $\theta^{(0)} = \begin{pmatrix} x_0^{(0)} & \psi^{(0)} & \beta_0^{(0)} & \beta_{1}^{(0)} & \beta_{2}^{(0)} & \varsigma_{\epsilon}^{(0)} & \varsigma_{u}^{(0)}\end{pmatrix} ^T$, for the inference methods, will be set randomly at each iteration of the simulation study with
+$$\theta^{(0)} \sim \mathcal{N}\Big(\begin{pmatrix} 3.3 & \text{atanh}(0.7) & 1.05 & 0 & 0 & \ln(0.05) & \ln(0.1)\end{pmatrix}^T, 0.1^2\; I_6\Big)$$
 One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted on simulation $4$.
 
 ```{r, nonlinear-simulation, eval=TRUE, echo=FALSE}
@@ -189,10 +191,10 @@ The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim
 
 Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviation from the true parameters.
 
-Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ credible intervals have been added with **setup 2** having the narrowest estimates.
+Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
 
 \vfill
-```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=5, fig.height=6.675, warning=FALSE}
+```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=5, fig.height=6.5, warning=FALSE}
 # Filtering Results
 sim_4 <- simulation_result[[4]]
 
@@ -364,8 +366,8 @@ knitr::kable(
 
 As expected, the first indication from inspecting the exemplary simulation results is that the informative **setup 2** results in the most precise parameter estimates. The aggregate analysis will clarify this observation.
 
-Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other 3 Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error for the latent state estimation for all approaches.
-
+Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other 3 Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
+$$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
 The aggregate results show that the likelihood based approach has the highest variation and average deviation for the parameter and latent state estimates.  Moreover, the informative and uninformative prior setups, **setup 2** and **setup 1**, have the smallest average deviations with **setup 2** having also the smallest variance. The misspecified prior setup, **setup 3**, seems to have a smaller variance compared to the uninformative setup but a higher average deviation. All in all, it can be concluded that within the simulation study all Bayesian approaches outperform the likelihood based approach.
 
 ```{r, aggregate-simulation-result-plot, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Aggregate simulation: Result", fig.width=7, fig.height=10, warning=FALSE, message=FALSE}
@@ -386,32 +388,32 @@ mse_pmmh_false_informative <- vector("numeric", length = N_sim)
 
 for (i in 1:N_sim) {
     res_smc[i, ] <- simulation_result[[i]]$smc_result$par
-    mse_smc[i] <- mean(sqrt((
+    mse_smc[i] <- sqrt(mean((
       simulation_result[[i]]$smc_result$pf - 
         simulation_result[[i]]$data_latent
-    )^2))
+    )[2:N]^2))
     for (j in 1:length(params_simulation)) {
         res_pmmh_noninformative[i, j] <- mean(
           simulation_result[[i]]$pmmh_noninformative$traces[3000:7500, j+2]
         )
-        mse_pmmh_noninformative[i] <- mean(sqrt((
+        mse_pmmh_noninformative[i] <- sqrt(mean((
           simulation_result[[i]]$pmmh_noninformative$state_mean - 
             simulation_result[[i]]$data_latent
-        )^2))
+        )[2:N]^2))
         res_pmmh_true_informative[i, j] <- mean(
           simulation_result[[i]]$pmmh_true_informative$traces[3000:7500, j+2]
         )
-        mse_pmmh_true_informative[i] <- mean(sqrt((
+        mse_pmmh_true_informative[i] <- sqrt(mean((
           simulation_result[[i]]$pmmh_true_informative$state_mean - 
             simulation_result[[i]]$data_latent
-        )^2))
+        )[2:N]^2))
         res_pmmh_false_informative[i, j] <- mean(
           simulation_result[[i]]$pmmh_false_informative$traces[3000:7500, j+2]
         )
-        mse_pmmh_false_informative[i] <- mean(sqrt((
+        mse_pmmh_false_informative[i] <- sqrt(mean((
           simulation_result[[i]]$pmmh_false_informative$state_mean - 
             simulation_result[[i]]$data_latent
-        )^2))
+        )[2:N]^2))
     }
 }
 
@@ -436,14 +438,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(df)
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p1 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = true_params_simulation["beta_0"], colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -461,14 +464,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(df)
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p2 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = true_params_simulation["beta_1"], colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -486,14 +490,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(df)
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p3 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = true_params_simulation["beta_2"], colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -511,14 +516,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(exp(df))
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p4 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = exp(true_params_simulation["sigma_x"]), colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -536,14 +542,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(exp(df))
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p5 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = exp(true_params_simulation["sigma_y"]), colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -561,14 +568,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(tanh(df))
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p6 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = tanh(true_params_simulation["phi"]), colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -586,14 +594,15 @@ df <- data.frame(
 )
 df <- reshape2::melt(df)
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p7 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 
   geom_hline(
     aes(yintercept = true_params_simulation["x_0"], colour = "True"), 
-    linetype = 2, show.legend = TRUE
+    linetype = 2, show.legend = TRUE, size = 1
   ) + 
+  scale_colour_manual(values = c("grey")) + 
   theme_light() + p_theme +
   scale_x_discrete(
     labels = c(
@@ -611,7 +620,7 @@ df <- data.frame(
 )
 df <- reshape2::melt(df)
 df$type <- sapply(df$variable, function(x){ifelse(
-  x == "lik", "Likelihood based", "Bayesian")
+  x == "lik", "Likelihood approach", "Bayesian approach")
 })
 p8 <- ggplot(df, aes(x = variable, y = value, fill = type), colour = "black") + 
   stat_boxplot(geom = 'errorbar') + geom_boxplot() + 

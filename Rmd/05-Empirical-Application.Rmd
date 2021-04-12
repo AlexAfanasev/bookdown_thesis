@@ -1,23 +1,293 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 # Empirical application {#application}
 
-<!-- ## Models and Data {#models_data} -->
+For the empirical application the presented particle marginal Metropolis Hastings procedure will be applied to the price-dividend ratio. This application will be an extension of the presented results and procedures in [@h2_paper]. Besides applying the Bayesian approach as an alternative, further possible specifications of the latent state process will be inspected. First the steps for deriving the state-space model will be explained.
 
-<!-- **Content:** -->
+## Model implementation
 
-<!-- - Add short description of the model and the data (content from previous paper) and the chosen prior distributions -->
+Starting from the basic definition of the total log-return at time $t+1$, $r_{t+1} = \ln(P_{t+1} + D_{t+1}) - \ln(P_{t})$ with price $P_{t}$ and dividend $D_t$, the log-return can be reformulated as a nonlinear function of the log price-dividend ration $\eta_t$. First subtracting $r_{t+1}$ from itself yields
+\begin{equation*}
+\begin{split}
+0 &= \ln\Bigg(\frac{P_t}{P_{t+1} + D_{t+1}}\frac{P_{t+1} + D_{t+1}}{P_{t}}\Bigg)
+\end{split}
+\end{equation*}
+then adding $\eta_t$ to both sides of the equation
+\begin{equation*}
+\begin{split}
+\eta_{t} &= \ln\Bigg(\frac{P_t}{D_t}\frac{P_{t+1} + D_{t+1}}{P_{t}}\Bigg) - r_{t+1} = \ln\Bigg(\Bigg(1 + \frac{P_{t+1}}{D_{t+1}}\Bigg)\frac{D_{t+1}}{D_{t}}\Bigg) - r_{t+1}
+\end{split}
+\end{equation*}
+and simplifying the above yields
+\begin{equation*}
+\begin{split}
+\eta_{t} &= \ln(1 + \text{exp}(\eta_{t+1})) - r_{t+1} + \Delta d_{t+1} \\
+r_{t+1} &= -\eta_{t} + \ln(1 + \text{exp}(\eta_{t+1})) + \Delta d_{t+1}
+\end{split}
+\end{equation*}
+Here, $\Delta d_{t+1} = \ln(D_{t+1}) - \ln(D_t)$ represents the log dividend growth. Applying a first order Taylor expansion around the fixed steady state $\bar{\eta}$ yields a linear approximation
+\begin{equation}
+\begin{split}
+r_{t+1} &\approx -\eta_{t} + \ln(1 + \text{exp}(\bar{\eta})) + \Delta d_{t+1} + \frac{1}{1 + \text{exp}(-\bar{\eta})}(\eta_{t+1}-\bar{\eta}) \\
+&\approx k -\eta_{t} + \rho\eta_{t+1} + \Delta d_{t+1}
+\end{split}
+\end{equation}
+with $\rho$ being specified as
+\begin{align}
+\rho &= \frac{1}{1+\text{exp}(-\bar{\eta})} & \Longleftrightarrow && \bar{\eta} &= -\ln\Bigg(\frac{1}{\rho} - 1\Bigg)
+(\#eq:rho-spec)
+\end{align}
+and $k$ directly following from the above
+\begin{equation}
+\begin{split}
+k &= \ln(1 + \text{exp}(\bar{\eta})) - \bar{\eta}\frac{1}{1 + \text{exp}(-\bar{\eta})} \\
+&= \ln\Bigg(1 + \text{exp}\Bigg(-\ln\Bigg(\frac{1}{\rho} - 1\Bigg)\Bigg)\Bigg) + \ln\Bigg(\frac{1}{\rho} - 1\Bigg)\frac{1}{1 + \text{exp}\Big(\ln\Big(\frac{1}{\rho} - 1\Big)\Big)} \\
+&= -\ln(1 - \rho) + \rho\ln\Bigg(\frac{1}{\rho} - 1\Bigg) \\
+&= -\ln(\rho) - (1 - \rho)\ln\Bigg(\frac{1}{\rho} - 1\Bigg) 
+(\#eq:k-spec)
+\end{split}
+\end{equation}
+Previous empirical applications typically assumed a constant parameter $\bar{\eta}$, as in [@campbell_paper]. However, the results presented in [@h2_paper] deliver evidence for a gradually time-varying mean of the log price-dividend ratio. By allowing this time variation $k$ and $\rho$ become also time-varying. Hence, the corresponding parameters $k_t$ and $\rho_t$ are obtained from \@ref(eq:rho-spec) and \@ref(eq:k-spec)
+\begin{equation}
+\begin{split}
+\rho_t &= \frac{1}{1+\text{exp}(-\tilde{\eta}_t)} \\
+k_t &= -\ln(\rho_t) - (1 - \rho_t)\ln\Bigg(\frac{1}{\rho_t} - 1\Bigg)
+\end{split}
+\end{equation}
+with $\tilde{\eta}_t$ denoting the time varying local mean for the Taylor approximation. Therefore, the log price-dividend ratio has the following specification
+\begin{equation}
+\begin{split}
+\eta_{t} &\approx k_t - r_{t+1} + \rho_t\eta_{t+1} + \Delta d_{t+1}
+(\#eq:lpd-spec)
+\end{split}
+\end{equation}
+Similar approximations as in [@van_nieuwerburgh_paper] are adopted: $\mathbb{E}_t[\rho_{t+i}]\approx\rho_t$, $\mathbb{E}_t[k_{t+i}]\approx\;k_t$ and $\mathbb{E}_t[\rho_{t+i}\eta_{t+1+i}]\approx\mathbb{E}_t[\rho_{t+i}]\mathbb{E}_t[\eta_{t+1+i}]$. The present value formulation of the log price-dividend ratio can then be concluded by taking the conditional expectation and iterating equation \@ref(eq:lpd-spec) forward
+\begin{equation}
+\begin{split}
+\eta_{t} &\approx k_t - \mathbb{E}_t[r_{t+1}] + \rho_t\mathbb{E}_t[\eta_{t+1}] + \mathbb{E}_t[\Delta d_{t+1}] \\
+ &\approx k_t - \mathbb{E}_t[r_{t+1}] + \rho_t\mathbb{E}_t[k_{t+1} - r_{t+2} + \rho_{t+1}\eta_{t+2} + \Delta d_{t+2}] + \mathbb{E}_t[\Delta d_{t+1}] \\
+ &\approx \cdots \\
+ &\approx \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{E}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]
+(\#eq:present-value)
+\end{split}
+\end{equation}
+Here, the excess dividend growth $\Delta d_{t}^e = \Delta d_t - r^f_t$ and return $r_t^e = r_t - r_t^f$ are used with $r^f_t$ being the risk-free interest rate.
 
-<!-- ## Results{#application_results} -->
+The state-space model will be used to estimate the latent mean $\tilde{\eta}_t$. As in [@h2_paper], the present value formulation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$.
+\begin{equation}
+\eta_{t} = \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \epsilon_t
+ (\#eq:observation-process)
+\end{equation}
+A low dimensional vector autoregressive (VAR) model of order $1$ will be used for the objective expectations $\mathbb{\tilde{E}}_t$ conditional on information available at the end of $t$. This approach was first proposed in [@campbell_shiller_paper]. The VAR model will be comprised of the log price-dividend ratio $\eta_t$, excess dividend growth $\Delta d_t^e$, excess return $r_t^e$ and inflation $\pi_t$.
 
-<!-- **Content:** -->
+Assuming the following VAR model
+\begin{equation}
+y_t = \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \end{pmatrix} = \alpha + Ay_{t-1} + v_t
+ (\#eq:ex-ante-expectations-var-model)
+\end{equation}
+and the following reparametrization by stacking the vector of constants $\alpha$ on to the parameter matrix $A$
+\begin{equation}
+y_t = \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \\ 1 \end{pmatrix} = \left(
+\begin{array}{c|c}
+        A & \alpha \\
+        \hline
+        0 & 1\\
+\end{array}
+\right)y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix} = B y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix}
+\end{equation}
+the discounted expectations can be evaluated using the vector $h = \begin{pmatrix} 0 & 1 & -1 & 0 & 0\end{pmatrix}^T$
+\begin{equation}
+\begin{split}
+\sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] &= \sum_{i=1}^{\infty}\rho_t^{i-1}h^TB^iy_{t} \\
+& = h^TB\sum_{i=0}^{\infty}\rho_t^{i}B^iy_{t} = h^TB(I_5 -\rho_t B)^{-1}y_t
+ (\#eq:ex-ante-expectations)
+\end{split}
+\end{equation}
+Similar to [@h2_paper] a adaptive approach will be used for the choice of VAR sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last $5$ in sample observations of the excess dividend rate and excess return, $\{\Delta d_m^e - r_m^e\}^t_{t-9}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of $A$ have modulus less than 1. If this requirement is violated the specific VAR model will be discarded. The VAR model with $\omega = 10$ will be used if at a specific time point $t$ all VAR models violate the stability requirement.
 
-<!-- - Analyising the filtered latent process of mean log price dividend ratio by incorporating covariates in the state equation of the latent process -->
+The empirical application will be conducted on quarterly data for the S&P 500 starting at the 31st of December 1970 up until the 30th of September 2020.
 
-<!--     - possible covariates (USA GDP, Earnings S&P 500,  consumption risk, ratio of middle aged to young people in USA, effective federal fund rate) -->
+## Random walk state process
 
-<!--     - test for cointegration of these variables with latent process estimated by simple random walk model         -->
+Firstly, the state-space model with a random walk state process will be analyzed. The latent process follows
+\begin{equation}
+\begin{split}
+\tilde{\eta}_t &= \tilde{\eta}_{t-1} + u_t \\
+u_t &\sim \mathcal{N}(0, \sigma_u^2)
+(\#eq:basic-model-state-process)
+\end{split}
+\end{equation}
+The parameters of interest are $\theta = \begin{pmatrix}\sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$ and the initial value $\tilde{\eta}_0$. Similar to the simulation study uninformative setup, flat priors will be used for the parameters and initial value and equal parameter transformations will be applied
+\begin{align*}
+\sigma_\epsilon(\varsigma_\epsilon) &= \text{exp}(\varsigma_\epsilon) & \Longleftrightarrow && \varsigma_\epsilon(\sigma_\epsilon) &= \ln(\sigma_\epsilon) \\
+\sigma_u(\varsigma_u) &= \text{exp}(\varsigma_u) & \Longleftrightarrow && \varsigma_\epsilon(\sigma_u) &= \ln(\sigma_u)
+\end{align*}
+Hence, after having applied the change of variable technique the prior specification for the hyperparameters $\{\varsigma_\epsilon, \varsigma_u\}$ becomes
+\begin{equation}
+\begin{split}
+  p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= \text{exp}(\varsigma_\epsilon) \\
+  p_{\varsigma_u}(\varsigma_u) &= \text{exp}(\varsigma_u)
+\end{split}
+\end{equation}
+For the PMMH procedure $3$ Markov chains with $M = 20000$ iterations and $J = 1000$ particles will be run and the starting parameter $\theta_0$ will be set to 
+$$
+\theta_0 = \begin{pmatrix}\tilde{\eta}_0^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix}3.5 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+$$
+Furthermore, the parameter proposals will be generated using
+$$
+\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.02^2)
+$$
+```{r, basic-model-setup, eval=TRUE, echo=FALSE}
+source(here::here("R", "model_comparison", "model_comparison_basic_model.R"))
+```
 
-<!-- - Add these covariates to latent process and estimate the parameters using MCMC and the particle filter together (PMMH) -->
+```{r, basic-model-trace-plot-all, eval=TRUE, echo=FALSE}
+library(ggplot2)
+library(gridExtra)
 
-<!--     - use informative priors and compare the results -->
+traces <- list(result[[1]]@traces, result[[2]]@traces, result[[3]]@traces)
 
-<!--     - present results from MCMC procedure and apply the predictive regressions -->
+# Plot theme:
+p_theme <- theme(
+  legend.position = "bottom", 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+)
+
+# e_lpd_0
+df <- data.frame(
+  time = 1:nrow(traces[[1]]),
+  value1 = traces[[1]][, 3], 
+  value2 = traces[[2]][, 3], 
+  value3 = traces[[3]][, 3]
+)
+df <- reshape2::melt(df, id.vars = "time")
+p1 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\tilde{\\eta}_0$}"),
+       x = "m", y = latex2exp::TeX("$\\tilde{\\eta}_0$")) +
+  p_theme
+
+# sigma_u
+df <- data.frame(
+  time = 1:nrow(traces[[1]]),
+  value1 = traces[[1]][, 4], 
+  value2 = traces[[2]][, 4], 
+  value3 = traces[[3]][, 4]
+)
+df <- reshape2::melt(df, id.vars = "time")
+df$value <- exp(df$value)
+p2 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
+  p_theme
+
+# sigma_epsilon
+df <- data.frame(
+  time = 1:nrow(traces[[1]]),
+  value1 = traces[[1]][, 5], 
+  value2 = traces[[2]][, 5], 
+  value3 = traces[[3]][, 5]
+)
+df <- reshape2::melt(df, id.vars = "time")
+df$value <- exp(df$value)
+p3 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
+  p_theme
+
+legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"),
+  ncol = 1, legend = legend, nrow = 4, 
+  heights = c(1.1, 1.1, 1.1, 0.2)
+)
+```
+
+```{r, basic-model-trace-plot-combined, eval=TRUE, echo=FALSE}
+traces <- rbind(
+        result[[1]]@traces, result[[2]]@traces, result[[3]]@traces
+)
+
+# Plot theme:
+p_theme <- theme(
+  legend.position = "bottom", 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+)
+
+# e_lpd_0
+df <- data.frame(
+  time = 1:nrow(traces), trace = traces[, 3]
+)
+df <- reshape2::melt(df, id.vars = "time")
+p1 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(values = "black") + 
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\tilde{\\eta}_0$}"),
+       x = "m", y = latex2exp::TeX("$\\tilde{\\eta}_0$")) +
+  p_theme
+
+# sigma_u
+df <- data.frame(
+  time = 1:nrow(traces), trace = exp(traces[, 4])
+)
+df <- reshape2::melt(df, id.vars = "time")
+p2 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(values = "black") + 
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
+  p_theme
+
+# sigma_epsilon
+df <- data.frame(
+  time = 1:nrow(traces), trace = exp(traces[, 5])
+)
+df <- reshape2::melt(df, id.vars = "time")
+p3 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(values = "black") + 
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
+       x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
+  p_theme
+
+legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"),
+  ncol = 1, legend = legend, nrow = 4, 
+  heights = c(1.1, 1.1, 1.1, 0.2)
+)
+```
+
+```{r, basic-model-posterior-marginal-density, eval=TRUE, echo=FALSE}
+
+```
+
+```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE}
+```
+
+## Cointegration analysis
+
+## State process extension with covariates
+
+## Model comparison

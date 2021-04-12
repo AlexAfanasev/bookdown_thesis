@@ -22,12 +22,7 @@ editor_options:
     
 ```{r, introduction_source, eval=FALSE, echo=FALSE}
 source(here::here("R", "pd_pomp.R"), local = knitr::knit_global())
-#source(here::here("R", "prepare_raw_data.R"), local = knitr::knit_global())
-```
-
-```{r, read_data, include=FALSE, echo=FALSE, eval=FALSE}
-y <- read.csv(here::here("data", "final_dataset.csv"))
-head(y)
+source(here::here("R", "prepare_raw_data.R"), local = knitr::knit_global())
 ```
 
 <!-- ## Model -->
@@ -90,7 +85,7 @@ rw_latent_lpd_pomp <- pomp::pomp(
 
 ```{r, nelder_mead_optimization, eval=FALSE, echo=FALSE}
 # need to use log sigma_u and sigma_e!
-theta <- c(e_lpd_0 = 3.5, sigma_u = log(0.05), sigma_e = log(0.05))
+theta <- c(e_lpd_0 = 3.6, sigma_u = log(0.05), sigma_e = log(0.05))
 
 # Nelder Mead optimization
 rw_latent_lpd_optim_result <- optim(
@@ -98,7 +93,7 @@ rw_latent_lpd_optim_result <- optim(
     fn = function(par){
         print(par)
         return(-pomp::logLik(pomp::pfilter(
-            rw_latent_lpd_pomp, params = par, Np = 500
+            rw_latent_lpd_pomp, params = par, Np = 250
         )))
     },
 )
@@ -129,19 +124,21 @@ legend(
 theta <- c(e_lpd_0 = 3.5, sigma_u = log(0.05), sigma_e = log(0.05))
 pmmh_rw_latent_lpd_model <- pomp::pmcmc(
   rw_latent_lpd_pomp,
-  Np = 500,
+  Np = 250,
   Nmcmc = 1000,
   params = theta,
-  proposal = pomp::mvn.rw.adaptive(
-    c(e_lpd_0 = 0.03, sigma_u = 0.03, sigma_e = 0.03), 
-    scale.start = 100,
-    scale.cooling = 0.9,
-    max.scaling = 10,
-    shape.start = 150
+  proposal = pomp::mvn.diag.rw(
+    c(e_lpd_0 = 0.03, sigma_u = 0.03, sigma_e = 0.03)
   ),
-  verbose = TRUE
+  verbose = FALSE
 )
-pomp::plot(pmmh_rw_latent_lpd_model)
+# pomp::plot(pmmh_rw_latent_lpd_model)
+a <- pmmh_rw_latent_lpd_model@filter.traj[1, , ]
+plot(dates, y$lpd, type = "l")
+lines(dates, colMeans(a)[-1], col = "red")
+q <- apply(a, 2, quantile, probs = c(0.025, 0.975))
+lines(dates, q[1, -1], col = "red", lty = 2)
+lines(dates, q[2, -1], col = "red", lty = 2)
 ```
 
 ```{r, test_pmcmc, eval=FALSE, echo=FALSE}

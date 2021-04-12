@@ -4,14 +4,13 @@
 
 // [[Rcpp::export]]
 Rcpp::NumericVector rprocess_time_varying_parameter_model(
-    arma::mat std_mat, arma::mat cor_mat, arma::vec m_betas,
-    double cr, double mys, double fr, double ms, double gdp
+    arma::mat cov_mat, arma::vec m_betas,
+    double cr, double mys, double fr, double ms, double gdp, double sigma_u
 ) {
-    arma::colvec z = {1, cr, mys, fr, ms, gdp};;
-    arma::mat cov_mat = std_mat * cor_mat * std_mat;
+    arma::colvec z = {1, cr, mys, fr, ms, gdp};
     arma::rowvec betas = rmvnorm(1, m_betas, cov_mat).row(0);
 
-    double e_lpd = (betas * z).eval()(0, 0);
+    double e_lpd = (betas * z).eval()(0, 0) + R::rnorm(0, exp(sigma_u));
 
     return Rcpp::NumericVector::create(
         Rcpp::Named("beta_0", betas(0)),

@@ -1,19 +1,18 @@
 # QUESTION: WHICH MODEL TO CHOSE???
 system.time(
     result <- pomp::bake(
-        "model_study_result.rds",
+        here::here("data", "results", "model_study_result_basic_model.rds"),
         {
-            models <- rep(
-                c("basic_model.R", "model1.R", "model2.R", "model3.R"), 2
-            )
+            models <- rep("basic_model.R", 3)
 
             doRNG::registerDoRNG(1598260027L)
-            cl <- parallel::makeCluster(4)
+            cl <- parallel::makeCluster(3)
             doParallel::registerDoParallel(cl)
             out <- foreach::`%dopar%`(
-                foreach::foreach(i = 1:4),
+                foreach::foreach(i = 1:3),
                 {
-                    source(here::here("R", "model_comparison", models[i]))
+                    source(here::here("R", "model_comparison", "models",
+                                      models[i]))
                     res
                 }
             )
