@@ -132,7 +132,7 @@ Hence, after having applied the change of variable technique the prior specifica
   p_{\varsigma_u}(\varsigma_u) &= \text{exp}(\varsigma_u)
 \end{split}
 \end{equation}
-For the PMMH procedure $3$ Markov chains with $M = 20000$ iterations and $J = 1000$ particles will be run and the starting parameter $\theta_0$ will be set to 
+For the PMMH procedure $3$ independent Markov chains with $M = 20000$ iterations and $J = 1000$ particles will be run and the starting parameter $\theta_0$ will be set to 
 $$
 \theta_0 = \begin{pmatrix}\tilde{\eta}_0^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix}3.5 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
 $$
@@ -140,15 +140,54 @@ Furthermore, the parameter proposals will be generated using
 $$
 \theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.02^2)
 $$
-```{r, basic-model-setup, eval=TRUE, echo=FALSE}
+Figure \@ref(fig:basic-model-trace-plot) shows the trace plots for each parameter and each Markov chain. The first 5000 iterations have been dropped. Additionally, Figure \@ref(fig:basic-model-posterior-marginal-density) displays the Gaussian kernel density estimates for the random walk latent state model. The corresponding Table \@ref(tab:basic-model-setup) summarizes the inference results.
+
+```{r, basic-model-setup, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+source(here::here("R", "prepare_raw_data.R"))
 source(here::here("R", "model_comparison", "model_comparison_basic_model.R"))
+
+library(tidyverse)
+
+traces <- rbind(
+        result[[1]]@traces[5000:20000, 3:5], 
+        result[[2]]@traces[5000:20000, 3:5], 
+        result[[3]]@traces[5000:20000, 3:5]
+)
+traces[, 2:3] <- exp(traces[, 2:3])
+
+result_table <- data.frame(
+  mean = colMeans(traces),
+  median = apply(traces, 2, median),
+  lower = apply(traces, 2, quantile, probs = 0.025),
+  upper = apply(traces, 2, quantile, probs = 0.975)
+)
+rownames(result_table) <- c(
+  "$\\tilde{\\eta}_0$", "$\\sigma_u$", "$\\sigma_\\epsilon$"
+)
+result_table <- round(result_table, 4)
+opts <- options(knitr.kable.NA = "")
+knitr::kable(
+  result_table, 
+  row.names = TRUE,
+  col.names = c("Mean", "Median", "0.025\\%", "0.975\\%"),
+  caption = "Random walk state model: PMMH parameter inference results", 
+  booktabs = TRUE, escape = FALSE,
+  linesep = "\\addlinespace", 
+  align = rep("c", 4)
+) %>% 
+  kableExtra::kable_paper() %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-```{r, basic-model-trace-plot-all, eval=TRUE, echo=FALSE}
+```{r, basic-model-trace-plot, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: PMMH trace plot", fig.width=6, fig.height=8, warning=FALSE}
 library(ggplot2)
 library(gridExtra)
 
-traces <- list(result[[1]]@traces, result[[2]]@traces, result[[3]]@traces)
+traces <- list(
+  result[[1]]@traces[5000:20000, ], 
+  result[[2]]@traces[5000:20000, ], 
+  result[[3]]@traces[5000:20000, ]
+)
 
 # Plot theme:
 p_theme <- theme(
@@ -171,6 +210,10 @@ df <- data.frame(
 df <- reshape2::melt(df, id.vars = "time")
 p1 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(
+    values = c("red", "green", "blue"),
+    labels = c("Chain 1", "Chain 2", "Chain 3")
+  ) +
   labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\tilde{\\eta}_0$}"),
        x = "m", y = latex2exp::TeX("$\\tilde{\\eta}_0$")) +
   p_theme
@@ -186,6 +229,10 @@ df <- reshape2::melt(df, id.vars = "time")
 df$value <- exp(df$value)
 p2 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(
+    values = c("red", "green", "blue"),
+    labels = c("Chain 1", "Chain 2", "Chain 3")
+  ) +
   labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
        x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
   p_theme
@@ -201,6 +248,10 @@ df <- reshape2::melt(df, id.vars = "time")
 df$value <- exp(df$value)
 p3 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(
+    values = c("red", "green", "blue"),
+    labels = c("Chain 1", "Chain 2", "Chain 3")
+  ) +
   labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
        x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
   p_theme
@@ -216,74 +267,158 @@ grid.arrange(
 )
 ```
 
-```{r, basic-model-trace-plot-combined, eval=TRUE, echo=FALSE}
+```{r, basic-model-posterior-marginal-density, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the marginal posterior distributions", fig.width=6, fig.height=4, warning=FALSE}
 traces <- rbind(
-        result[[1]]@traces, result[[2]]@traces, result[[3]]@traces
+        result[[1]]@traces[5000:20000, 3:5], 
+        result[[2]]@traces[5000:20000, 3:5], 
+        result[[3]]@traces[5000:20000, 3:5]
 )
 
 # Plot theme:
 p_theme <- theme(
-  legend.position = "bottom", 
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
   legend.title = element_blank(), 
   legend.background = element_rect(fill = "transparent"),
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+  axis.title.y = element_text(size = 8, vjust = 0.5)
 )
 
 # e_lpd_0
-df <- data.frame(
-  time = 1:nrow(traces), trace = traces[, 3]
-)
-df <- reshape2::melt(df, id.vars = "time")
-p1 <- ggplot(data = df, aes(x = time, y = value)) +
-  geom_line(aes(colour = variable)) + theme_light() +
-  scale_colour_manual(values = "black") + 
-  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\tilde{\\eta}_0$}"),
-       x = "m", y = latex2exp::TeX("$\\tilde{\\eta}_0$")) +
-  p_theme
+df <- data.frame(time = 1:nrow(traces), e_lpd_0 = traces[, 1])
+p1 <- ggplot(data = df, aes(x = e_lpd_0)) +
+  geom_density(aes(x = e_lpd_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = mean(traces[, 1]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", 
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
+  ) + 
+  labs(title = latex2exp::TeX(
+    "Marginal Posterior: \\textbf{$\\tilde{\\eta}_0$}"
+  ), x = latex2exp::TeX("$\\tilde{\\eta}_0$"))
 
 # sigma_u
-df <- data.frame(
-  time = 1:nrow(traces), trace = exp(traces[, 4])
-)
-df <- reshape2::melt(df, id.vars = "time")
-p2 <- ggplot(data = df, aes(x = time, y = value)) +
-  geom_line(aes(colour = variable)) + theme_light() +
-  scale_colour_manual(values = "black") + 
-  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_u$}"),
-       x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
-  p_theme
+df <- data.frame(time = 1:nrow(traces), sigma_u = exp(traces[, 2]))
+p2 <- ggplot(data = df, aes(x = sigma_u)) +
+  geom_density(aes(x = sigma_u, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 2])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", 
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
+  ) + 
+  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+       x = latex2exp::TeX("$\\sigma_u$"))
 
 # sigma_epsilon
-df <- data.frame(
-  time = 1:nrow(traces), trace = exp(traces[, 5])
-)
-df <- reshape2::melt(df, id.vars = "time")
-p3 <- ggplot(data = df, aes(x = time, y = value)) +
-  geom_line(aes(colour = variable)) + theme_light() +
-  scale_colour_manual(values = "black") + 
-  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\sigma_\\epsilon$}"),
-       x = "m", y = latex2exp::TeX("$\\sigma_\\epsilon$")) +
-  p_theme
+df <- data.frame(time = 1:nrow(traces), sigma_e = exp(traces[, 3]))
+p3 <- ggplot(data = df, aes(x = sigma_e)) +
+  geom_density(aes(x = sigma_e, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = mean(exp(traces[, 3])), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", 
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
+  ) + 
+  labs(title = latex2exp::TeX(
+    "Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"
+  ), x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
-legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(p2)
 
 grid.arrange(
   p1 + theme(legend.position = "none"), 
   p2 + theme(legend.position = "none"), 
-  p3 + theme(legend.position = "none"),
-  ncol = 1, legend = legend, nrow = 4, 
-  heights = c(1.1, 1.1, 1.1, 0.2)
+  p3 + theme(legend.position = "none"), 
+  ncol = 2, legend = legend
 )
 ```
 
-```{r, basic-model-posterior-marginal-density, eval=TRUE, echo=FALSE}
+Moreover, Figure \@ref(fig:basic-model-state-estimates) visualizes the marginal posterior mean for the latent state and corresponding $95\%$ pointwise credible intervals.
 
-```
+```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Latent state estimate", fig.width=6, fig.height=3.5, warning=FALSE}
+traj <- rbind(
+  result[[1]]@filter.traj[1, 5000:20000, ], 
+  result[[2]]@filter.traj[1, 5000:20000, ],
+  result[[3]]@filter.traj[1, 5000:20000, ]
+)
 
-```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE}
+df <- data.frame(time = dates, y = y$lpd, x = colMeans(traj)[-1])
+df <- reshape2::melt(df, id.vars = "time")
+q <- data.frame(
+  time = dates,
+  variable = "x",
+  lower = apply(traj, 2, quantile, probs = 0.025)[-1],
+  upper = apply(traj, 2, quantile, probs = 0.975)[-1]
+)
+ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable)) + 
+  geom_ribbon(
+    data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red",
+                  colour = variable),
+    inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
+    colour = "red", size = 0.25
+  ) +
+  theme_light() +
+  scale_color_manual(
+    values = c("black", "red"), 
+    labels = unname(c(
+      latex2exp::TeX("PD: $\\eta_t$"),
+      latex2exp::TeX("Time-varying mean: $\\tilde{\\eta}_t$")
+   ))
+  ) +
+  theme(
+    legend.position = "bottom", 
+    legend.title = element_blank(), 
+    legend.background = element_rect(fill = "transparent"),
+    plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"),
+    plot.title = element_text(hjust = 0.5, size = 8),
+    axis.title = element_blank()
+  )
 ```
 
 ## Cointegration analysis

@@ -161,7 +161,7 @@ source(here::here("R", "simulation_study", "simulation.R"))
 
 Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter lags behind the former.
 
-```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=5, fig.height=2.5, warning=FALSE}
+```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=5, fig.height=2, warning=FALSE}
 # Plot data
 sim_4 <- simulation_result[[4]]
 
@@ -191,7 +191,7 @@ The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim
 
 Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviation from the true parameters.
 
-Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
+Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. For the likelihood based approach this corresponds to the particle filter state estimate using the estimated MLE parameters. Furthermore, for the Bayesian approaches the marginal posterior mean for the latent state will be used.  One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
 
 \vfill
 ```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=5, fig.height=6.5, warning=FALSE}

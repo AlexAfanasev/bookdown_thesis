@@ -129,13 +129,8 @@ for (i in starting_point:nrow(var_data)) {
     best_model <- ifelse(all(residuals_model == Inf),
                          start_w,
                          which.min(residuals_model) + start_w - 1)
-    print(min(residuals_model))
-    print(best_model)
     model <- vars::VAR(var_data[(i - best_model + 1):i, 1:4], type = "const")
     e <- abs(eigen(vars::Acoef(model)[[1]])$values)
-    if (any(e >= 1)) {
-        print(paste("Problem", i))
-    }
     params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
 }
 
