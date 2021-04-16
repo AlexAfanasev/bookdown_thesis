@@ -5,6 +5,8 @@ editor_options:
 ---
 # (APPENDIX) Appendix {-}
 
+# Appendix: Data Description
+
 # Appendix: Figures {#figures}
 
 ```{r, sim-4-appendix, eval=TRUE, echo=FALSE}
