@@ -108,7 +108,9 @@ the discounted expectations can be evaluated using the vector $h = \begin{pmatri
 \end{equation}
 Similar to [@h2_paper] a adaptive approach will be used for the choice of VAR sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last $5$ in sample observations of the excess dividend rate and excess return, $\{\Delta d_m^e - r_m^e\}^t_{t-9}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of $A$ have modulus less than 1. If this requirement is violated the specific VAR model will be discarded. The VAR model with $\omega = 10$ will be used if at a specific time point $t$ all VAR models violate the stability requirement.
 
-The empirical application will be conducted on quarterly data for the S&P 500 starting at the 31st of December 1970 up until the 30th of September 2020.
+The empirical application will be conducted on quarterly data for the S&P 500 starting at the 31st of December 1970 up until the 30th of September 2020. Price and dividend data for the S&P 500 have been obtained. Additionally, the 10-Year Treasury Constant Maturity Rate has been used for the risk free rate $r^f_t$ and the inflation rate $\pi_t$ has been derived from the cosumer price index. These time series are retrieved from Robert J. Shiller's website [@shiller_website]
+
+<!-- TODO: add data source here -->
 
 ## Random walk state process
 
@@ -453,17 +455,15 @@ knitr::kable(
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-Annual population data has been collected from Datastream (since 1950, "US-
+Annual population data has been collected from Datastream ("US-
 POP24Y" for the 20–24-year old agents, "USPOP29Y" for the 25–29, "USPOP44Y"
 for the 40–44, and "USPOP49Y" for the 45–49, "USPOPTO" for the total US population). The middle-aged to young ratio has been computed as the ratio of 40-49 to the 20-29 year old agents. Quarterly data between the end of consecutive years has been obtained by applying linear interpolation. 
 
-As has been proposed in [@consumption_risk] consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an AR(1) regression for real per capita consumption growth. The real per capita consumption data has been computed by taking real personal consumption data from [@real_consumption_data] and the retrieved total US population data.
+As has been proposed in [@consumption_risk] consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an AR(1) regression for real per capita consumption growth. The real per capita consumption has been computed by taking real personal consumption data from [@real_consumption_data] and the retrieved total US population data from Datastream.
 
-The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from [@federal_funds_rate_data], and the log real M1 money supply, retrieved from [@m1_money_supply_data], have been added for establishing a possible link between monetary policy and the latent price-dividend ratio. 
+The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from [@federal_funds_rate_data], and the log real M1 money supply, retrieved from [@m1_money_supply_data], have been added for establishing a possible link between monetary policy and the latent price-dividend ratio. Furthermore, the log real GDP [@gdp_data] as an indicator of economic growth has been added. 
 
-As an indicator of the state of the economy the log real GDP [@gdp_data] has been added.
-
-Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying covariates. The effect of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money stock $ms_t$ and log GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money stock by extending quantitative easing, see [@fed_qe].
+Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money stock $ms_t$ and log GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money stock by extending quantitative easing, see [@fed_qe].
 
 ```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of covariates", fig.width=6, fig.height=4, warning=FALSE}
 traj <- rbind(
@@ -535,7 +535,7 @@ grid.arrange(
 )
 ```
 
-Before investigating the cointegration relationship the individual variables will be characterized by means of the augmented Dickey-Fuller (ADF) test. Table \@ref(tab:cointegration-analysis-unit-root-tests) shows the test statistics for all variables. For variables in level the test is applied with a constant and drift and for variables in difference only a constant term has been added. 
+Before investigating the cointegration relationship the individual variables will be characterized by means of the augmented Dickey-Fuller (ADF) test. Table \@ref(tab:cointegration-analysis-unit-root-tests) shows the test statistics for all variables. For variables in level the test is applied with a constant and drift and for variables in difference only a constant term has been added. All tests have been applied using only one lag.
 
 ```{r, cointegration-analysis-unit-root-tests, eval=TRUE, echo=FALSE}
 traj <- rbind(
@@ -556,19 +556,23 @@ gdp1 <- urca::summary(urca::ur.df(y$gdp, type = "trend", lags = 1))
 d_e_lpd1 <- urca::summary(urca::ur.df(diff(e_lpd), type = "drift", lags = 1))
 d_cr1 <- urca::summary(urca::ur.df(diff(y$cr), type = "drift", lags = 1))
 d_my1 <- urca::summary(urca::ur.df(diff(y$mys), type = "drift", lags = 1))
+d_d_my1 <- urca::summary(urca::ur.df(diff(diff(y$mys)), type = "drift", lags = 1))
 d_fr1 <- urca::summary(urca::ur.df(diff(y$fr), type = "drift", lags = 1))
 d_ms1 <- urca::summary(urca::ur.df(diff(y$ms), type = "drift", lags = 1))
 d_gdp1 <- urca::summary(urca::ur.df(diff(y$gdp), type = "drift", lags = 1))
 with_corona <- list(
-  e_lpd1, cr1, my1, fr1, ms1, gdp1, d_e_lpd1, d_cr1, d_my1, d_fr1, d_ms1, d_gdp1
+  e_lpd1, cr1, my1, fr1, ms1, gdp1, d_e_lpd1, d_cr1, d_my1, d_d_my1, d_fr1, d_ms1, d_gdp1
 )
 
 result_table <- data.frame(
-  with_corona = sapply(with_corona, function(x){x@teststat[1]})
+  with_corona = sapply(with_corona, function(x){x@teststat[1]}),
+  c_1 = sapply(with_corona, function(x){x@cval[1, 1]}),
+  c_2 = sapply(with_corona, function(x){x@cval[1, 2]}),
+  c_3 = sapply(with_corona, function(x){x@cval[1, 3]})
 )
 stars <- rev(c("*", "**", "***"))
 result_table <- round(result_table, 4)
-result_table[, 1] <- sapply(1:12, function(i){paste(
+result_table[, 1] <- sapply(1:13, function(i){paste(
     result_table[i, 1], 
     ifelse(
         is.na(stars[result_table[i, 1] < with_corona[[i]]@cval[1, ]][1]),
@@ -578,31 +582,33 @@ result_table[, 1] <- sapply(1:12, function(i){paste(
 
 rownames(result_table) <- c(
   "$\\tilde{\\eta}_t$", "$cr_t$", "$my_t$", "$fr_t$", "$ms_t$", "$gdp_t$",
-  "$\\Delta\\tilde{\\eta}_t$", "$\\Delta cr_t$", "$\\Delta my_t$", 
+  "$\\Delta\\tilde{\\eta}_t$", "$\\Delta cr_t$", "$\\Delta my_t$", "$\\Delta^2 my_t$",
   "$\\Delta fr_t$", "$\\Delta ms_t$",  "$\\Delta gdp_t$"
 )
 opts <- options(knitr.kable.NA = "")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("ADF-test"),
-  caption = "Cointegration analysis: Unit root augmented Dickey-Fuller test", 
+  col.names = c("t-statistic", "$\\alpha = 0.01\\%$", "$\\alpha = 0.05\\%$",
+                "$\\alpha = 0.1\\%$"),
+  caption = "Cointegration analysis: Augmented Dickey-Fuller unit root test", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
-  align = rep("c", 1)
+  align = rep("l", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position") %>%
+  kableExtra::add_header_above(c("", "", "Critical Values" = 3)) %>%
   kableExtra::footnote(
     symbol = c("Significance at 1% level", 
                "Significance at 5% level",
                "Significance at 10% level"),
     symbol_manual = rev(c("*", "**", "***")),
-    footnote_as_chunk = T
+    footnote_as_chunk = F
   )
 ```
 
-The significance results of most factors indicate first order integration at conventional significance levels. Only the real effective federal funds rate has a significance level of $10\%$. For this thesis the federal funds rate and the middle aged to young ratio will be handled as a first order integrated time series, as in [@h2_paper]. 
+The significance results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this thesis the federal funds rate will be handled as a first order integrated time series. Additionally, according the test results for the middle aged to young ratio indicate second order integration. However, for longer time series there exist significant evidence for first order integration, [@long_term_mys], and hence the middle aged to young ratio will be treated as a first order integrated process.
 
 Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
 \begin{equation}
@@ -612,12 +618,7 @@ Moreover, the cointegration analysis will be applied using the following single 
 (\#eq:secm)
 \end{split}
 \end{equation}
-Table \@ref(tab:cointegration-analysis-study) displays the results of the inspected cointegration relationship with parameter estimates evaluated based on a nonlinear regression approach. The model including all covariates has no significant cointegration relationship based on a $10\%$ singificance level. The statistic of $-3.074$ is larger than the critical value $-4.41315$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
-
-Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic $-2.998$ is larger but relatively close to the critical value $-3.04445$. 
-
-Overall the cointegration analysis has been applied using the estimated latent mean of the price-dividend ratio based on the random walk state process. 
-
+Table \@ref(tab:cointegration-analysis-study) displays the results of the inspected cointegration relationship with parameter estimates evaluated based on a nonlinear regression approach. 
 ```{r, cointegration-analysis-study, eval=TRUE, echo=FALSE}
 traj <- rbind(
   result[[1]]@filter.traj[1, 5000:20000, ], 
@@ -708,7 +709,7 @@ knitr::kable(
   caption = "Cointegration analysis: Results", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
-  align = rep("c", 2)
+  align = rep("l", 2)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position") %>%
@@ -717,11 +718,15 @@ knitr::kable(
                "Significance at 5% level",
                "Significance at 10% level"),
     symbol_manual = rev(c("*", "**", "***")),
-    footnote_as_chunk = T
+    footnote_as_chunk = F
   )
 ```
-\newpage
+The model including all covariates has no significant cointegration relationship based on a $10\%$ singificance level. The statistic of $-3.07$ is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
+
+Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic $-2.998$ is larger but relatively close to the critical value $-3.04$. 
+
+Overall the cointegration analysis has been applied using the estimated latent mean of the price-dividend ratio based on the random walk state process. Contrary to the results presented in [@h2_paper] a cointegration relationship could no be established. The reasons could be the missing dividend payout policy factor or that the cointegration relationship is only present at an annual frequency.
 
 ## State process extension with covariates
 
-This chapter will continue the analysis of possible exogenous covariates effecting the latent process. Therefore, 3 additional state process specifications will be tested and compared.
+This chapter will continue the analysis of possible exogenous covariates effecting the latent process. Therefore, 3 additional state process specifications will be tested and compared with the random walk specification.
