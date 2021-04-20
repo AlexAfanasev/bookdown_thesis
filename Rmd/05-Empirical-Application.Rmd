@@ -453,11 +453,15 @@ knitr::kable(
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-The data for 
+Annual population data has been collected from Datastream (since 1950, "US-
+POP24Y" for the 20–24-year old agents, "USPOP29Y" for the 25–29, "USPOP44Y"
+for the 40–44, and "USPOP49Y" for the 45–49, "USPOPTO" for the total US population). The middle-aged to young ratio has been computed as the ratio of 40-49 to the 20-29 year old agents. Quarterly data between the end of consecutive years has been obtained by applying linear interpolation. 
 
 As has been proposed in [@consumption_risk] consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an AR(1) regression for real per capita consumption growth. The real per capita consumption data has been computed by taking real personal consumption data from [@real_consumption_data] and the retrieved total US population data.
 
-The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate and the log real M1 money supply have been added for establishing a possible link between monetary policy and the latent price-dividend ratio. Furthermore, as an indicator of the state of the economy the log real GDP has been added.
+The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from [@federal_funds_rate_data], and the log real M1 money supply, retrieved from [@m1_money_supply_data], have been added for establishing a possible link between monetary policy and the latent price-dividend ratio. 
+
+As an indicator of the state of the economy the log real GDP [@gdp_data] has been added.
 
 Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying covariates. The effect of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money stock $ms_t$ and log GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money stock by extending quantitative easing, see [@fed_qe].
 
