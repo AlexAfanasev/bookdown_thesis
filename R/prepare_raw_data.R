@@ -76,7 +76,7 @@ ar_mod <- arima(quar_c_growth, order = c(1, 0, 0))
 con_vol <- log(
     zoo::rollapply(
         zoo::zoo(abs(residuals(ar_mod)), order.by = zoo::index(con)),
-        width = 20, FUN = sum, align = "right"
+        width = 12, FUN = sum, align = "right"
     )
 )
 
@@ -104,7 +104,7 @@ inflation <- log(dataset$cpi / stats::lag(dataset$cpi, k = 1))
 lpd <- log((dataset$price / dataset$dividend))
 
 var_data <- cbind(lpd, d_e, r_e, inflation, con_vol, my, fr, ms, gdp)
-var_data <- var_data[complete.cases(var_data),]
+var_data <- var_data[complete.cases(var_data),]["1963-09-30/"]
 
 ## dynamic var
 starting_point <- 30
@@ -154,7 +154,7 @@ var_data <- cbind(var_data[starting_point:nrow(var_data), ], params)
 # }
 # var_data <- cbind(var_data[starting_point:nrow(var_data), ], params)
 
-y <- var_data[complete.cases(var_data),]
+y <- var_data[complete.cases(var_data), ]
 y <- cbind(1:nrow(y), y)
 colnames(y) <- c("time", "lpd", "d_e", "r_e", "inflation", "cr", "mys", "fr",
                  "ms", "gdp", sapply(1:20, function(x){sprintf("param_%i", x)}))

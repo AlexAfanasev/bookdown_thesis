@@ -424,9 +424,9 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
 
 ## Cointegration analysis
 
-The connection between economic fundamentals and financial markets will be studied by inspecting possible conomcic factors that drive the latent price-dividend ratio. In [@h2_paper] three long determinants of the latent mean of the price-dividend ratio have been found. These three factors form a cointegration relationship with the time-varying mean $\tilde{\eta}_t$: consumption risk, the demographic structure of the population and the dividend payout policy of firms.
+The connection between economic fundamentals and financial markets will be studied by inspecting possible economcic factors that drive the latent price-dividend ratio. In [@h2_paper] three long determinants of the latent mean of the price-dividend ratio have been found. These three factors form a cointegration relationship with the time-varying mean $\tilde{\eta}_t$: consumption risk, the demographic structure of the population and the dividend payout policy of firms.
 
-As an initial step a similar cointegration analysis will be conducted by analyzing the effect of additional covariates. Besides including the previously established connection with consumption risk and the demographic of the population the following economic indicators will be analyzed, see \@ref(tab:cointegration-analysis-name-variables).
+As an initial step a similar cointegration analysis will be conducted by analyzing the effect of additional covariates. The previously established connection with consumption risk and the demographic of the population will be added. Overall, the following economic indicators will be analyzed, see \@ref(tab:cointegration-analysis-name-variables).
 
 ```{r, cointegration-analysis-name-variables, eval=TRUE, echo=FALSE}
 result_table <- data.frame(
@@ -453,11 +453,13 @@ knitr::kable(
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-As has been proposed in [@consumption_risk] consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{20}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an AR(1) regression for real per capita consumption growth.
+The data for 
+
+As has been proposed in [@consumption_risk] consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an AR(1) regression for real per capita consumption growth. The real per capita consumption data has been computed by taking real personal consumption data from [@real_consumption_data] and the retrieved total US population data.
 
 The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate and the log real M1 money supply have been added for establishing a possible link between monetary policy and the latent price-dividend ratio. Furthermore, as an indicator of the state of the economy the log real GDP has been added.
 
-Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying covariates. The effect of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, log M1 money stock $ms_t$ and log GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money stock by extending quantitative easing, see [@fed_qe].
+Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying covariates. The effect of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money stock $ms_t$ and log GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money stock by extending quantitative easing, see [@fed_qe].
 
 ```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of covariates", fig.width=6, fig.height=4, warning=FALSE}
 traj <- rbind(
@@ -529,7 +531,7 @@ grid.arrange(
 )
 ```
 
-Before investigating the cointegration relationship the individual variables will be characterized by means of the augmented Dickey-Fuller (ADF) test. Table \@ref(tab:cointegration-analysis-unit-root-tests) shows the test statistics for all variables. Furthermore, the test has been applied on the whole time series and the time series excluding the year 2020 with the developing COVID-19 pandemic.
+Before investigating the cointegration relationship the individual variables will be characterized by means of the augmented Dickey-Fuller (ADF) test. Table \@ref(tab:cointegration-analysis-unit-root-tests) shows the test statistics for all variables. For variables in level the test is applied with a constant and drift and for variables in difference only a constant term has been added. 
 
 ```{r, cointegration-analysis-unit-root-tests, eval=TRUE, echo=FALSE}
 traj <- rbind(
@@ -557,28 +559,7 @@ with_corona <- list(
   e_lpd1, cr1, my1, fr1, ms1, gdp1, d_e_lpd1, d_cr1, d_my1, d_fr1, d_ms1, d_gdp1
 )
 
-# without corona
-e_lpd2 <- urca::summary(urca::ur.df(e_lpd[1:197], type = "trend", lags = 1))
-cr2 <- urca::summary(urca::ur.df(y$cr[1:197], type = "trend", lags = 1))
-my2 <- urca::summary(urca::ur.df(y$mys[1:197], type = "trend", lags = 1))
-fr2 <- urca::summary(urca::ur.df(y$fr[1:197], type = "trend", lags = 1))
-ms2 <- urca::summary(urca::ur.df(y$ms[1:197], type = "trend", lags = 1))
-gdp2 <- urca::summary(urca::ur.df(y$gdp[1:197], type = "trend", lags = 1))
-
-d_e_lpd2 <- urca::summary(urca::ur.df(diff(e_lpd[1:197]), type = "drift", lags = 1))
-d_cr2 <- urca::summary(urca::ur.df(diff(y$cr[1:197]), type = "drift", lags = 1))
-d_my2 <- urca::summary(urca::ur.df(diff(y$mys[1:197]), type = "drift", 
-                                    lags = 1))
-d_fr2 <- urca::summary(urca::ur.df(diff(y$fr[1:197]), type = "drift", lags = 1))
-d_ms2 <- urca::summary(urca::ur.df(diff(y$ms[1:197]), type = "drift", lags = 1))
-d_gdp2 <- urca::summary(urca::ur.df(diff(y$gdp[1:197]), type = "drift", 
-                                    lags = 1))
-without_corona <- list(
-  e_lpd2, cr2, my2, fr2, ms2, gdp2, d_e_lpd2, d_cr2, d_my2, d_fr2, d_ms2, d_gdp2
-)
-
 result_table <- data.frame(
-  without_corona = sapply(without_corona, function(x){x@teststat[1]}), 
   with_corona = sapply(with_corona, function(x){x@teststat[1]})
 )
 stars <- rev(c("*", "**", "***"))
@@ -586,15 +567,8 @@ result_table <- round(result_table, 4)
 result_table[, 1] <- sapply(1:12, function(i){paste(
     result_table[i, 1], 
     ifelse(
-        is.na(stars[result_table[i, 1] < without_corona[[i]]@cval[1, ]][1]),
-        "", stars[result_table[i, 1] < without_corona[[i]]@cval[1, ]][1]
-    )
-)})
-result_table[, 2] <- sapply(1:12, function(i){paste(
-    result_table[i, 2], 
-    ifelse(
-        is.na(stars[result_table[i, 2] < with_corona[[i]]@cval[1, ]][1]),
-        "", stars[result_table[i, 2] < with_corona[[i]]@cval[1, ]][1]
+        is.na(stars[result_table[i, 1] < with_corona[[i]]@cval[1, ]][1]),
+        "", stars[result_table[i, 1] < with_corona[[i]]@cval[1, ]][1]
     )
 )})
 
@@ -607,15 +581,14 @@ opts <- options(knitr.kable.NA = "")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("31/12/1970 - 31/12/2019", "31/12/1970 - 30/09/2020"),
-  caption = "Cointegration analysis: Augmented Dickey-Fuller test excluding and including the year 2020", 
+  col.names = c("ADF-test"),
+  caption = "Cointegration analysis: Unit root augmented Dickey-Fuller test", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "\\addlinespace", 
-  align = rep("c", 2)
+  linesep = "", 
+  align = rep("c", 1)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position") %>%
-  kableExtra::add_header_above(c(" ", "ADF-Test" = 2)) %>%
   kableExtra::footnote(
     symbol = c("Significance at 1% level", 
                "Significance at 5% level",
@@ -625,7 +598,21 @@ knitr::kable(
   )
 ```
 
-For variables in level the test is applied with a constant and drift and for variables in difference only a constant term has been added. Moreover, for all factors, except consumption risk, the significance results indicate first order integration at conventional significance levels. Furthermore, the test results for consumption risk hint at stationarity  for the case of the whole time series and at a integrated process for the time series without the year 2000. As in [@h2_paper] the middle aged to young ratio will be handled as a first order integrated time series.
+The significance results of most factors indicate first order integration at conventional significance levels. Only the real effective federal funds rate has a significance level of $10\%$. For this thesis the federal funds rate and the middle aged to young ratio will be handled as a first order integrated time series, as in [@h2_paper]. 
+
+Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
+\begin{equation}
+\begin{split}
+\Delta \tilde{\eta}_t = &\delta_0 + \alpha(\tilde{\eta}_{t-1} - \beta_1 cr_{t-1} - \beta_2 my_{t-1} - \beta_3 fr_{t-1} - \beta_4 ms_{t-1} - \beta_5 gdp_{t-1}) + \\
+& \delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + e_t
+(\#eq:secm)
+\end{split}
+\end{equation}
+Table \@ref(tab:cointegration-analysis-study) displays the results of the inspected cointegration relationship with parameter estimates evaluated based on a nonlinear regression approach. The model including all covariates has no significant cointegration relationship based on a $10\%$ singificance level. The statistic of $-3.074$ is larger than the critical value $-4.41315$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
+
+Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic $-2.998$ is larger but relatively close to the critical value $-3.04445$. 
+
+Overall the cointegration analysis has been applied using the estimated latent mean of the price-dividend ratio based on the random walk state process. 
 
 ```{r, cointegration-analysis-study, eval=TRUE, echo=FALSE}
 traj <- rbind(
@@ -634,69 +621,89 @@ traj <- rbind(
   result[[3]]@filter.traj[1, 5000:20000, ]
 )
 
-data <- data.frame(
+data <- zoo::as.zoo(data.frame(
   e_lpd = colMeans(traj)[-1], cr = y$cr, mys = y$mys, fr = y$fr, ms = y$ms, 
   gdp = y$gdp
-)
+), order.by = zoo::index(1:length(y$cr)))
 
-# with corona
+# complete analysis
 ardl_model_1 <- ARDL::ardl(
   e_lpd ~ cr + mys + fr + ms + gdp, order = c(3, 1, 1, 1, 1, 1), data = data
 )
 cointegration_model_1 <- ARDL::uecm(ardl_model_1)
+m_1 <- ARDL::multipliers(cointegration_model_1)
 cointegration_model_1 <- summary(cointegration_model_1)
 
-m_1 <- lm(e_lpd ~ -1 + cr + mys + fr + ms + gdp, data = data)
-m_1 <- summary(m_1)
-
-# without corona
+# drop cr, fr, gdp
 ardl_model_2 <- ARDL::ardl(
-  e_lpd ~ cr + mys + fr + ms + gdp, order = c(3, 1, 1, 1, 1, 1), 
-  data = data[1:197, ]
+  e_lpd ~ mys + ms, order = c(3, 1, 1), data = data
 )
 cointegration_model_2 <- ARDL::uecm(ardl_model_2)
+m_2 <- ARDL::multipliers(cointegration_model_2)
 cointegration_model_2 <- summary(cointegration_model_2)
 
-m_2 <- lm(e_lpd ~ -1 + cr + mys + fr + ms + gdp, data = data[1:197, ])
-m_2 <- summary(m_2)
-
 result_table <- data.frame(
-  without_corona = c(
-    cointegration_model_2$coefficients[2, 1], m_2$coefficients[, 1],
-    cointegration_model_2$r.squared, cointegration_model_2$adj.r.squared
-  ),
-  with_corona = c(
-    cointegration_model_1$coefficients[2, 1], m_1$coefficients[, 1], 
+  complete = c(
+    cointegration_model_1$coefficients[2, 1], m_1[2:6, 2],
     cointegration_model_1$r.squared, cointegration_model_1$adj.r.squared
+  ),
+  droped = c(
+    cointegration_model_2$coefficients[2, 1], NA, m_2[2, 2], NA, m_2[3, 2], NA, 
+    cointegration_model_2$r.squared, cointegration_model_2$adj.r.squared
   )
 )
 result_table <- round(result_table, 4)
-result_table[, 1] <- sapply(1:12, function(i){paste(
-    result_table[i, 1], 
+stars <- rev(c("*", "**", "***"))
+
+# Cointegration test
+result_table[1, 1] <- paste(
+  result_table[1, 1], 
+  ifelse(
+    is.na(
+      stars[cointegration_model_1$coefficients[2, 3] < c(-4.95756, -4.41519, -4.41315)][1]
+    ),
+    "", 
+    stars[cointegration_model_1$coefficients[2, 3] < c(-4.95756, -4.41519, -4.41315)][1]
+  )
+)
+result_table[1, 2] <- paste(
+  result_table[1, 2], 
+  ifelse(
+    is.na(
+      stars[cointegration_model_2$coefficients[2, 3] < c(-3.89644, -3.33613, -3.04445)][1]
+    ),
+    "", 
+    stars[cointegration_model_2$coefficients[2, 3] < c(-3.89644, -3.33613, -3.04445)][1]
+  )
+)
+
+# Long run relationship test
+result_table[2:6, 1] <- sapply(2:6, function(i){paste(
+    result_table[i, 1],
     ifelse(
-        ,
-        "", stars[result_table[i, 1] < without_corona[[i]]@cval[1, ]][1]
+        is.na(stars[m_1[i, 5] < c(0.01, 0.05, 0.1)][1]),
+        "", stars[m_1[i, 5] < c(0.01, 0.05, 0.1)][1]
     )
 )})
-result_table[, 2] <- sapply(1:12, function(i){paste(
-    result_table[i, 2], 
+result_table[c(3, 5), 2] <- sapply(c(3, 5), function(i){paste(
+    result_table[i, 2],
     ifelse(
-        is.na(stars[result_table[i, 2] < with_corona[[i]]@cval[1, ]][1]),
-        "", stars[result_table[i, 2] < with_corona[[i]]@cval[1, ]][1]
+        is.na(stars[m_2[ifelse(i == 3, 2, 3), 5] < c(0.01, 0.05, 0.1)][1]),
+        "", stars[m_2[ifelse(i == 3, 2, 3), 5] < c(0.01, 0.05, 0.1)][1]
     )
 )})
 rownames(result_table) <- c(
   "$\\alpha$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$",
   "$\\beta_4$", "$\\beta_5$", "$R^2$", "adj $R^2$"
 )
-opts <- options(knitr.kable.NA = "")
+opts <- options(knitr.kable.NA = "-")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("31/12/1970 - 31/12/2019", "31/12/1970 - 30/09/2020"),
+  col.names = c("All covariates", "Excluding $cr_t$, $fr_t$, $gdp_t$"),
   caption = "Cointegration analysis: Results", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "\\addlinespace", 
+  linesep = "", 
   align = rep("c", 2)
 ) %>% 
   kableExtra::kable_paper() %>%
@@ -713,4 +720,4 @@ knitr::kable(
 
 ## State process extension with covariates
 
-## Model comparison
+This chapter will continue the analysis of possible exogenous covariates effecting the latent process. Therefore, 3 additional state process specifications will be tested and compared.

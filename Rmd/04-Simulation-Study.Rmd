@@ -161,7 +161,7 @@ source(here::here("R", "simulation_study", "simulation.R"))
 
 Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter lags behind the former.
 
-```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=5, fig.height=2, warning=FALSE}
+```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=4, fig.height=1.5, warning=FALSE}
 # Plot data
 sim_4 <- simulation_result[[4]]
 
