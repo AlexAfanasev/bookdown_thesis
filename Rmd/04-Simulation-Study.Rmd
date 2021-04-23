@@ -83,8 +83,8 @@ Since the transformation for $\sigma_u$ and $\sigma_{\epsilon}$ is equivalent, t
 Differentiating the initial parameters $\phi$ and $\sigma$ with respect to the hyperparameter yields
 \begin{equation*}
 \begin{split}
-  \frac{\partial \phi(\psi)}{\partial \psi} &= 1 - \text{tanh}(\psi)^2 \\
-  \frac{\partial \sigma(\varsigma)}{\partial \varsigma} &= \text{exp}(\varsigma)
+  \frac{d \phi(\psi)}{d \psi} &= 1 - \text{tanh}(\psi)^2 \\
+  \frac{d \sigma(\varsigma)}{d \varsigma} &= \text{exp}(\varsigma)
 \end{split}
 \end{equation*}
 Hence, the change of variable technique yields the following prior specifications for the hyperparameters

@@ -1,3 +1,9 @@
 # Literature review {#literature-review}
 
+1. pomp package for modelling
+- various methods for pomp models
+- mostly used for infectious disease modelling (rarely in economics) --> hence applied in this context new
 
+2. complex simulations & computational intensive procedures:
+- parallel programming
+- C from pomp and Rcpp/RcppArmadillo necessary for speed

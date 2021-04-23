@@ -108,9 +108,7 @@ the discounted expectations can be evaluated using the vector $h = \begin{pmatri
 \end{equation}
 Similar to [@h2_paper] a adaptive approach will be used for the choice of VAR sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last $5$ in sample observations of the excess dividend rate and excess return, $\{\Delta d_m^e - r_m^e\}^t_{t-9}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of $A$ have modulus less than 1. If this requirement is violated the specific VAR model will be discarded. The VAR model with $\omega = 10$ will be used if at a specific time point $t$ all VAR models violate the stability requirement.
 
-The empirical application will be conducted on quarterly data for the S&P 500 starting at the 31st of December 1970 up until the 30th of September 2020. Price and dividend data for the S&P 500 have been obtained. Additionally, the 10-Year Treasury Constant Maturity Rate has been used for the risk free rate $r^f_t$ and the inflation rate $\pi_t$ has been derived from the cosumer price index. These time series are retrieved from Robert J. Shiller's website [@shiller_website]
-
-<!-- TODO: add data source here -->
+The empirical application will be conducted on quarterly data for the S&P 500 starting at the 31st of December 1970 up until the 30th of September 2020.The 10-year treasury constant maturity rate has been used for the risk free rate $r^f_t$ and the inflation rate $\pi_t$ has been derived from the consumer price index for all urban consumers. These time series and the price and dividend data for the S&P 500 have been provided by Robert J. Shiller [@shiller_website]
 
 ## Random walk state process
 
@@ -608,7 +606,7 @@ knitr::kable(
   )
 ```
 
-The significance results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this thesis the federal funds rate will be handled as a first order integrated time series. Additionally, according the test results for the middle aged to young ratio indicate second order integration. However, for longer time series there exist significant evidence for first order integration, [@long_term_mys], and hence the middle aged to young ratio will be treated as a first order integrated process.
+The significance results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle aged to young ratio indicate second order integration. However, for longer time series there exist significant evidence for first order integration, [@long_term_mys], and hence the middle aged to young ratio will be treated as a first order integrated process aswell.
 
 Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
 \begin{equation}
@@ -721,12 +719,44 @@ knitr::kable(
     footnote_as_chunk = F
   )
 ```
-The model including all covariates has no significant cointegration relationship based on a $10\%$ singificance level. The statistic of $-3.07$ is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
+Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ singificance level. The statistic of $-3.07$ is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
 
 Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic $-2.998$ is larger but relatively close to the critical value $-3.04$. 
 
-Overall the cointegration analysis has been applied using the estimated latent mean of the price-dividend ratio based on the random walk state process. Contrary to the results presented in [@h2_paper] a cointegration relationship could no be established. The reasons could be the missing dividend payout policy factor or that the cointegration relationship is only present at an annual frequency.
+Overall the cointegration analysis has been applied under the assumption that the latent mean of the price-dividend ratio follows a random walk state process. Contrary to the results presented in [@h2_paper] a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data multiple reasons are available for the mixing results. Firstly, it is possible that the state process is misspecified and another specification, possbily already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used in [@h2_paper] is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with larger frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. 
 
 ## State process extension with covariates
 
-This chapter will continue the analysis of possible exogenous covariates effecting the latent process. Therefore, 3 additional state process specifications will be tested and compared with the random walk specification.
+As mentioned, it is possible that the filtered latent mean of the price-dividend ratio could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of possible exogenous covariates effecting the latent process.
+
+Three additional models with different state process specifications will be tested and the results will be compared with the random walk model. Each model will contain the previously described covariates. Firstly, each model extension and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
+
+Common similarities between all approaches will be that the same parameter transformations as in the [random walk state process][Random walk state process] chapter will be applied. Hence, the hyperparameters $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, all PMMH approaches will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 20000$ iterations.
+
+The first model will describe a long run equilibrium relationship that could not be detected within the [cointegration analysis][Cointegration analysis] chapter
+\begin{equation}
+\begin{split}
+\tilde{\eta}_t &= \beta_0 + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + u_t \\
+u_t &\sim \mathcal{N}(0, \sigma_u^2)
+(\#eq:static-model-state-process)
+\end{split}
+\end{equation}
+
+Combined with the observation process \@ref(eq:observation-process) the necessary parameters are $\theta = \begin{pmatrix} \beta_0 & \beta_1 & \beta_2 & \beta_3 & \beta_4 & \beta_5 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$. Note that due to the missing autoregressive part of the model the initial value $\tilde{\eta}_0$ does not need to be included.
+
+Furthermore, as initial parameters $\theta_0$ the parameter estimates for the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study) will be used
+$$
+\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \ln(0.05) \\ \ln(0.09) \end{pmatrix}
+$$
+Moreover, the following proposal distribution is applied
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.015^2)$$
+
+Similar to the random walk state process a flat prior specification will be used. Figure 5.1 displays the trace plots for each parameter and each Markov chain. Additionally, again the first 5000 iterations have been dropped. Furthermore, Figure 5.2 displays the Gaussian kernel density estimates. 
+
+<!-- describe next extension (AR errors model ) -->
+<!-- describe next extension ARDL model -->
+<!-- At the end: Table ... summarizes the estimation results for all model extensions -->
+<!-- show trace & density -->
+<!-- show comparison state process estimation -->
+<!-- compare models (table) -->
+

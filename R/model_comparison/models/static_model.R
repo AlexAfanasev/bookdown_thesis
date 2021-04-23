@@ -36,15 +36,15 @@ model_1 <- pomp::pomp(
 rm(covars, y)
 
 theta <- c(
-    beta_0 = 2.4, beta_1 = 0.1, beta_2 = 1.75, beta_3 = 0.5, beta_4 = 0.3,
-    beta_5 = -0.03, sigma_u = log(0.09), sigma_e = log(0.05), e_lpd_0 = 3.5
+    beta_0 = 2.75, beta_1 = 0.18, beta_2 = 1.86, beta_3 = 0.75, beta_4 = 0.69,
+    beta_5 = -0.15, sigma_u = log(0.09), sigma_e = log(0.05), e_lpd_0 = 3.5
 )
 res <- pomp::pmcmc(
     model_1, Nmcmc = 500, Np = 1000,
     proposal = pomp::mvn.diag.rw(
-        c(sigma_e = 0.01, sigma_u = 0.01,
-          beta_0 = 0.01, beta_1 = 0.01, beta_2 = 0.01,
-          beta_3 = 0.01, beta_4 = 0.01, beta_5 = 0.01)
+        c(sigma_e = 0.015, sigma_u = 0.015,
+          beta_0 = 0.015, beta_1 = 0.015, beta_2 = 0.015,
+          beta_3 = 0.015, beta_4 = 0.015, beta_5 = 0.015)
     ),
     params = theta,
     dprior = function(sigma_u,
