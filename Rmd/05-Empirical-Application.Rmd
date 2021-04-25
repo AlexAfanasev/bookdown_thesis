@@ -112,7 +112,7 @@ The empirical application will be conducted on quarterly data for the S&P 500 st
 
 ## Random walk state process
 
-Firstly, the state-space model with a random walk state process will be analyzed. The latent process follows
+Firstly, the state-space model with a random walk state process (**RW Model**) will be analyzed. The latent process follows
 \begin{equation}
 \begin{split}
 \tilde{\eta}_t &= \tilde{\eta}_{t-1} + u_t \\
@@ -612,7 +612,7 @@ Moreover, the cointegration analysis will be applied using the following single 
 \begin{equation}
 \begin{split}
 \Delta \tilde{\eta}_t = &\delta_0 + \alpha(\tilde{\eta}_{t-1} - \beta_1 cr_{t-1} - \beta_2 my_{t-1} - \beta_3 fr_{t-1} - \beta_4 ms_{t-1} - \beta_5 gdp_{t-1}) + \\
-& \delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + e_t
+& \delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + \phi_1\Delta \tilde{\eta}_{t-1} + \phi_2\Delta \tilde{\eta}_{t-2} + e_t
 (\#eq:secm)
 \end{split}
 \end{equation}
@@ -719,6 +719,7 @@ knitr::kable(
     footnote_as_chunk = F
   )
 ```
+
 Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ singificance level. The statistic of $-3.07$ is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
 
 Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic $-2.998$ is larger but relatively close to the critical value $-3.04$. 
@@ -729,11 +730,11 @@ Overall the cointegration analysis has been applied under the assumption that th
 
 As mentioned, it is possible that the filtered latent mean of the price-dividend ratio could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of possible exogenous covariates effecting the latent process.
 
-Three additional models with different state process specifications will be tested and the results will be compared with the random walk model. Each model will contain the previously described covariates. Firstly, each model extension and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
+Three additional models with different state process specifications will be tested and the results will be compared with the random walk model. Each model will contain the previously described covariates. Firstly, the model extensions and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
 
-Common similarities between all approaches will be that the same parameter transformations as in the [random walk state process][Random walk state process] chapter will be applied. Hence, the hyperparameters $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, all PMMH approaches will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 20000$ iterations.
+Common similarities between all approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, all PMMH approaches will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 20000$ iterations. Similar to the random walk state process a flat prior specification will be used and the first $5000$ iterations of the PMMH approach will be dropped.
 
-The first model will describe a long run equilibrium relationship that could not be detected within the [cointegration analysis][Cointegration analysis] chapter
+The first model (**Model 1**) describes a long run equilibrium relationship that could not be detected within the [cointegration analysis][Cointegration analysis]
 \begin{equation}
 \begin{split}
 \tilde{\eta}_t &= \beta_0 + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + u_t \\
@@ -741,22 +742,107 @@ u_t &\sim \mathcal{N}(0, \sigma_u^2)
 (\#eq:static-model-state-process)
 \end{split}
 \end{equation}
-
 Combined with the observation process \@ref(eq:observation-process) the necessary parameters are $\theta = \begin{pmatrix} \beta_0 & \beta_1 & \beta_2 & \beta_3 & \beta_4 & \beta_5 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$. Note that due to the missing autoregressive part of the model the initial value $\tilde{\eta}_0$ does not need to be included.
 
 Furthermore, as initial parameters $\theta_0$ the parameter estimates for the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study) will be used
 $$
 \theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \ln(0.05) \\ \ln(0.09) \end{pmatrix}
 $$
-Moreover, the following proposal distribution is applied
-$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.015^2)$$
+The second setup (**Model 2**) is an extension of the previous model \@ref(eq:static-model-state-process) and handles possibly correlated errors by adding to the setup an AR(1) structure
+\begin{equation}
+\begin{split}
+\tilde{\eta}_t &= \beta_0 + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + v_t \\
+v_t &= \phi v_{t-1} + u_t \\
+u_t &\sim \mathcal{N}(0, \sigma_u^2)
+(\#eq:ar-error-model-state-process)
+\end{split}
+\end{equation}
+The parameter $\phi$ will be restricted for stationarity in the error process, $\left| \phi \right| < 1$. Similar starting values as in the previous setup are applied
+$$
+\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+$$
+Moreover, for both models the following proposal distribution is used
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.02^2)$$
+As has been shown in the [simulation study][Simulation study], autoregressive distributed lag models are closely related to error correction models. Hence, building upon the results presented in the [cointegration analysis][Cointegration analysis] the next state process specification (**Model 3**) will be the following autoregressive distributed lag model
+\begin{equation}
+\begin{split}
+\tilde{\eta}_t &= \beta_0 + \phi \tilde{\eta}_{t-1} + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + u_t \\
+u_t &\sim \mathcal{N}(0, \sigma_u^2)
+(\#eq:ardl-model-state-process)
+\end{split}
+\end{equation}
+Compared to model \@ref(eq:ar-error-model-state-process) the state process of the ARDL model is linear in parameters. The starting values for this approach are derived by obtaining the corresponding parameter estimates of an ARDL model specification of the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study)
+$$
+\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+$$
+Here the variance for the proposal distribution will be different for the parameters $\psi, \varsigma_u, \varsigma_\epsilon$ with $\lambda = 0.015^2$ and for the other parameters $\lambda = 0.001^2$.
 
-Similar to the random walk state process a flat prior specification will be used. Figure 5.1 displays the trace plots for each parameter and each Markov chain. Additionally, again the first 5000 iterations have been dropped. Furthermore, Figure 5.2 displays the Gaussian kernel density estimates. 
+Figures \@ref(fig:extension-static-model-trace), \@ref(fig:extension-ar-error-model-trace) and \@ref(fig:extension-ardl-model-trace) show the trace plots for each model and for each parameter and each Markov chain. Furthermore, figures \@ref(fig:extension-static-model-marginal-density), \@ref(fig:extension-ar-error-model-marginal-density) and \@ref(fig:extension-ardl-model-marginal-density) display the Gaussian kernel density estimates of the marginal posterior distributions. As can be seen ...
 
-<!-- describe next extension (AR errors model ) -->
-<!-- describe next extension ARDL model -->
-<!-- At the end: Table ... summarizes the estimation results for all model extensions -->
-<!-- show trace & density -->
-<!-- show comparison state process estimation -->
-<!-- compare models (table) -->
+<!-- add further comments on figures -->
+<!-- At the end: -->
 
+Table ... summarizes the estimation results for all models 
+
+```{r, eval=FALSE, include=FALSE}
+# columns Models
+# rows parameters
+rownames(result_table) <- c(
+  "$\\tilde{\\eta}_t$", "$cr_t$", "$my_t$", "$fr_t$", "$ms_t$", "$gdp_t$",
+  "$\\Delta\\tilde{\\eta}_t$", "$\\Delta cr_t$", "$\\Delta my_t$", "$\\Delta^2 my_t$",
+  "$\\Delta fr_t$", "$\\Delta ms_t$",  "$\\Delta gdp_t$"
+)
+opts <- options(knitr.kable.NA = "")
+knitr::kable(
+  result_table, 
+  row.names = TRUE,
+  col.names = c("t-statistic", "$\\alpha = 0.01\\%$", "$\\alpha = 0.05\\%$",
+                "$\\alpha = 0.1\\%$"),
+  caption = "Cointegration analysis: Augmented Dickey-Fuller unit root test", 
+  booktabs = TRUE, escape = FALSE,
+  linesep = "", 
+  align = rep("l", 4)
+) %>% 
+  kableExtra::kable_paper() %>%
+  kableExtra::kable_styling(latex_options = "hold_position") %>%
+  kableExtra::add_header_above(c("", "", "Critical Values" = 3)) %>%
+  kableExtra::footnote(
+    symbol = c("Significance at 1% level", 
+               "Significance at 5% level",
+               "Significance at 10% level"),
+    symbol_manual = rev(c("*", "**", "***")),
+    footnote_as_chunk = F
+  )
+```
+
+Table ... summarizes the model comparison results for all models 
+```{r, eval=FALSE, include=FALSE}
+# columns num params, lik, BIC, DIC, AIC
+# rows Models
+rownames(result_table) <- c(
+  "$\\tilde{\\eta}_t$", "$cr_t$", "$my_t$", "$fr_t$", "$ms_t$", "$gdp_t$",
+  "$\\Delta\\tilde{\\eta}_t$", "$\\Delta cr_t$", "$\\Delta my_t$", "$\\Delta^2 my_t$",
+  "$\\Delta fr_t$", "$\\Delta ms_t$",  "$\\Delta gdp_t$"
+)
+opts <- options(knitr.kable.NA = "")
+knitr::kable(
+  result_table, 
+  row.names = TRUE,
+  col.names = c("t-statistic", "$\\alpha = 0.01\\%$", "$\\alpha = 0.05\\%$",
+                "$\\alpha = 0.1\\%$"),
+  caption = "Cointegration analysis: Augmented Dickey-Fuller unit root test", 
+  booktabs = TRUE, escape = FALSE,
+  linesep = "", 
+  align = rep("l", 4)
+) %>% 
+  kableExtra::kable_paper() %>%
+  kableExtra::kable_styling(latex_options = "hold_position") %>%
+  kableExtra::add_header_above(c("", "", "Critical Values" = 3)) %>%
+  kableExtra::footnote(
+    symbol = c("Significance at 1% level", 
+               "Significance at 5% level",
+               "Significance at 10% level"),
+    symbol_manual = rev(c("*", "**", "***")),
+    footnote_as_chunk = F
+  )
+```

@@ -4,31 +4,31 @@ y <- read.csv(here::here("data", "final_dataset.csv"))
 source(here::here("R", "covars.R"))
 
 # QUESTION: WHICH MODEL TO CHOSE???
-# MODEL 2: MODEL WITH AR & COVARIATES
+# MODEL 4: MODEL WITH AR Errors & COVARIATES
 model_2 <- pomp::pomp(
     data = y[, c(1, 2)], times = "time", t0 = 0,
     rinit = function(e_lpd_0, ...) {
-        return(c(e_lpd = e_lpd_0))
+        return(c(e_lpd = e_lpd_0, u = 0))
     },
     rprocess = pomp::discrete_time(
         pomp::Csnippet(
             "
+            u = tanh(phi) * u + rnorm(0, exp(sigma_u));
             e_lpd = (
               beta_0
-              + tanh(phi)*e_lpd
               + beta_1*cr
               + beta_2*mys
-              + beta_3*fr
-              + beta_4*ms
+              + beta_3*ms
+              + beta_4*fr
               + beta_5*gdp
-              + rnorm(0, exp(sigma_u))
+              + u
             );
             "
         ),
         delta.t = 1
     ),
     dmeasure = rw_latent_lpd_dmeasure,
-    statenames = c("e_lpd"),
+    statenames = c("e_lpd", "u"),
     paramnames = c("sigma_u", "sigma_e", "e_lpd_0", "beta_0", "phi",
                    "beta_1", "beta_2", "beta_3", "beta_4", "beta_5"),
     covar = pomp::covariate_table(covars, times = "time"),
@@ -38,21 +38,20 @@ rm(covars, y)
 
 theta <- c(
     e_lpd_0 = 3.5, sigma_e = log(0.05), sigma_u = log(0.05), phi = atanh(0.95),
-    beta_0 = 0.09, beta_1 = -0.003, beta_2 = 0.13, beta_3 = 0.16,
-    beta_4 = 0.04, beta_5 = -0.025
+    beta_0 = 2.75, beta_1 = 0.18, beta_2 = 1.86, beta_3 = 0.75, beta_4 = 0.69,
+    beta_5 = -0.15
 )
 res <- pomp::pmcmc(
     model_2, Nmcmc = 500, Np = 1000,
     proposal = pomp::mvn.diag.rw(
-        c(e_lpd_0 = 0.001, sigma_e = 0.015, sigma_u = 0.015, phi = 0.015,
-          beta_0 = 0.001, beta_1 = 0.001, beta_2 = 0.001,
-          beta_3 = 0.001, beta_4 = 0.001, beta_5 = 0.001)
+        c(sigma_e = 0.02, sigma_u = 0.02, phi = 0.02,
+          beta_0 = 0.02, beta_1 = 0.02, beta_2 = 0.02,
+          beta_3 = 0.02, beta_4 = 0.02, u_0 = 0.02, beta_5 = 0.02)
     ),
     params = theta,
     dprior = function(sigma_u,
                       sigma_e,
                       phi,
-                      e_lpd_0,
                       beta_0,
                       beta_1,
                       beta_2,
