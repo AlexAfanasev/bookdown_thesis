@@ -779,70 +779,104 @@ Here the variance for the proposal distribution will be different for the parame
 
 Figures \@ref(fig:extension-static-model-trace), \@ref(fig:extension-ar-error-model-trace) and \@ref(fig:extension-ardl-model-trace) show the trace plots for each model and for each parameter and each Markov chain. Furthermore, figures \@ref(fig:extension-static-model-marginal-density), \@ref(fig:extension-ar-error-model-marginal-density) and \@ref(fig:extension-ardl-model-marginal-density) display the Gaussian kernel density estimates of the marginal posterior distributions. As can be seen ...
 
-<!-- add further comments on figures -->
-<!-- At the end: -->
+Table \@ref(tab:pmmh-estimation-result) summarizes the estimation results for all models.
+```{r, pmmh-estimation-result, eval=TRUE, echo=FALSE}
+library(tidyverse)
 
-Table ... summarizes the estimation results for all models 
+r <- readRDS(
+  here::here("data", "results", "model_study_result_basic_model.rds")
+)
+N <- ncol(r[[1]]@data)
+model_1 <- lapply(r, function(x){x@traces[5000:20000, ]})
+model_1 <- do.call(rbind, model_1)
 
-```{r, eval=FALSE, include=FALSE}
-# columns Models
-# rows parameters
+result_table <- data.frame(
+  model_1_mean = c(
+    NA, NA, NA, NA, NA, NA, NA, mean(model_1[, 3]), 
+    mean(exp(model_1[, 4])), mean(exp(model_1[, 5]))
+  ),
+  model_1_lower = c(
+    NA, NA, NA, NA, NA, NA, NA, quantile(model_1[, 3], probs = 0.025), 
+    quantile(exp(model_1[, 4]), probs = 0.025), 
+    quantile(exp(model_1[, 5]), probs = 0.025)
+  ),
+  model_1_upper = c(
+    NA, NA, NA, NA, NA, NA, NA, quantile(model_1[, 3], probs = 0.975), 
+    quantile(exp(model_1[, 4]), probs = 0.975), 
+    quantile(exp(model_1[, 5]), probs = 0.975)
+  ),
+  model_2_mean = c(
+    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+  ),
+  model_2_lower = c(
+    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+  ),
+  model_2_upper = c(
+    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+  ),
+  model_3_mean = c(
+    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+  ),
+  model_3_lower = c(
+    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+  ),
+  model_3_upper = c(
+    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+  )
+)
+result_table <- data.frame(sapply(result_table, as.numeric))
+
+result_table <- round(result_table, 4)
 rownames(result_table) <- c(
-  "$\\tilde{\\eta}_t$", "$cr_t$", "$my_t$", "$fr_t$", "$ms_t$", "$gdp_t$",
-  "$\\Delta\\tilde{\\eta}_t$", "$\\Delta cr_t$", "$\\Delta my_t$", "$\\Delta^2 my_t$",
-  "$\\Delta fr_t$", "$\\Delta ms_t$",  "$\\Delta gdp_t$"
+  "$\\phi$", "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", 
+  "$\\beta_4$", "$\\beta_5$", "$\\tilde{\\eta}_0$", "$\\sigma_u$", 
+  "$\\sigma_\\epsilon$"
 )
 opts <- options(knitr.kable.NA = "")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("t-statistic", "$\\alpha = 0.01\\%$", "$\\alpha = 0.05\\%$",
-                "$\\alpha = 0.1\\%$"),
-  caption = "Cointegration analysis: Augmented Dickey-Fuller unit root test", 
+  col.names = rep(c("mean", "$0.025\\%$", "$0.975\\%$"), 3),
+  caption = "Model extension: PMMH results", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
   align = rep("l", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position") %>%
-  kableExtra::add_header_above(c("", "", "Critical Values" = 3)) %>%
-  kableExtra::footnote(
-    symbol = c("Significance at 1% level", 
-               "Significance at 5% level",
-               "Significance at 10% level"),
-    symbol_manual = rev(c("*", "**", "***")),
-    footnote_as_chunk = F
+  kableExtra::add_header_above(
+    c("", "Model 1" = 3, "Model 2" = 3, "Model 3" = 3)
   )
 ```
-
-Table ... summarizes the model comparison results for all models 
-```{r, eval=FALSE, include=FALSE}
-# columns num params, lik, BIC, DIC, AIC
-# rows Models
-rownames(result_table) <- c(
-  "$\\tilde{\\eta}_t$", "$cr_t$", "$my_t$", "$fr_t$", "$ms_t$", "$gdp_t$",
-  "$\\Delta\\tilde{\\eta}_t$", "$\\Delta cr_t$", "$\\Delta my_t$", "$\\Delta^2 my_t$",
-  "$\\Delta fr_t$", "$\\Delta ms_t$",  "$\\Delta gdp_t$"
+Table \@ref(tab:pmmh-model-comparison) summarizes the model comparison results for all models.
+```{r, pmmh-model-comparison, eval=TRUE, echo=FALSE}
+r <- readRDS(
+  here::here("data", "results", "model_study_result_basic_model.rds")
 )
+N <- ncol(r[[1]]@data)
+rw_model <- lapply(r, function(x){x@traces[5000:20000, ]})
+rw_model <- do.call(rbind, rw_model)
+
+result_table <- data.frame(
+  num_params = c(3, NA, NA, NA),
+  lik = c(mean(rw_model[, 1]), NA, NA, NA),
+  bic = c(-2*mean(rw_model[, 1]) +  log(N)*3, NA, NA, NA)
+)
+
+rownames(result_table) <- c(
+  "RW Model", "Model 1", "Model 2", "Model 3"
+)
+result_table <- round(result_table, 4)
 opts <- options(knitr.kable.NA = "")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("t-statistic", "$\\alpha = 0.01\\%$", "$\\alpha = 0.05\\%$",
-                "$\\alpha = 0.1\\%$"),
-  caption = "Cointegration analysis: Augmented Dickey-Fuller unit root test", 
+  col.names = c("Number of parameters", "log-lik", "BIC"),
+  caption = "Model extension: Model comparison", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
   align = rep("l", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
-  kableExtra::kable_styling(latex_options = "hold_position") %>%
-  kableExtra::add_header_above(c("", "", "Critical Values" = 3)) %>%
-  kableExtra::footnote(
-    symbol = c("Significance at 1% level", 
-               "Significance at 5% level",
-               "Significance at 10% level"),
-    symbol_manual = rev(c("*", "**", "***")),
-    footnote_as_chunk = F
-  )
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```

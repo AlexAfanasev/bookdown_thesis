@@ -1640,7 +1640,7 @@ traces <- list(
 
 # Plot theme:
 p_theme <- theme(
-  legend.position = "bottom", 
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
   legend.title = element_blank(), 
   legend.background = element_rect(fill = "transparent"),
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
@@ -2121,7 +2121,7 @@ traces <- list(
 
 # Plot theme:
 p_theme <- theme(
-  legend.position = "bottom", 
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
   legend.title = element_blank(), 
   legend.background = element_rect(fill = "transparent"),
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
@@ -2130,7 +2130,7 @@ p_theme <- theme(
   axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
 )
 
-# beta_0
+# e_lpd_0
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
   value1 = traces[[1]][, 3], 
@@ -2144,19 +2144,37 @@ p1 <- ggplot(data = df, aes(x = time, y = value)) +
     values = c("red", "green", "blue"),
     labels = c("Chain 1", "Chain 2", "Chain 3")
   ) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\tilde{\\eta}_0$}"),
+       x = "m", y = latex2exp::TeX("$\\tilde{\\eta}_0$")) +
+  p_theme
+
+# beta_0
+df <- data.frame(
+  time = 1:nrow(traces[[1]]),
+  value1 = traces[[1]][, 7], 
+  value2 = traces[[2]][, 7], 
+  value3 = traces[[3]][, 7]
+)
+df <- reshape2::melt(df, id.vars = "time")
+p2 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(
+    values = c("red", "green", "blue"),
+    labels = c("Chain 1", "Chain 2", "Chain 3")
+  ) +
   labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_0$}"),
-       x = "m", y = latex2exp::TeX("$\\beta_0_0$")) +
+       x = "m", y = latex2exp::TeX("$\\beta_0$")) +
   p_theme
 
 # beta_1
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 4], 
-  value2 = traces[[2]][, 4], 
-  value3 = traces[[3]][, 4]
+  value1 = traces[[1]][, 8], 
+  value2 = traces[[2]][, 8], 
+  value3 = traces[[3]][, 8]
 )
 df <- reshape2::melt(df, id.vars = "time")
-p2 <- ggplot(data = df, aes(x = time, y = value)) +
+p3 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2169,12 +2187,12 @@ p2 <- ggplot(data = df, aes(x = time, y = value)) +
 # beta_2
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 5], 
-  value2 = traces[[2]][, 5], 
-  value3 = traces[[3]][, 5]
+  value1 = traces[[1]][, 9], 
+  value2 = traces[[2]][, 9], 
+  value3 = traces[[3]][, 9]
 )
 df <- reshape2::melt(df, id.vars = "time")
-p3 <- ggplot(data = df, aes(x = time, y = value)) +
+p4 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2187,12 +2205,12 @@ p3 <- ggplot(data = df, aes(x = time, y = value)) +
 # beta_3
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 6], 
-  value2 = traces[[2]][, 6], 
-  value3 = traces[[3]][, 6]
+  value1 = traces[[1]][, 10], 
+  value2 = traces[[2]][, 10], 
+  value3 = traces[[3]][, 10]
 )
 df <- reshape2::melt(df, id.vars = "time")
-p4 <- ggplot(data = df, aes(x = time, y = value)) +
+p5 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2205,12 +2223,12 @@ p4 <- ggplot(data = df, aes(x = time, y = value)) +
 # beta_4
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 7], 
-  value2 = traces[[2]][, 7], 
-  value3 = traces[[3]][, 7]
+  value1 = traces[[1]][, 11], 
+  value2 = traces[[2]][, 11], 
+  value3 = traces[[3]][, 11]
 )
 df <- reshape2::melt(df, id.vars = "time")
-p5 <- ggplot(data = df, aes(x = time, y = value)) +
+p6 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2223,12 +2241,12 @@ p5 <- ggplot(data = df, aes(x = time, y = value)) +
 # beta_5
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 8], 
-  value2 = traces[[2]][, 8], 
-  value3 = traces[[3]][, 8]
+  value1 = traces[[1]][, 12], 
+  value2 = traces[[2]][, 12], 
+  value3 = traces[[3]][, 12]
 )
 df <- reshape2::melt(df, id.vars = "time")
-p6 <- ggplot(data = df, aes(x = time, y = value)) +
+p7 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2238,16 +2256,35 @@ p6 <- ggplot(data = df, aes(x = time, y = value)) +
        x = "m", y = latex2exp::TeX("$\\beta_5$")) +
   p_theme
 
+# phi
+df <- data.frame(
+  time = 1:nrow(traces[[1]]),
+  value1 = traces[[1]][, 6], 
+  value2 = traces[[2]][, 6], 
+  value3 = traces[[3]][, 6]
+)
+df <- reshape2::melt(df, id.vars = "time")
+df[, "value"] <- tanh(df[, "value"])
+p8 <- ggplot(data = df, aes(x = time, y = value)) +
+  geom_line(aes(colour = variable)) + theme_light() +
+  scale_colour_manual(
+    values = c("red", "green", "blue"),
+    labels = c("Chain 1", "Chain 2", "Chain 3")
+  ) +
+  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\phi$}"),
+       x = "m", y = latex2exp::TeX("$\\phi$")) +
+  p_theme
+
 # sigma_u
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 9], 
-  value2 = traces[[2]][, 9], 
-  value3 = traces[[3]][, 9]
+  value1 = traces[[1]][, 5], 
+  value2 = traces[[2]][, 5], 
+  value3 = traces[[3]][, 5]
 )
 df <- reshape2::melt(df, id.vars = "time")
 df[, "value"] <- exp(df[, "value"])
-p7 <- ggplot(data = df, aes(x = time, y = value)) +
+p9 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2257,16 +2294,16 @@ p7 <- ggplot(data = df, aes(x = time, y = value)) +
        x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
   p_theme
 
-# sigma_u
+# sigma_epsilon
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 10], 
-  value2 = traces[[2]][, 10], 
-  value3 = traces[[3]][, 10]
+  value1 = traces[[1]][, 4], 
+  value2 = traces[[2]][, 4], 
+  value3 = traces[[3]][, 4]
 )
 df <- reshape2::melt(df, id.vars = "time")
 df[, "value"] <- exp(df[, "value"])
-p8 <- ggplot(data = df, aes(x = time, y = value)) +
+p10 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -2279,19 +2316,18 @@ p8 <- ggplot(data = df, aes(x = time, y = value)) +
 legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
 
 grid.arrange(
-  arrangeGrob(
-    p1 + theme(legend.position = "none"), 
-    p2 + theme(legend.position = "none"), 
-    p3 + theme(legend.position = "none"), 
-    p4 + theme(legend.position = "none"), 
-    p5 + theme(legend.position = "none"), 
-    p6 + theme(legend.position = "none"), 
-    p7 + theme(legend.position = "none"), 
-    p8 + theme(legend.position = "none"),
-    ncol = 2
-  ),
-  arrangeGrob(grid::nullGrob(), legend, grid::nullGrob(), nrow = 1),
-  heights = c(4.5, 0.1), ncol = 1
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  p8 + theme(legend.position = "none"),
+  p9 + theme(legend.position = "none"),
+  p10 + theme(legend.position = "none"),
+  ncol = 2, legen = legend,
+  heights = c(1.1, 1.1, 1.1, 1.1, 1.1, 0.1)
 )
 ```
 
@@ -2520,6 +2556,32 @@ p8 <- ggplot(data = df, aes(x = sigma_e)) +
     "Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"
   ), x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
+# e_lpd_0
+df <- data.frame(time = 1:nrow(traces), beta_0 = traces[, 3])
+p9 <- ggplot(data = df, aes(x = beta_0)) +
+  geom_density(aes(x = beta_0, colour = "Posterior", linetype = "Posterior"), 
+               show.legend = FALSE) + 
+  geom_vline(
+    aes(xintercept = mean(traces[, 3]), 
+        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+    show.legend = FALSE
+  ) +
+  stat_function(
+    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
+  ) +
+  theme_light() + p_theme + 
+  scale_color_manual(
+    values = c("Posterior" = "black", "Prior" = "#30914a", 
+               "Posterior Mean" = "#2126b5"), 
+    name = ""
+  ) +
+  scale_linetype_manual(
+    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
+  ) + 
+  labs(title = latex2exp::TeX(
+    "Marginal Posterior: \\textbf{$\\tilde{\\eta}_0$}"
+  ), x = latex2exp::TeX("$\\tilde{\\eta}_0$"))
+
 get_legend <- function(myggplot){
   tmp <- ggplot_gtable(ggplot_build(myggplot))
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
@@ -2529,19 +2591,17 @@ get_legend <- function(myggplot){
 legend <- get_legend(p2)
 
 grid.arrange(
-  arrangeGrob(
-    p1 + theme(legend.position = "none"), 
-    p2 + theme(legend.position = "none"), 
-    p3 + theme(legend.position = "none"), 
-    p4 + theme(legend.position = "none"), 
-    p5 + theme(legend.position = "none"), 
-    p6 + theme(legend.position = "none"), 
-    p7 + theme(legend.position = "none"), 
-    p8 + theme(legend.position = "none"),
-    ncol = 2
-  ),
-  arrangeGrob(grid::nullGrob(), legend, grid::nullGrob(), nrow = 1),
-  heights = c(4.5, 0.1), ncol = 1
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  p7 + theme(legend.position = "none"), 
+  p8 + theme(legend.position = "none"),
+  p9 + theme(legend.position = "none"),
+  ncol = 2, legend = legend,
+  heights = c(1.1, 1.1, 1.1, 1.1, 0.1)
 )
 ```
 
