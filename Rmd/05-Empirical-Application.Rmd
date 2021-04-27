@@ -783,27 +783,40 @@ Table \@ref(tab:pmmh-estimation-result) summarizes the estimation results for al
 ```{r, pmmh-estimation-result, eval=TRUE, echo=FALSE}
 library(tidyverse)
 
-r <- readRDS(
-  here::here("data", "results", "model_study_result_basic_model.rds")
+model_1 <- lapply(
+  readRDS(
+    here::here("data", "results", "model_study_result_static_model.rds")
+  ), function(x){x@traces[5000:20000, ]}
 )
-N <- ncol(r[[1]]@data)
-model_1 <- lapply(r, function(x){x@traces[5000:20000, ]})
 model_1 <- do.call(rbind, model_1)
 
 result_table <- data.frame(
   model_1_mean = c(
-    NA, NA, NA, NA, NA, NA, NA, mean(model_1[, 3]), 
-    mean(exp(model_1[, 4])), mean(exp(model_1[, 5]))
+    NA, mean(model_1[, 3]), mean(model_1[, 4]), mean(model_1[, 5]), 
+    mean(model_1[, 6]), mean(model_1[, 7]), mean(model_1[, 8]), 
+    NA, mean(exp(model_1[, 9])), mean(exp(model_1[, 10]))
   ),
   model_1_lower = c(
-    NA, NA, NA, NA, NA, NA, NA, quantile(model_1[, 3], probs = 0.025), 
-    quantile(exp(model_1[, 4]), probs = 0.025), 
-    quantile(exp(model_1[, 5]), probs = 0.025)
+    NA, quantile(model_1[, 3], probs = 0.025), 
+    quantile(model_1[, 4], probs = 0.025), 
+    quantile(model_1[, 5], probs = 0.025), 
+    quantile(model_1[, 6], probs = 0.025), 
+    quantile(model_1[, 7], probs = 0.025), 
+    quantile(model_1[, 8], probs = 0.025), 
+    NA,
+    quantile(exp(model_1[, 9]), probs = 0.025), 
+    quantile(exp(model_1[, 10]), probs = 0.025)
   ),
   model_1_upper = c(
-    NA, NA, NA, NA, NA, NA, NA, quantile(model_1[, 3], probs = 0.975), 
-    quantile(exp(model_1[, 4]), probs = 0.975), 
-    quantile(exp(model_1[, 5]), probs = 0.975)
+    NA, quantile(model_1[, 3], probs = 0.975), 
+    quantile(model_1[, 4], probs = 0.975), 
+    quantile(model_1[, 5], probs = 0.975), 
+    quantile(model_1[, 6], probs = 0.975), 
+    quantile(model_1[, 7], probs = 0.975), 
+    quantile(model_1[, 8], probs = 0.975), 
+    NA,
+    quantile(exp(model_1[, 9]), probs = 0.975), 
+    quantile(exp(model_1[, 10]), probs = 0.975)
   ),
   model_2_mean = c(
     NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
@@ -832,7 +845,7 @@ rownames(result_table) <- c(
   "$\\beta_4$", "$\\beta_5$", "$\\tilde{\\eta}_0$", "$\\sigma_u$", 
   "$\\sigma_\\epsilon$"
 )
-opts <- options(knitr.kable.NA = "")
+opts <- options(knitr.kable.NA = "-")
 knitr::kable(
   result_table, 
   row.names = TRUE,
@@ -850,6 +863,13 @@ knitr::kable(
 ```
 Table \@ref(tab:pmmh-model-comparison) summarizes the model comparison results for all models.
 ```{r, pmmh-model-comparison, eval=TRUE, echo=FALSE}
+model_1 <- lapply(
+  readRDS(
+    here::here("data", "results", "model_study_result_static_model.rds")
+  ), function(x){x@traces[5000:20000, ]}
+)
+model_1 <- do.call(rbind, model_1)
+
 r <- readRDS(
   here::here("data", "results", "model_study_result_basic_model.rds")
 )
@@ -858,14 +878,16 @@ rw_model <- lapply(r, function(x){x@traces[5000:20000, ]})
 rw_model <- do.call(rbind, rw_model)
 
 result_table <- data.frame(
-  num_params = c(3, NA, NA, NA),
-  lik = c(mean(rw_model[, 1]), NA, NA, NA),
-  bic = c(-2*mean(rw_model[, 1]) +  log(N)*3, NA, NA, NA)
+  num_params = c(3, 8, NA, NA),
+  lik = c(mean(rw_model[, 1]), mean(model_1[, 1]), NA, NA),
+  bic = c(
+    -2*mean(rw_model[, 1]) +  log(N)*3, 
+    -2*mean(model_1[, 1]) +  log(N)*8, 
+    NA, NA
+  )
 )
 
-rownames(result_table) <- c(
-  "RW Model", "Model 1", "Model 2", "Model 3"
-)
+rownames(result_table) <- c("RW Model", "Model 1", "Model 2", "Model 3")
 result_table <- round(result_table, 4)
 opts <- options(knitr.kable.NA = "")
 knitr::kable(
