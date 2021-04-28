@@ -1,5 +1,11 @@
 # Literature review {#literature-review}
 
+speak about why pomp models so interesting (economic, disease modelling etc.) with links
+
+speak about why mcmc extension so interessting and where it has been applied
+
+speak about extensions that have been used (modelling expected return/dividend growth instead of latent lpd)
+
 1. pomp package for modelling
 - various methods for pomp models
 - mostly used for infectious disease modelling (rarely in economics) --> hence applied in this context new

@@ -8,6 +8,20 @@ editor_options:
 
 # Introduction {#intro}
 
+Discounted cash flow models are used widely in the financial industry for determining the present value of an investment. Campbell and Shiller present, in their article [@campbell_shiller_paper], a log linear approximation of the present value formulation. They show that the current log price-dividend ratio (PD) is approximately the sum of a constant plus the difference of discounted future log returns and discounted future log dividend growth. Furthermore, they use the long term mean of the PD for computing the present values.
+
+A major assumption for this step is the stationarity of the PD that has been tested and evaluated in [@dog_bark_paper; @h2_paper]. Contrary to the assumption made by Campbell and Shiller, the results indicate that the PD is indeed nonstationary and therefore the long term mean does not exist. Based on these findings there have been multiple suggestions for modeling the PD as a pnonstationary process. As a common similarity partially observed Markov processes, also called state-space models, have been proposed. There the mean of the PD will be handled as a latent process. As an example the latent mean can be modeled with discrete shifts as proposed in [@van_nieuwerburgh_paper]. However, this project will be based mostly on the results depicted in [@h2_paper] where a nonlinear state space model has been applied and estimated using the sequential Monte Carlo technique in combination with the Nelder–Mead optimization method [@nelder_mead]. The latent mean has been modeled as a random walk and as a autoregressive process of order one. Moreover, possible determinants of this latent mean have been studied within a cointegration analysis.
+
+In the last years further advances in estimation procedures for nonlinear state-space models have been made. Contrary to the applied Nelder-Mead routine in [@h2_paper], this project will focus on a Bayesian approach. Of particular interest will be the recently developed particle marginal Metropolis Hastings procedure by [@doucet]. Additionally, further state process extensions with covariates for the latent mean of the PD will be tested.
+
+All in all, this Master's thesis will have the following goals:
+
+1. compare likelihood based (nelder mead) with mcmc approach --> simulation
+
+2. apply different state process including economic link to financial markets using mcmc approach --> compare models
+
+Chapter two will start with a review of the existing literature. Namely already conducted research around the latent mean of the PD, new inferential procedures surrounding nonlinear state space models and corresponding software will be inspected. The third chapter will present the basic structure of partially observed Markov processes. There, likelihood based and Bayesian approaches will be explained. In chapter four a simulation study that is closely related to the empirical application will be conducted. The likelihood based approach, using the Nelder-Mead algorithm, will be compared with the PMMH approach using different prior specifications. Chapter five will present the results of the empirical application. The latent mean of the PD will be fitted and the state and observation process parameters estimated. Besides that, the effect of further macroeconomic variables will be tested and state processes containing these covariates evaluated. Finally, the last chapter will be the conclusion and summarize everything.
+
 <!-- **Content:** -->
 
 <!-- - Describe Goals of thesis and relation to previous work (Determinants of the price dividend ratio) -->
