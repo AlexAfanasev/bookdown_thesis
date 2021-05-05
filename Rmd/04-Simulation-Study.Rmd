@@ -218,7 +218,7 @@ df <- data.frame(
 )
 df <- reshape2::melt(df, id.vars = "time")
 nm <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
-  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_line(aes(color = variable), size = c(rep(0.5, N), rep(0.3, N))) + 
   scale_color_manual(
     values = c("black", "red"), 
     labels = c(expression(x[n]), expression(hat(x)[n]))
@@ -241,7 +241,7 @@ q <- data.frame(
   upper = sim_4$pmmh_noninformative$state_upper
 )
 pm_1 <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
-  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_line(aes(color = variable), size = c(rep(0.5, N), rep(0.3, N))) + 
   geom_ribbon(
     data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red"),  
     inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
@@ -269,7 +269,7 @@ q <- data.frame(
   upper = sim_4$pmmh_true_informative$state_upper
 )
 pm_2 <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
-  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_line(aes(color = variable), size = c(rep(0.5, N), rep(0.3, N))) + 
   geom_ribbon(
     data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red"),  
     inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
@@ -297,7 +297,7 @@ q <- data.frame(
   upper = sim_4$pmmh_false_informative$state_upper
 )
 pm_3 <- ggplot(data = df, aes(x = time, y = value, group = variable)) +
-  geom_line(aes(color = variable), size = c(rep(0.5, 51), rep(0.3, 51))) + 
+  geom_line(aes(color = variable), size = c(rep(0.5, N), rep(0.3, N))) + 
   geom_ribbon(
     data = q, aes(x = time, ymin = lower, ymax = upper, fill = "red"),  
     inherit.aes = FALSE, alpha = 0.25, show.legend = FALSE, linetype = 2,
@@ -371,18 +371,18 @@ $$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
 The aggregate results show that the likelihood based approach has the highest variation and average deviation for the parameter and latent state estimates.  Moreover, the informative and uninformative prior setups, **setup 2** and **setup 1**, have the smallest average deviations with **setup 2** having also the smallest variance. The misspecified prior setup, **setup 3**, seems to have a smaller variance compared to the uninformative setup but a higher average deviation. All in all, it can be concluded that within the simulation study all Bayesian approaches outperform the likelihood based approach.
 
 ```{r, aggregate-simulation-result-plot, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Aggregate simulation: Result", fig.width=7, fig.height=10, warning=FALSE, message=FALSE}
-res_smc <- matrix(nrow = N_sim, ncol = length(params_simulation))
+res_smc <- matrix(nrow = N_sim, ncol = length(true_params_simulation))
 mse_smc <- vector("numeric", length = N_sim)
 res_pmmh_noninformative <- matrix(
-  nrow = N_sim, ncol = length(params_simulation)
+  nrow = N_sim, ncol = length(true_params_simulation)
 )
 mse_pmmh_noninformative <- vector("numeric", length = N_sim)
 res_pmmh_true_informative <- matrix(
-  nrow = N_sim, ncol = length(params_simulation)
+  nrow = N_sim, ncol = length(true_params_simulation)
 )
 mse_pmmh_true_informative <- vector("numeric", length = N_sim)
 res_pmmh_false_informative <- matrix(
-  nrow = N_sim, ncol = length(params_simulation)
+  nrow = N_sim, ncol = length(true_params_simulation)
 )
 mse_pmmh_false_informative <- vector("numeric", length = N_sim)
 
@@ -392,7 +392,7 @@ for (i in 1:N_sim) {
       simulation_result[[i]]$smc_result$pf - 
         simulation_result[[i]]$data_latent
     )[2:N]^2))
-    for (j in 1:length(params_simulation)) {
+    for (j in 1:length(true_params_simulation)) {
         res_pmmh_noninformative[i, j] <- mean(
           simulation_result[[i]]$pmmh_noninformative$traces[3000:7500, j+2]
         )
@@ -651,4 +651,5 @@ grid.arrange(
   arrangeGrob(grid::nullGrob(), legend, grid::nullGrob(), nrow = 1),
   heights = c(4.5, 0.1), ncol = 1
 )
+rm(list = ls())
 ```

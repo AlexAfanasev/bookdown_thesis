@@ -56,13 +56,23 @@ generate_simulation_data <- function(n, params) {
     ))
 }
 
-generate_start_params <- function(params) {
-    return(params + rnorm(length(params), 0, 0.1))
+generate_start_params <- function() {
+    return(
+        c(
+            beta_0 = runif(1, 0.35, 0.65),
+            beta_1 = runif(1, 0.3, 0.5),
+            beta_2 = runif(1, -0.3, -0.1),
+            sigma_x = log(runif(1, 0.04, 0.06)),
+            sigma_y = log(runif(1, 0.03, 0.04)),
+            phi = atanh(runif(1, 0.8, 0.9)),
+            x_0 = runif(1, 3.4, 3.6)
+        )
+    )
 }
 
 # Setup simulation
 N <- 51
-N_sim <- 500
+N_sim <- 1000
 true_params_simulation <- c(
     beta_0 = 0.525,
     beta_1 = 0.4,
@@ -71,13 +81,4 @@ true_params_simulation <- c(
     sigma_y = log(0.02),
     phi = atanh(0.85),
     x_0 = 3.5
-)
-params_simulation <- c(
-    beta_0 = 1.05,
-    beta_1 = 0.0,
-    beta_2 = 0.0,
-    sigma_x = log(0.1),
-    sigma_y = log(0.05),
-    phi = atanh(0.7),
-    x_0 = 3.3
 )

@@ -1,8 +1,8 @@
 source(here::here("R", "simulation_study", "simulation_setup.R"))
 
-nonlinear_simulation <- function(N_obs, true_params, start_params) {
+nonlinear_simulation <- function(N_obs, true_params) {
     data_simulation <- generate_simulation_data(N_obs, true_params)
-    theta <- generate_start_params(start_params)
+    theta <- generate_start_params()
 
     # transform to state x and process y
     data <- data.frame(cbind(1:N, data_simulation$observed))
@@ -71,7 +71,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
                                           pomp::logLik(pomp::pfilter(
                                               pomp_simulation,
                                               params = par,
-                                              Np = 500
+                                              Np = 1500
                                           ))
                                       },
                                       control = list("fnscale" = -1)
@@ -84,14 +84,14 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
     pf <- pomp::pfilter(
         pomp_simulation,
         params = est_params,
-        Np = 500,
+        Np = 1500,
         filter.mean = TRUE
     )
 
     # pmcmc test - flat prior
     pmmh_noninformative <- pomp::pmcmc(
         pomp_simulation,
-        Nmcmc = 7500,
+        Nmcmc = 20000,
         Np = 500,
         proposal = pomp::mvn.diag.rw(
             c(
@@ -104,7 +104,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
                 x_0 = 0.025
             )
         ),
-        params = params_simulation,
+        params = theta,
         verbose = FALSE,
         dprior = function(beta_0,
                           sigma_x,
@@ -133,7 +133,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
     # pmcmc test - true informative prior
     pmmh_true_informative <- pomp::pmcmc(
         pomp_simulation,
-        Nmcmc = 7500,
+        Nmcmc = 20000,
         Np = 500,
         proposal = pomp::mvn.diag.rw(
             c(
@@ -146,7 +146,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
                 x_0 = 0.025
             )
         ),
-        params = params_simulation,
+        params = theta,
         verbose = FALSE,
         dprior = function(beta_0,
                           sigma_x,
@@ -182,7 +182,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
     # pmcmc test - misspecified informative prior
     pmmh_false_informative <- pomp::pmcmc(
         pomp_simulation,
-        Nmcmc = 7500,
+        Nmcmc = 20000,
         Np = 500,
         proposal = pomp::mvn.diag.rw(
             c(
@@ -195,7 +195,7 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
                 x_0 = 0.025
             )
         ),
-        params = params_simulation,
+        params = theta,
         verbose = FALSE,
         dprior = function(beta_0,
                           sigma_x,
@@ -240,39 +240,49 @@ nonlinear_simulation <- function(N_obs, true_params, start_params) {
                 optim_result = optim_result
             ),
             pmmh_noninformative = list(
-                state_mean = colMeans(pmmh_noninformative@filter.traj[1, , ]),
+                state_mean = colMeans(
+                    pmmh_noninformative@filter.traj[1, 10000:20000, ]
+                ),
                 state_lower = apply(
-                    pmmh_noninformative@filter.traj[1, , ], MARGIN = 2,
+                    pmmh_noninformative@filter.traj[1, 10000:20000, ],
+                    MARGIN = 2,
                     quantile, probs = 0.025
                 ),
                 state_upper = apply(
-                    pmmh_noninformative@filter.traj[1, , ], MARGIN = 2,
+                    pmmh_noninformative@filter.traj[1, 10000:20000, ],
+                    MARGIN = 2,
                     quantile, probs = 0.975
                 ),
                 traces = pmmh_noninformative@traces
             ),
             pmmh_true_informative = list(
-                state_mean = colMeans(pmmh_true_informative@filter.traj[1, , ]),
+                state_mean = colMeans(
+                    pmmh_true_informative@filter.traj[1, 10000:20000, ]
+                ),
                 state_lower = apply(
-                    pmmh_true_informative@filter.traj[1, , ], MARGIN = 2,
+                    pmmh_true_informative@filter.traj[1, 10000:20000, ],
+                    MARGIN = 2,
                     quantile, probs = 0.025
                 ),
                 state_upper = apply(
-                    pmmh_true_informative@filter.traj[1, , ], MARGIN = 2,
+                    pmmh_true_informative@filter.traj[1, 10000:20000, ],
+                    MARGIN = 2,
                     quantile, probs = 0.975
                 ),
                 traces = pmmh_true_informative@traces
             ),
             pmmh_false_informative = list(
                 state_mean = colMeans(
-                    pmmh_false_informative@filter.traj[1, , ]
+                    pmmh_false_informative@filter.traj[1, 10000:20000, ]
                 ),
                 state_lower = apply(
-                    pmmh_false_informative@filter.traj[1, , ], MARGIN = 2,
+                    pmmh_false_informative@filter.traj[1, 10000:20000, ],
+                    MARGIN = 2,
                     quantile, probs = 0.025
                 ),
                 state_upper = apply(
-                    pmmh_false_informative@filter.traj[1, , ], MARGIN = 2,
+                    pmmh_false_informative@filter.traj[1, 10000:20000, ],
+                    MARGIN = 2,
                     quantile, probs = 0.975
                 ),
                 traces = pmmh_false_informative@traces
@@ -290,12 +300,12 @@ system.time(
             library(doParallel)
             library(foreach)
             library(doRNG)
-            cl <- makeCluster(4)
+            cl <- makeCluster(3)
             registerDoParallel(cl)
             registerDoRNG(1234)
             results <- foreach(i = 1:N_sim) %dopar% {
                 nonlinear_simulation(
-                    N, true_params_simulation, params_simulation
+                    N, true_params_simulation
                 )
             }
             stopCluster(cl)

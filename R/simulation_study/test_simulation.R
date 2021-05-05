@@ -3,6 +3,7 @@ source(here::here("R", "simulation_study", "simulation_setup.R"))
 # generate data
 start_time <- Sys.time()
 generated_data <- generate_simulation_data(N, true_params_simulation)
+theta <- generate_start_params()
 
 # transform to state x and process y
 data <- data.frame(cbind(1:N, generated_data$observed))
@@ -69,11 +70,11 @@ optim_result <- replicate(
     10,
     {
         op_res <- optim(
-            par = params_simulation,
+            par = theta,
             fn = function(par){
                 # print(par)
                 pomp::logLik(pomp::pfilter(
-                    pomp_simulation, params = par, Np = 500
+                    pomp_simulation, params = par, Np = 1500
                 ))
             },
             control = list(
@@ -108,13 +109,13 @@ pomp::logLik(pf2)
 # pmcmc test - flat prior
 pmcmc_noninformative <- pomp::pmcmc(
     pomp_simulation,
-    Nmcmc = 7500,
+    Nmcmc = 20000,
     Np = 500,
     proposal = pomp::mvn.diag.rw(
-        c(beta_0 = 0.0255, sigma_x = 0.025, sigma_y = 0.025, beta_1 = 0.025,
+        c(beta_0 = 0.025, sigma_x = 0.025, sigma_y = 0.025, beta_1 = 0.025,
           beta_2 = 0.025, phi = 0.025, x_0 = 0.025)
     ),
-    params = params_simulation,
+    params = theta,
     verbose = FALSE,
     dprior = function(beta_0, sigma_x, sigma_y, beta_1, beta_2, phi, x_0,
                       ..., log){

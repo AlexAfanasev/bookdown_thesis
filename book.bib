@@ -370,3 +370,216 @@ title = {That is Not My Dog: Why Doesn't the Log Dividend-Price Ratio Seem to Pr
 journal = {SSRN Electronic Journal},
 doi = {10.2139/ssrn.3123595}
 }
+
+@article{covid_paper,
+title = {Chopping the tail: How preventing superspreading can help to maintain COVID-19 control},
+journal = {Epidemics},
+volume = {34},
+pages = {100430},
+year = {2021},
+issn = {1755-4365},
+doi = {https://doi.org/10.1016/j.epidem.2020.100430},
+url = {https://www.sciencedirect.com/science/article/pii/S1755436520300487},
+author = {Morgan P. Kain and Marissa L. Childs and Alexander D. Becker and Erin A. Mordecai},
+abstract = {Disease transmission is notoriously heterogeneous, and SARS-CoV-2 is no exception. A skewed distribution where few individuals or events are responsible for the majority of transmission can result in explosive, superspreading events, which produce rapid and volatile epidemic dynamics, especially early or late in epidemics. Anticipating and preventing superspreading events can produce large reductions in overall transmission rates. Here, we present a stochastic compartmental (SEIR) epidemiological model framework for estimating transmission parameters from multiple imperfectly observed data streams, including reported cases, deaths, and mobile phone-based mobility that incorporates individual-level heterogeneity in transmission using previous estimates for SARS-CoV-1 and SARS-CoV-2. We parameterize the model for COVID-19 epidemic dynamics by estimating a time-varying transmission rate that incorporates the impact of non-pharmaceutical intervention strategies that change over time, in five epidemiologically distinct settings—Los Angeles and Santa Clara Counties, California; Seattle (King County), Washington; Atlanta (Dekalb and Fulton Counties), Georgia; and Miami (Miami-Dade County), Florida. We find that the effective reproduction number (RE) dropped below 1 rapidly in all five locations following social distancing orders in mid-March, 2020, but that gradually increasing mobility starting around mid-April led to an RE once again above 1 in late May (Los Angeles, Miami, and Atlanta) or early June (Santa Clara County and Seattle). However, we find that increased social distancing starting in mid-July in response to epidemic resurgence once again dropped RE below 1 in all locations by August 14. We next used the fitted model to ask: how does truncating the individual-level transmission rate distribution (which removes periods of time with especially high individual transmission rates and thus models superspreading events) affect epidemic dynamics and control? We find that interventions that truncate the transmission rate distribution while partially relaxing social distancing are broadly effective, with impacts on epidemic growth on par with the strongest population-wide social distancing observed in April, 2020. Given that social distancing interventions will be needed to maintain epidemic control until a vaccine becomes widely available, “chopping off the tail” to reduce the probability of superspreading events presents a promising option to alleviate the need for extreme general social distancing.}
+}
+
+@ article{stochastic_vol_models,
+author= {Piotr Szczepocki},
+collaboration= {},
+title= {Application of iterated filtering to stochastic volatility models based on non-Gaussian Ornstein-Uhlenbeck process},
+publisher= {Exeley Inc.},
+year= {2020},
+journal= {Statistics in Transition New Series},
+volume= {21},
+number= {2450-0291},
+pages= {173-187},
+doi= {10.21307/stattrans-2020-019}
+}
+
+@article{nimble_paper,
+author = {Perry de Valpine and Daniel Turek and Christopher J. Paciorek and Clifford Anderson-Bergman and Duncan Temple Lang and Rastislav Bodik},
+title = {Programming With Models: Writing Statistical Algorithms for General Model Structures With NIMBLE},
+journal = {Journal of Computational and Graphical Statistics},
+volume = {26},
+number = {2},
+pages = {403-413},
+year  = {2017},
+publisher = {Taylor \& Francis},
+doi = {10.1080/10618600.2016.1172487},
+URL = {
+        https://doi.org/10.1080/10618600.2016.1172487
+},
+eprint = {
+        https://doi.org/10.1080/10618600.2016.1172487
+}
+}
+
+@article{biips_paper,
+  title={Biips: Software for {B}ayesian Inference with Interacting Particle Systems},
+  author={Todeschini, Adrien and Caron, Fran{\c{c}}ois and Fuentes, Marc and Legrand, Pierrick and Del Moral, Pierre},
+  journal={arXiv preprint arXiv:1412.3779},
+  year={2014}
+}
+
+@article{bugs_paper,
+author = {Lunn, David and Thomas, Andrew and Best, Nicky and Spiegelhalter, David},
+year = {2000},
+month = {10},
+pages = {325-337},
+title = {WinBUGS - A Bayesian modeling framework: Concepts, structure and extensibility},
+volume = {10},
+journal = {Statistics and Computing},
+doi = {10.1023/A:1008929526011}
+}
+
+@article{rcpparmadillo,
+title = {RcppArmadillo: Accelerating R with high-performance C++ linear algebra},
+journal = {Computational Statistics \& Data Analysis},
+volume = {71},
+pages = {1054-1063},
+year = {2014},
+issn = {0167-9473},
+doi = {https://doi.org/10.1016/j.csda.2013.02.005},
+url = {https://www.sciencedirect.com/science/article/pii/S0167947313000492},
+author = {Dirk Eddelbuettel and Conrad Sanderson},
+keywords = {Software, R, C++, Linear algebra},
+abstract = {The R statistical environment and language has demonstrated particular strengths for interactive development of statistical algorithms, as well as data modelling and visualisation. Its current implementation has an interpreter at its core which may result in a performance penalty in comparison to directly executing user algorithms in the native machine code of the host CPU. In contrast, the C++ language has no built-in visualisation capabilities, handling of linear algebra or even basic statistical algorithms; however, user programs are converted to high-performance machine code, ahead of execution. A new method avoids possible speed penalties in R by using the Rcpp extension package in conjunction with the Armadillo C++ matrix library. In addition to the inherent performance advantages of compiled code, Armadillo provides an easy-to-use template-based meta-programming framework, allowing the automatic pooling of several linear algebra operations into one, which in turn can lead to further speedups. With the aid of Rcpp and Armadillo, conversion of linear algebra centred algorithms from R to C++ becomes straightforward. The algorithms retain the overall structure as well as readability, all while maintaining a bidirectional link with the host R environment. Empirical timing comparisons of R and C++ implementations of a Kalman filtering algorithm indicate a speedup of several orders of magnitude.}
+}
+
+@article{rcpp,
+   author = {Dirk Eddelbuettel and Romain Francois},
+   title = {Rcpp: Seamless R and C++ Integration},
+   journal = {Journal of Statistical Software, Articles},
+   volume = {40},
+   number = {8},
+   year = {2011},
+   keywords = {},
+   abstract = {The Rcpp package simplifies integrating C++ code with R. It provides a consistent C++ class hierarchy that maps various types of R objects (vectors, matrices, functions, environments, . . . ) to dedicated C++ classes. Object interchange between R and C++ is managed by simple, flexible and extensible concepts which include broad support for C++ Standard Template Library idioms. C++ code can both be compiled, linked and loaded on the fly, or added via packages. Flexible error and exception code handling is provided. Rcpp substantially lowers the barrier for programmers wanting to combine C++ code with R.},
+   issn = {1548-7660},
+   pages = {1--18},
+   doi = {10.18637/jss.v040.i08},
+   url = {https://www.jstatsoft.org/v040/i08}
+}
+
+@article{predator_prey_analysis,
+author = {Jr, Marino and Peacor, Scott and Bunnell, David and Vanderploeg, Henry and Pothoven, S.A. and Elgin, Ashley and Bence, James and Jiao, J. and Ionides, E.L.},
+year = {2018},
+month = {12},
+pages = {},
+title = {Evaluating consumptive and nonconsumptive predator effects on prey density using field time-series data},
+volume = {100},
+journal = {Ecology},
+doi = {10.1002/ecy.2583}
+}
+
+@Article{h2_paper2,
+  author={Helmut Herwartz and Fang Xu},
+  title={{Low Mortgage Rates and Securitization: A Distinct Perspective on the US Housing Boom}},
+  journal={Scandinavian Journal of Economics},
+  year=2020,
+  volume={122},
+  number={1},
+  pages={164-190},
+  month={January},
+  keywords={},
+  doi={10.1111/sjoe.12320},
+  abstract={In this paper, we analyse the impacts of low interest rates and lax underwriting standards on the US housing boom around the beginning of the new millennium. We suggest a time‐varying mean of the log price‐to‐rent ratio (PtR) to capture the persistent changes in housing prices. We show that the increasing latent trend in the PtR was significantly affected by the increased securitization of residential mortgage loans and decreasing interest rates, with the former effect being about three times larger than the latter. In the absence of securitization, negative interest rates would have been needed to reproduce an equally large housing boom since 2003.},
+  url={https://ideas.repec.org/a/bla/scandj/v122y2020i1p164-190.html}
+}
+
+@article{monetary_policy_1,
+  author={Lastrapes, W. D.},
+  title={{International evidence on equity prices, interest rates and money}},
+  journal={Journal of International Money and Finance},
+  year=1998,
+  volume={17},
+  number={3},
+  pages={377-406},
+  month={June},
+  keywords={},
+  doi={},
+  abstract={No abstract is available for this item.},
+  url={https://ideas.repec.org/a/eee/jimfin/v17y1998i3p377-406.html}
+}
+
+@article{monetary_policy_2,
+ ISSN = {00221082, 15406261},
+ URL = {http://www.jstor.org/stable/2329470},
+ abstract = {This article examines whether shifts in the stance of monetary policy can account for the observed predictability in excess stock returns. Using long-horizon regressions and short-horizon vector autoregressions, the article concludes that monetary policy variables are significant predictors of future returns, although they cannot fully account for observed stock return predictability. I undertake variance decompositions to investigate how monetary policy affects the individual components of excess returns (risk-free discount rates, risk premia, or cash flows).},
+ author = {Alex D. Patelis},
+ journal = {The Journal of Finance},
+ number = {5},
+ pages = {1951--1972},
+ publisher = {[American Finance Association, Wiley]},
+ title = {Stock Return Predictability and The Role of Monetary Policy},
+ volume = {52},
+ year = {1997}
+}
+
+@article{binsbergen_paper,
+ ISSN = {00221082, 15406261},
+ URL = {http://www.jstor.org/stable/40864916},
+ abstract = {We propose a latent variables approach within a present-value model to estimate the expected returns and expected dividend growth rates of the aggregate stock market. This approach aggregates information contained in the history of price-dividend ratios and dividend growth rates to predict future returns and dividend growth rates. We find that returns and dividend growth rates are predictable with R² values ranging from 8.2% to 8.9% for returns and 13.9% to 31.6% for dividend growth rates. Both expected returns and expected dividend growth rates have a persistent component, but expected returns are more persistent than expected dividend growth rates.},
+ author = {Jules H. van Binsbergen and Ralph S. J. Koijen},
+ journal = {The Journal of Finance},
+ number = {4},
+ pages = {1439--1471},
+ publisher = {[American Finance Association, Wiley]},
+ title = {Predictive Regressions: A Present-Value Approach},
+ volume = {65},
+ year = {2010}
+}
+
+@article{tvp_kf,
+author = {Monache, Davide and Petrella, Ivan and Venditti, Fabrizio},
+year = {2020},
+month = {05},
+pages = {1-31},
+title = {Price Dividend Ratio and Long-Run Stock Returns: a Score Driven State Space Model},
+journal = {Journal of Business \& Economic Statistics},
+doi = {10.1080/07350015.2020.1763805}
+}
+
+@article{economic_growth,
+author = {Ritter, Jay},
+year = {2004},
+month = {11},
+pages = {489-503},
+title = {Economic Growth and Equity Returns},
+volume = {13},
+journal = {Pacific-Basin Finance Journal},
+doi = {10.1016/j.pacfin.2005.07.001}
+}
+
+@article{adaptive_mcmc,
+author = {Heikki Haario and Eero Saksman and Johanna Tamminen},
+title = {{An adaptive Metropolis algorithm}},
+volume = {7},
+journal = {Bernoulli},
+number = {2},
+publisher = {Bernoulli Society for Mathematical Statistics and Probability},
+pages = {223 -- 242},
+keywords = {Adaptive Markov chain Monte Carlo, Comparison, convergence, ergodicity, Markov chain Monte Carlo, Metropolis-Hastings algorithm},
+year = {2001},
+doi = {bj/1080222083},
+URL = {https://doi.org/}
+}
+
+@inproceedings{mala_pmmh1,
+author = {Dahlin, Johan and Lindsten, Fredrik and Schön, Thomas},
+year = {2013},
+month = {05},
+pages = {},
+title = {Particle Metropolis Hastings using Langevin dynamics},
+journal = {ICASSP, IEEE International Conference on Acoustics, Speech and Signal Processing - Proceedings},
+doi = {10.1109/ICASSP.2013.6638879}
+}
+
+@article{mala_pmmh2,
+author = {Nemeth, Christopher and Fearnhead, Paul},
+year = {2014},
+month = {02},
+pages = {},
+title = {Particle Metropolis adjusted Langevin algorithms for state space models}
+}

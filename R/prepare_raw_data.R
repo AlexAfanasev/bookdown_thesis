@@ -131,6 +131,7 @@ for (i in starting_point:nrow(var_data)) {
                          which.min(residuals_model) + start_w - 1)
     model <- vars::VAR(var_data[(i - best_model + 1):i, 1:4], type = "const")
     e <- abs(eigen(vars::Acoef(model)[[1]])$values)
+    # ifelse(any(e >= 1), print(i), "ok")
     params[i - starting_point + 1, ] <- as.vector(t(vars::Bcoef(model)))
 }
 

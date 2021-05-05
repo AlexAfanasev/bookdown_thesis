@@ -184,9 +184,9 @@ library(ggplot2)
 library(gridExtra)
 
 traces <- list(
-  result[[1]]@traces[5000:20000, ], 
-  result[[2]]@traces[5000:20000, ], 
-  result[[3]]@traces[5000:20000, ]
+  result[[1]]@traces[10000:50000, ], 
+  result[[2]]@traces[10000:50000, ], 
+  result[[3]]@traces[10000:50000, ]
 )
 
 # Plot theme:
@@ -269,9 +269,9 @@ grid.arrange(
 
 ```{r, basic-model-posterior-marginal-density, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the marginal posterior distributions", fig.width=6, fig.height=4, warning=FALSE}
 traces <- rbind(
-        result[[1]]@traces[5000:20000, 3:5], 
-        result[[2]]@traces[5000:20000, 3:5], 
-        result[[3]]@traces[5000:20000, 3:5]
+        result[[1]]@traces[10000:50000, 3:5], 
+        result[[2]]@traces[10000:50000, 3:5], 
+        result[[3]]@traces[10000:50000, 3:5]
 )
 
 # Plot theme:
@@ -382,9 +382,9 @@ Moreover, Figure \@ref(fig:basic-model-state-estimates) visualizes the marginal 
 
 ```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Latent state estimate", fig.width=6, fig.height=3.5, warning=FALSE}
 traj <- rbind(
-  result[[1]]@filter.traj[1, 5000:20000, ], 
-  result[[2]]@filter.traj[1, 5000:20000, ],
-  result[[3]]@filter.traj[1, 5000:20000, ]
+  result[[1]]@filter.traj[1, 10000:50000, ], 
+  result[[2]]@filter.traj[1, 10000:50000, ],
+  result[[3]]@filter.traj[1, 10000:50000, ]
 )
 
 df <- data.frame(time = dates, y = y$lpd, x = colMeans(traj)[-1])
@@ -465,9 +465,9 @@ Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varyin
 
 ```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of covariates", fig.width=6, fig.height=4, warning=FALSE}
 traj <- rbind(
-  result[[1]]@filter.traj[1, 5000:20000, ], 
-  result[[2]]@filter.traj[1, 5000:20000, ],
-  result[[3]]@filter.traj[1, 5000:20000, ]
+  result[[1]]@filter.traj[1, 10000:50000, ], 
+  result[[2]]@filter.traj[1, 10000:50000, ],
+  result[[3]]@filter.traj[1, 10000:50000, ]
 )
 
 # Plot theme:
@@ -537,9 +537,9 @@ Before investigating the cointegration relationship the individual variables wil
 
 ```{r, cointegration-analysis-unit-root-tests, eval=TRUE, echo=FALSE}
 traj <- rbind(
-  result[[1]]@filter.traj[1, 5000:20000, ], 
-  result[[2]]@filter.traj[1, 5000:20000, ],
-  result[[3]]@filter.traj[1, 5000:20000, ]
+  result[[1]]@filter.traj[1, 10000:50000, ], 
+  result[[2]]@filter.traj[1, 10000:50000, ],
+  result[[3]]@filter.traj[1, 10000:50000, ]
 )
 e_lpd <- colMeans(traj)[-1]
 
@@ -619,9 +619,9 @@ Moreover, the cointegration analysis will be applied using the following single 
 Table \@ref(tab:cointegration-analysis-study) displays the results of the inspected cointegration relationship with parameter estimates evaluated based on a nonlinear regression approach. 
 ```{r, cointegration-analysis-study, eval=TRUE, echo=FALSE}
 traj <- rbind(
-  result[[1]]@filter.traj[1, 5000:20000, ], 
-  result[[2]]@filter.traj[1, 5000:20000, ],
-  result[[3]]@filter.traj[1, 5000:20000, ]
+  result[[1]]@filter.traj[1, 10000:50000, ], 
+  result[[2]]@filter.traj[1, 10000:50000, ],
+  result[[3]]@filter.traj[1, 10000:50000, ]
 )
 
 data <- zoo::as.zoo(data.frame(
@@ -757,7 +757,7 @@ u_t &\sim \mathcal{N}(0, \sigma_u^2)
 (\#eq:ar-error-model-state-process)
 \end{split}
 \end{equation}
-The parameter $\phi$ will be restricted for stationarity in the error process, $\left| \phi \right| < 1$. Similar starting values as in the previous setup are applied
+The parameter $\phi$ will be restricted for stationarity in the error process, $\left| \phi \right| < 1$. Additionally, the initial value $v_0$ will be set to zero. Similar starting values as in the previous setup are applied
 $$
 \theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
 $$
@@ -771,11 +771,11 @@ u_t &\sim \mathcal{N}(0, \sigma_u^2)
 (\#eq:ardl-model-state-process)
 \end{split}
 \end{equation}
-Compared to model \@ref(eq:ar-error-model-state-process) the state process of the ARDL model is linear in parameters. The starting values for this approach are derived by obtaining the corresponding parameter estimates of an ARDL model specification of the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study)
+Compared to model \@ref(eq:ar-error-model-state-process) the state process of the ARDL model is linear in parameters. The starting values for this approach are derived by obtaining the corresponding parameter estimates of an ARDL model specification of the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study). Furthermore, the initial value $\tilde{\eta_0}$ will be added as a necessary parameter for estimation.
 $$
-\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \tilde{\eta_0} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ 3.5 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
 $$
-Here the variance for the proposal distribution will be different for the parameters $\psi, \varsigma_u, \varsigma_\epsilon$ with $\lambda = 0.015^2$ and for the other parameters $\lambda = 0.001^2$.
+Here the variance for the proposal distribution will be different for the parameters $\tilde{\eta_0}, \psi, \varsigma_u, \varsigma_\epsilon$ with $\lambda = 0.015^2$ and for the other parameters $\lambda = 0.001^2$.
 
 Figures \@ref(fig:extension-static-model-trace), \@ref(fig:extension-ar-error-model-trace) and \@ref(fig:extension-ardl-model-trace) show the trace plots for each model and for each parameter and each Markov chain. Furthermore, figures \@ref(fig:extension-static-model-marginal-density), \@ref(fig:extension-ar-error-model-marginal-density) and \@ref(fig:extension-ardl-model-marginal-density) display the Gaussian kernel density estimates of the marginal posterior distributions. As can be seen ...
 
@@ -789,6 +789,13 @@ model_1 <- lapply(
   ), function(x){x@traces[5000:20000, ]}
 )
 model_1 <- do.call(rbind, model_1)
+
+model_2 <- lapply(
+  readRDS(
+    here::here("data", "results", "model_study_result_ar_error_model.rds")
+  ), function(x){x@traces[5000:20000, ]}
+)
+model_2 <- do.call(rbind, model_2)
 
 result_table <- data.frame(
   model_1_mean = c(
@@ -819,13 +826,34 @@ result_table <- data.frame(
     quantile(exp(model_1[, 10]), probs = 0.975)
   ),
   model_2_mean = c(
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+    mean(tanh(model_2[, 5])), mean(model_2[, 6]), 
+    mean(model_2[, 7]), mean(model_2[, 8]), mean(model_2[, 9]),
+    mean(model_2[, 10]), mean(model_2[, 11]), NA, mean(exp(model_2[, 4])), 
+    mean(exp(model_2[, 3]))
   ),
   model_2_lower = c(
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+    quantile(tanh(model_2[, 5]), probs = 0.025), 
+    quantile(model_2[, 6], probs = 0.025), 
+    quantile(model_2[, 7], probs = 0.025), 
+    quantile(model_2[, 8], probs = 0.025), 
+    quantile(model_2[, 9], probs = 0.025), 
+    quantile(model_2[, 10], probs = 0.025), 
+    quantile(model_2[, 11], probs = 0.025), 
+    NA,
+    quantile(exp(model_2[, 4]), probs = 0.025), 
+    quantile(exp(model_1[, 3]), probs = 0.025)
   ),
   model_2_upper = c(
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+    quantile(tanh(model_2[, 5]), probs = 0.975), 
+    quantile(model_2[, 6], probs = 0.975), 
+    quantile(model_2[, 7], probs = 0.975), 
+    quantile(model_2[, 8], probs = 0.975), 
+    quantile(model_2[, 9], probs = 0.975), 
+    quantile(model_2[, 10], probs = 0.975), 
+    quantile(model_2[, 11], probs = 0.975), 
+    NA,
+    quantile(exp(model_2[, 4]), probs = 0.975), 
+    quantile(exp(model_1[, 3]), probs = 0.975)
   ),
   model_3_mean = c(
     NA, NA, NA, NA, NA, NA, NA, NA, NA, NA

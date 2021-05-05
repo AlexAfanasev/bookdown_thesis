@@ -5,18 +5,18 @@ system.time(
         {
             models <- rep("ar_error_model.R", 3)
 
-            doRNG::registerDoRNG(1598260027L)
-            cl <- parallel::makeCluster(3)
-            doParallel::registerDoParallel(cl)
-            out <- foreach::`%dopar%`(
-                foreach::foreach(i = 1:3),
-                {
-                    source(here::here("R", "model_comparison", "models",
-                                      models[i]))
-                    res
-                }
-            )
-            parallel::stopCluster(cl)
+            library(parallel)
+            library(doParallel)
+            library(foreach)
+            library(doRNG)
+            cl <- makeCluster(3)
+            registerDoParallel(cl)
+            registerDoRNG(42)
+            out <- foreach(i = 1:3) %dopar% {
+                source(here::here("R", "model_comparison", "models", models[i]))
+                res
+            }
+            stopCluster(cl)
             out
         }
     )
