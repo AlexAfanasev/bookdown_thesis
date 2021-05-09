@@ -6,9 +6,9 @@ editor_options:
 
 # Simulation study {#simulation}
 
-A simulation study will be conducted in order to compare the likelihood based inference procedure, via the Nelder-Mead algorithm, with the Bayesian approach, based on the particle marginal Metropolis Hastings algorithm. The simulation setup will be closely related to the empirical application. Hence, a variation of the log-linear present-value formulation of the log price dividend ratio will be used. 
+A simulation study will be conducted in order to compare the likelihood based inference procedure, via the Nelder-Mead algorithm, with the Bayesian approach, based on the PMMH algorithm. The simulation setup will be closely related to the empirical application. Hence, a variation of the log linear present-value formulation of the PD will be used.
 
-Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag model and will be simulated according to the following process
+Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag (ARDL) model and will be simulated according to the following process
 \begin{equation}
 \begin{split}
 & x_0 = 3.5 \\
@@ -34,7 +34,7 @@ This setup is an indirect specification of an error correction mechanism. The re
 \end{equation*}
 Hence, given that $\left|\phi\right|<1$, the long run relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
 $$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}$$
-The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed log price dividend ratio.
+The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed PD.
 
 Furthermore, the observation process has the following specification
 \begin{equation}
@@ -61,17 +61,18 @@ All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observ
 $$
 \theta = \begin{pmatrix} x_0 \\ \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 3.5 \\0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
 $$
-Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run, at each of the $1000$ iterations, and the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=1000$ particles and the particle marginal Metropolis Hastings procedures will use $J=500$ particles.
+Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run. At each of the $1000$ iterations the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=1500$ particles and the PMMH procedures will use $J=500$ particles.
 
 The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
 \begin{align}
 \phi &= \text{tanh}(\psi) & \sigma_u &= \text{exp}(\varsigma_u) & \sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon})
+(\#eq:parameter-transformation)
 \end{align}
 where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for these hyperparameters can than easily be converted in order to obtain the initial parameters. 
 
-Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the particle marginal Metropolis Hastings procedure as well. Therefore, both applications will use the following parameter vector $\theta = \begin{pmatrix} x_0 & \psi & \beta_0 & \beta_{1} & \beta_{2} & \varsigma_{\epsilon} & \varsigma_{u}\end{pmatrix}^T$ instead of the initially presented for inference purposes.
+Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints and this increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the PMMH procedure as well. Therefore, both applications will use the following parameter vector $\theta = \begin{pmatrix} x_0 & \psi & \beta_0 & \beta_{1} & \beta_{2} & \varsigma_{\epsilon} & \varsigma_{u}\end{pmatrix}^T$ instead of the initially presented for inference purposes.
 
-The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **setup 1** will use a flat improper prior specification that incorporates almost no prior information about the initially presented parameters. **Setup 2** and **setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a small probability to the initial parameters.
+The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **setup 1** will use a flat improper prior specification that incorporates no prior information about the initially presented parameters. **Setup 2** and **setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a smaller probability to the true initial parameters.
 
 The change of variable technique has to be applied in order to transfer the prior beliefs about the parameters $\phi$, $\sigma_u$ and $\sigma_\epsilon$ to the hyperparameters $\psi$, $\varsigma_u$, $\varsigma_{\epsilon}$.
 
@@ -115,7 +116,7 @@ For **setup 1**, the initially presented parameters will have the following prio
   \end{cases} \\
  p_{\beta_0}(\beta_0) &= 1 & p_{\beta_1}(\beta_1) &= 1 & p_{\beta_2}(\beta_2) &= 1
 \end{align*}
-Note that within this uninformative flat prior setup all possibly valid parameter values will have a prior density of one. Using result \@ref(eq:hyperparamter-prior) the belonging prior specification for the hyperparameters for **setup 1** simplifies to
+Note that within this uninformative flat prior setup all possibly valid parameter values will have a prior density of one. Using result \@ref(eq:hyperparamter-prior) the belonging prior specification for the hyperparameters simplifies to
 \begin{equation*}
 \begin{split}
 p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \text{tanh}(\psi)^2) \\
@@ -123,7 +124,7 @@ p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \t
   p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= p_{\varsigma_\epsilon}(\text{exp}(\varsigma_\epsilon))\text{exp}(\varsigma_\epsilon) = \text{exp}(\varsigma_\epsilon)
 \end{split}
 \end{equation*}
-**Setup 2** represents the informative prior setup. The truncated normal distribution will be used for parameter $\phi$ and the Gamma distribution for the parameters $\sigma_u$ and $\sigma_\epsilon$. Hence, this specification is applied
+**Setup 2** represents the informative prior setup. The truncated normal distribution will be used for parameter $\phi$ and the gamma distribution for the parameters $\sigma_u$ and $\sigma_\epsilon$. Hence, this specification is applied
 \begin{align*}
   p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.5, 0.1^2) \\
   p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.8, 0.1^2, -1, 1) &  p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.4, 0.1^2) \\
@@ -141,7 +142,7 @@ f^{\mathcal{T}\mathcal{N}}(x|\mu, \sigma^2, a, b) =
 $$
 with $\phi(\cdot)$ being the density function of the standard normal distribution and $\Phi(\cdot)$ its cumulative distribution function. Again, the accompanying prior specification for the hyperparameters can be obtained using \@ref(eq:hyperparamter-prior).
 
-**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used however with varying parameters.
+**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used, however with different parameters.
 \begin{align*}
   p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.0, 0.1^2) \\
   p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.3, 0.1^2, -1, 1) & p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.8, 0.1^2) \\
@@ -149,19 +150,25 @@ with $\phi(\cdot)$ being the density function of the standard normal distributio
   p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 10, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | 0.0, 0.1^2)
 \end{align*}
 
-The MCMC approaches will use $7500$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
+The MCMC approaches will use $20000$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
 $$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.025^2)$$
 Furthermore, the starting parameter $\theta^{(0)} = \begin{pmatrix} x_0^{(0)} & \psi^{(0)} & \beta_0^{(0)} & \beta_{1}^{(0)} & \beta_{2}^{(0)} & \varsigma_{\epsilon}^{(0)} & \varsigma_{u}^{(0)}\end{pmatrix} ^T$, for the inference methods, will be set randomly at each iteration of the simulation study with
-$$\theta^{(0)} \sim \mathcal{N}\Big(\begin{pmatrix} 3.3 & \text{atanh}(0.7) & 1.05 & 0 & 0 & \ln(0.05) & \ln(0.1)\end{pmatrix}^T, 0.1^2\; I_6\Big)$$
-One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted on simulation $4$.
+\begin{align*}
+x_0^{(0)} &\sim \mathcal{U}(3.4, 3.6) & \phi^{(0)} &\sim \mathcal{U}(0.8, 0.9) & \beta_0^{(0)} &\sim \mathcal{U}(0.35, 0.65) \\ 
+\beta_{1}^{(0)} &\sim \mathcal{U}(0.3, 0.5) & \beta_{2}^{(0)} &\sim \mathcal{U}(-0.3, -0.1) & \sigma_{\epsilon}^{(0)} &\sim \mathcal{U}(0.03, 0.04) \\ 
+\sigma_{u}^{(0)} &\sim \mathcal{U}(0.04, 0.06)
+\end{align*}
+The starting hyperparameters $\psi^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)}$ are obtained using the corresponding presented transformations in \@ref(eq:parameter-transformation). As visible, the starting parameters will be close to the true values in order to increase the likelihood of convergence for the Markov chains. 
+
+One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted using simulation $4$.
 
 ```{r, nonlinear-simulation, eval=TRUE, echo=FALSE}
 source(here::here("R", "simulation_study", "simulation.R"))
 ```
 
-Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter lags behind the former.
+Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter seems to lag behind the former.
 
-```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=4, fig.height=1.5, warning=FALSE}
+```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=5, fig.height=2, warning=FALSE}
 # Plot data
 sim_4 <- simulation_result[[4]]
 
@@ -187,14 +194,51 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
   labs(x = "n", y = "")
 ```
 
-The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). All approaches indicate a necessary burn in phase of roughly $3000$ iterations. Hence, for the next visualizations and figures the first $3000$ iterations of the Bayesian approaches have been discarded. Furthermore, for this particular example **setup 2** seems to have the fastest and **setup 1** the slowest convergence. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
+The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). Moreover, as visible in the trace plots for the variance parameters in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), convergence cannot be guaranteed. A  burn in phase of roughly $10000$ iterations will be set. Hence, for the next visualizations and figures the first $10000$ iterations of the Bayesian approaches have been discarded. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
 
-Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviation from the true parameters.
+Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviations from the true parameters.
 
-Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. For the likelihood based approach this corresponds to the particle filter state estimate using the estimated MLE parameters. Furthermore, for the Bayesian approaches the marginal posterior mean for the latent state will be used.  One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
+Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. For the likelihood based approach this corresponds to the particle filter state estimate using the estimated MLE parameters. For the Bayesian approaches the marginal posterior mean for the latent state will be used.  One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
 
-\vfill
-```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=5, fig.height=6.5, warning=FALSE}
+Additionally, the results from the $10$ runs of the likelihood based approach using the Nelder-Mead algorithm can be inspected by looking at Table \@ref(tab:nm-result-table). The resulting parameter estimates within the $10$ repetitions vary, which can be seen by the minimum and maximum estimates displayed. However, all in all the parameter estimates are close to the true values.
+
+```{r, nm-result-table, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+result_table <- data.frame(
+  true = c(true_params_simulation, NA),
+  mle = sim_4$smc_result$optim_result[
+    , which.max(sim_4$smc_result$optim_result[8, ])
+  ],
+  min = apply(sim_4$smc_result$optim_result, MARGIN = 1, min),
+  max = apply(sim_4$smc_result$optim_result, MARGIN = 1, max)
+)
+rownames(result_table) <- c(
+  "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\sigma_u$", 
+  "$\\sigma_\\epsilon$", "$\\phi$", "$x_0$","$\\mathcal{L}(\\theta)$"
+)
+result_table[4:5, ] <- exp(result_table[4:5, ])
+result_table[6, ] <- tanh(result_table[6, ])
+result_table <- round(result_table, 4)
+opts <- options(knitr.kable.NA = "")
+knitr::kable(
+  result_table, 
+  row.names = TRUE,
+  col.names = c("True Values", "Estimates", "Min", "Max"),
+  caption = "Exemplary simulation: Results of the Nelder-Mead approach", booktabs = TRUE, escape = FALSE,
+  linesep = "\\addlinespace", 
+  align = rep("c", 4)
+) %>% 
+  kableExtra::kable_paper() %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+As expected, the first indication from inspecting the exemplary simulation results is that the informative **setup 2** results in the most precise parameter estimates. The aggregate analysis will clarify this observation.
+
+Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other 3 Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
+$$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
+The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise than the Bayesian approaches in **setup 2** and **setup 3**. All in all, the trade off between bias and variance using different prior specifications is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
+
+```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=6, fig.height=8.5, warning=FALSE, message=FALSE}
 # Filtering Results
 sim_4 <- simulation_result[[4]]
 
@@ -329,46 +373,6 @@ grid.arrange(
   heights = c(1.1, 1.1, 1.1, 1.1, 0.2)
 )
 ```
-\vfill
-\newpage
-
-Additionally, the results from the $10$ runs of the likelihood based approach using the Nelder-Mead algorithm can be inspected by looking at Table \@ref(tab:nm-result-table). The resulting parameter estimates within the $10$ repetitions vary a lot, which can be seen by the minimum and maximum estimates displayed. Furthermore, some parameter estimates are far of the true values.
-
-```{r, nm-result-table, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-library(tidyverse)
-result_table <- data.frame(
-  true = c(true_params_simulation, NA),
-  mle = sim_4$smc_result$optim_result[
-    , which.max(sim_4$smc_result$optim_result[8, ])
-  ],
-  min = apply(sim_4$smc_result$optim_result, MARGIN = 1, min),
-  max = apply(sim_4$smc_result$optim_result, MARGIN = 1, max)
-)
-rownames(result_table) <- c(
-  "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\sigma_u$", 
-  "$\\sigma_\\epsilon$", "$\\phi$", "$x_0$","$\\mathcal{L}(\\theta)$"
-)
-result_table[4:5, ] <- exp(result_table[4:5, ])
-result_table[6, ] <- tanh(result_table[6, ])
-result_table <- round(result_table, 4)
-opts <- options(knitr.kable.NA = "")
-knitr::kable(
-  result_table, 
-  row.names = TRUE,
-  col.names = c("True Values", "Estimates", "Min", "Max"),
-  caption = "Exemplary simulation: Results of the Nelder-Mead approach", booktabs = TRUE, escape = FALSE,
-  linesep = "\\addlinespace", 
-  align = rep("c", 4)
-) %>% 
-  kableExtra::kable_paper() %>%
-  kableExtra::kable_styling(latex_options = "hold_position")
-```
-
-As expected, the first indication from inspecting the exemplary simulation results is that the informative **setup 2** results in the most precise parameter estimates. The aggregate analysis will clarify this observation.
-
-Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other 3 Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
-$$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
-The aggregate results show that the likelihood based approach has the highest variation and average deviation for the parameter and latent state estimates.  Moreover, the informative and uninformative prior setups, **setup 2** and **setup 1**, have the smallest average deviations with **setup 2** having also the smallest variance. The misspecified prior setup, **setup 3**, seems to have a smaller variance compared to the uninformative setup but a higher average deviation. All in all, it can be concluded that within the simulation study all Bayesian approaches outperform the likelihood based approach.
 
 ```{r, aggregate-simulation-result-plot, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Aggregate simulation: Result", fig.width=7, fig.height=10, warning=FALSE, message=FALSE}
 res_smc <- matrix(nrow = N_sim, ncol = length(true_params_simulation))
