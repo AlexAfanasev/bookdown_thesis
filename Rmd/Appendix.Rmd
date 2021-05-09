@@ -18,7 +18,7 @@ library(ggplot2)
 library(gridExtra)
 ```
 
-```{r, sim-4-appendix-trace-plot-setup-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot setup 1", fig.width=6, fig.height=6.5, warning=FALSE}
+```{r, sim-4-appendix-trace-plot-setup-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot for setup 1", fig.width=6, fig.height=6.75, warning=FALSE}
 traces <- sim_4$pmmh_noninformative$traces
 
 # Plot theme:
@@ -29,7 +29,9 @@ p_theme <- theme(
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # Beta 0
@@ -157,7 +159,7 @@ grid.arrange(
 )
 ```
 
-```{r, sim-4-appendix-marginal-posterior-setup-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the marginal posterior distributions for setup 1", fig.width=6, fig.height=6.5, warning=FALSE}
+```{r, sim-4-appendix-marginal-posterior-setup-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the Marginal posterior distributions for setup 1", fig.width=6, fig.height=6.75, warning=FALSE}
 traces <- sim_4$pmmh_noninformative$traces[10000:20000, ]
 
 # Plot theme:
@@ -169,7 +171,9 @@ p_theme <- theme(
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
   axis.title.y = element_text(size = 8, vjust = 0.5),
-  legend.key = element_rect(fill = NA)
+  legend.key = element_rect(fill = NA),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # Beta 0
@@ -199,13 +203,13 @@ p1 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_0$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_0$}"),
        x = latex2exp::TeX("$\\beta_0$"))
 
 # Beta 1
 df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
 p2 <- ggplot(data = df, aes(x = beta_1)) +
-  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+  geom_density(aes(x = beta_1, colour = "Marginal posterior", linetype = "Marginal posterior"), 
                show.legend = FALSE) + 
   geom_vline(
     aes(xintercept = true_params_simulation["beta_1"], colour = "True",
@@ -213,7 +217,7 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   geom_vline(
     aes(xintercept = mean(traces[, 4]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+        colour = "Marginal posterior mean", linetype = "Marginal posterior mean"), 
     show.legend = FALSE
   ) +
   stat_function(
@@ -221,15 +225,16 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   theme_light() + p_theme + 
   scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
-               "Posterior Mean" = "#2126b5"), 
+    values = c("Marginal posterior" = "black", "Prior" = "#30914a", 
+               "True" = "red",
+               "Marginal posterior mean" = "#2126b5"), 
     name = ""
   ) +
   scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+    values = c("Marginal posterior" = 1, "Marginal posterior mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_1$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_1$}"),
        x = latex2exp::TeX("$\\beta_1$"))
 
 # Beta 2
@@ -259,7 +264,7 @@ p3 <- ggplot(data = df, aes(x = beta_2)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_2$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_2$}"),
        x = latex2exp::TeX("$\\beta_2$"))
 
 # Sigma x
@@ -289,7 +294,7 @@ p4 <- ggplot(data = df, aes(x = sigma_x)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_u$}"),
        x = latex2exp::TeX("$\\sigma_u$"))
 
 # Sigma y
@@ -319,7 +324,7 @@ p5 <- ggplot(data = df, aes(x = sigma_y)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_\\epsilon$}"),
        x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
 # Phi
@@ -349,7 +354,7 @@ p6 <- ggplot(data = df, aes(x = phi)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\phi$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\phi$}"),
        x = latex2exp::TeX("$\\phi$"))
 
 # X 0
@@ -379,7 +384,7 @@ p7 <- ggplot(data = df, aes(x = x_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\x_0$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\x_0$}"),
        x = latex2exp::TeX("$\\x_0$"))
 
 get_legend <- function(myggplot){
@@ -402,7 +407,7 @@ grid.arrange(
 )
 ```
 
-```{r, sim-4-appendix-trace-plot-setup-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot setup 2", fig.width=6, fig.height=6.5, warning=FALSE}
+```{r, sim-4-appendix-trace-plot-setup-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot for setup 2", fig.width=6, fig.height=6.75, warning=FALSE}
 traces <- sim_4$pmmh_true_informative$traces
 
 # Plot theme:
@@ -413,7 +418,9 @@ p_theme <- theme(
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # Beta 0
@@ -541,7 +548,7 @@ grid.arrange(
 )
 ```
 
-```{r, sim-4-appendix-marginal-posterior-setup-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the marginal posterior distributions for setup 2", fig.width=6, fig.height=6.5, warning=FALSE}
+```{r, sim-4-appendix-marginal-posterior-setup-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the Marginal posterior distributions for setup 2", fig.width=6, fig.height=6.75, warning=FALSE}
 traces <- sim_4$pmmh_true_informative$traces[10000:20000, ]
 
 # Plot theme:
@@ -553,7 +560,9 @@ p_theme <- theme(
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
   axis.title.y = element_text(size = 8, vjust = 0.5),
-  legend.key = element_rect(fill = NA)
+  legend.key = element_rect(fill = NA),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # Beta 0
@@ -584,13 +593,13 @@ p1 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_0$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_0$}"),
        x = latex2exp::TeX("$\\beta_0$"))
 
 # Beta 1
 df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
 p2 <- ggplot(data = df, aes(x = beta_1)) +
-  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+  geom_density(aes(x = beta_1, colour = "Marginal posterior", linetype = "Marginal posterior"), 
                show.legend = FALSE) + 
   geom_vline(
     aes(xintercept = true_params_simulation["beta_1"], colour = "True",
@@ -598,7 +607,7 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   geom_vline(
     aes(xintercept = mean(traces[, 4]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+        colour = "Marginal posterior mean", linetype = "Marginal posterior mean"), 
     show.legend = FALSE
   ) +
   stat_function(
@@ -607,15 +616,15 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   theme_light() + p_theme + 
   scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
-               "Posterior Mean" = "#2126b5"), 
+    values = c("Marginal posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Marginal posterior mean" = "#2126b5"), 
     name = ""
   ) +
   scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+    values = c("Marginal posterior" = 1, "Marginal posterior mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_1$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_1$}"),
        x = latex2exp::TeX("$\\beta_1$"))
 
 # Beta 2
@@ -646,7 +655,7 @@ p3 <- ggplot(data = df, aes(x = beta_2)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_2$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_2$}"),
        x = latex2exp::TeX("$\\beta_2$"))
 
 # Sigma x
@@ -677,7 +686,7 @@ p4 <- ggplot(data = df, aes(x = sigma_x)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_u$}"),
        x = latex2exp::TeX("$\\sigma_u$"))
 
 # Sigma y
@@ -708,7 +717,7 @@ p5 <- ggplot(data = df, aes(x = sigma_y)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_\\epsilon$}"),
        x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
 # Phi
@@ -739,7 +748,7 @@ p6 <- ggplot(data = df, aes(x = phi)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\phi$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\phi$}"),
        x = latex2exp::TeX("$\\phi$"))
 
 # X 0
@@ -770,7 +779,7 @@ p7 <- ggplot(data = df, aes(x = x_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\x_0$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\x_0$}"),
        x = latex2exp::TeX("$\\x_0$"))
 
 get_legend <- function(myggplot){
@@ -793,7 +802,7 @@ grid.arrange(
 )
 ```
 
-```{r, sim-4-appendix-trace-plot-setup-3, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot setup 3", fig.width=6, fig.height=6.5, warning=FALSE}
+```{r, sim-4-appendix-trace-plot-setup-3, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Trace plot for setup 3", fig.width=6, fig.height=6.5, warning=FALSE}
 traces <- sim_4$pmmh_false_informative$traces
 
 # Plot theme:
@@ -804,7 +813,9 @@ p_theme <- theme(
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # Beta 0
@@ -932,7 +943,7 @@ grid.arrange(
 )
 ```
 
-```{r, sim-4-appendix-marginal-posterior-setup-3, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the marginal posterior distributions for setup 3", fig.width=6, fig.height=6.5, warning=FALSE}
+```{r, sim-4-appendix-marginal-posterior-setup-3, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Gaussian kernel density estimates of the Marginal posterior distributions for setup 3", fig.width=6, fig.height=6.75, warning=FALSE}
 traces <- sim_4$pmmh_false_informative$traces[10000:20000, ]
 
 # Plot theme:
@@ -944,7 +955,9 @@ p_theme <- theme(
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
   axis.title.y = element_text(size = 8, vjust = 0.5),
-  legend.key = element_rect(fill = NA)
+  legend.key = element_rect(fill = NA),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # Beta 0
@@ -975,13 +988,13 @@ p1 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_0$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_0$}"),
        x = latex2exp::TeX("$\\beta_0$"))
 
 # Beta 1
 df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
 p2 <- ggplot(data = df, aes(x = beta_1)) +
-  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+  geom_density(aes(x = beta_1, colour = "Marginal posterior", linetype = "Marginal posterior"), 
                show.legend = FALSE) + 
   geom_vline(
     aes(xintercept = true_params_simulation["beta_1"], colour = "True",
@@ -989,7 +1002,7 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   geom_vline(
     aes(xintercept = mean(traces[, 4]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+        colour = "Marginal posterior mean", linetype = "Marginal posterior mean"), 
     show.legend = FALSE
   ) +
   stat_function(
@@ -998,15 +1011,15 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   theme_light() + p_theme + 
   scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", "True" = "red",
-               "Posterior Mean" = "#2126b5"), 
+    values = c("Marginal posterior" = "black", "Prior" = "#30914a", "True" = "red",
+               "Marginal posterior mean" = "#2126b5"), 
     name = ""
   ) +
   scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, 
+    values = c("Marginal posterior" = 1, "Marginal posterior mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_1$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_1$}"),
        x = latex2exp::TeX("$\\beta_1$"))
 
 # Beta 2
@@ -1037,7 +1050,7 @@ p3 <- ggplot(data = df, aes(x = beta_2)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\beta_2$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\beta_2$}"),
        x = latex2exp::TeX("$\\beta_2$"))
 
 # Sigma x
@@ -1068,7 +1081,7 @@ p4 <- ggplot(data = df, aes(x = sigma_x)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_u$}"),
        x = latex2exp::TeX("$\\sigma_u$"))
 
 # Sigma y
@@ -1099,7 +1112,7 @@ p5 <- ggplot(data = df, aes(x = sigma_y)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_\\epsilon$}"),
        x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
 # Phi
@@ -1130,7 +1143,7 @@ p6 <- ggplot(data = df, aes(x = phi)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\phi$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\phi$}"),
        x = latex2exp::TeX("$\\phi$"))
 
 # X 0
@@ -1161,7 +1174,7 @@ p7 <- ggplot(data = df, aes(x = x_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, 
                "Prior" = 1, "True" = 3), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\x_0$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\x_0$}"),
        x = latex2exp::TeX("$\\x_0$"))
 
 get_legend <- function(myggplot){
@@ -1185,14 +1198,14 @@ grid.arrange(
 rm(list = ls())
 ```
 
-```{r, extension-static-model-setup, eval=TRUE, echo=FALSE}
+```{r, extension-static-model-setup, eval=FALSE, echo=FALSE}
 # get simulation result
 source(here::here("R", "model_comparison", "model_comparison_static_model.R"))
 library(ggplot2)
 library(gridExtra)
 ```
 
-```{r, extension-static-model-trace, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Trace plot setup 3", fig.width=7, fig.height=8.5, warning=FALSE}
+```{r, extension-static-model-trace, eval=FALSE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Trace plot setup 3", fig.width=7, fig.height=8.5, warning=FALSE}
 traces <- list(
   result[[1]]@traces, 
   result[[2]]@traces, 
@@ -1201,13 +1214,15 @@ traces <- list(
 
 # Plot theme:
 p_theme <- theme(
-  legend.position = "bottom", 
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
   legend.title = element_blank(), 
   legend.background = element_rect(fill = "transparent"),
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5)
+  axis.title.y = element_text(size = 8, angle = 0, vjust = 0.5),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # beta_0
@@ -1264,7 +1279,7 @@ p3 <- ggplot(data = df, aes(x = time, y = value)) +
        x = "m", y = latex2exp::TeX("$\\beta_2$")) +
   p_theme
 
-# beta_3
+# sigma_u
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
   value1 = traces[[1]][, 6], 
@@ -1272,62 +1287,8 @@ df <- data.frame(
   value3 = traces[[3]][, 6]
 )
 df <- reshape2::melt(df, id.vars = "time")
-p4 <- ggplot(data = df, aes(x = time, y = value)) +
-  geom_line(aes(colour = variable)) + theme_light() +
-  scale_colour_manual(
-    values = c("red", "green", "blue"),
-    labels = c("Chain 1", "Chain 2", "Chain 3")
-  ) +
-  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_3$}"),
-       x = "m", y = latex2exp::TeX("$\\beta_3$")) +
-  p_theme
-
-# beta_4
-df <- data.frame(
-  time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 7], 
-  value2 = traces[[2]][, 7], 
-  value3 = traces[[3]][, 7]
-)
-df <- reshape2::melt(df, id.vars = "time")
-p5 <- ggplot(data = df, aes(x = time, y = value)) +
-  geom_line(aes(colour = variable)) + theme_light() +
-  scale_colour_manual(
-    values = c("red", "green", "blue"),
-    labels = c("Chain 1", "Chain 2", "Chain 3")
-  ) +
-  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_4$}"),
-       x = "m", y = latex2exp::TeX("$\\beta_4$")) +
-  p_theme
-
-# beta_5
-df <- data.frame(
-  time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 8], 
-  value2 = traces[[2]][, 8], 
-  value3 = traces[[3]][, 8]
-)
-df <- reshape2::melt(df, id.vars = "time")
-p6 <- ggplot(data = df, aes(x = time, y = value)) +
-  geom_line(aes(colour = variable)) + theme_light() +
-  scale_colour_manual(
-    values = c("red", "green", "blue"),
-    labels = c("Chain 1", "Chain 2", "Chain 3")
-  ) +
-  labs(title = latex2exp::TeX("Trace Plot: \\textbf{$\\beta_5$}"),
-       x = "m", y = latex2exp::TeX("$\\beta_5$")) +
-  p_theme
-
-# sigma_u
-df <- data.frame(
-  time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 9], 
-  value2 = traces[[2]][, 9], 
-  value3 = traces[[3]][, 9]
-)
-df <- reshape2::melt(df, id.vars = "time")
 df[, "value"] <- exp(df[, "value"])
-p7 <- ggplot(data = df, aes(x = time, y = value)) +
+p4 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -1337,16 +1298,16 @@ p7 <- ggplot(data = df, aes(x = time, y = value)) +
        x = "m", y = latex2exp::TeX("$\\sigma_u$")) +
   p_theme
 
-# sigma_u
+# sigma_e
 df <- data.frame(
   time = 1:nrow(traces[[1]]),
-  value1 = traces[[1]][, 10], 
-  value2 = traces[[2]][, 10], 
-  value3 = traces[[3]][, 10]
+  value1 = traces[[1]][, 7], 
+  value2 = traces[[2]][, 7], 
+  value3 = traces[[3]][, 7]
 )
 df <- reshape2::melt(df, id.vars = "time")
 df[, "value"] <- exp(df[, "value"])
-p8 <- ggplot(data = df, aes(x = time, y = value)) +
+p5 <- ggplot(data = df, aes(x = time, y = value)) +
   geom_line(aes(colour = variable)) + theme_light() +
   scale_colour_manual(
     values = c("red", "green", "blue"),
@@ -1359,38 +1320,33 @@ p8 <- ggplot(data = df, aes(x = time, y = value)) +
 legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
 
 grid.arrange(
-  arrangeGrob(
-    p1 + theme(legend.position = "none"), 
-    p2 + theme(legend.position = "none"), 
-    p3 + theme(legend.position = "none"), 
-    p4 + theme(legend.position = "none"), 
-    p5 + theme(legend.position = "none"), 
-    p6 + theme(legend.position = "none"), 
-    p7 + theme(legend.position = "none"), 
-    p8 + theme(legend.position = "none"),
-    ncol = 2
-  ),
-  arrangeGrob(grid::nullGrob(), legend, grid::nullGrob(), nrow = 1),
-  heights = c(4.5, 0.1), ncol = 1
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"),
+  ncol = 2, legend = legend, nrow = 3
 )
 ```
 
-```{r, extension-static-model-marginal-density, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the marginal posterior distributions", fig.width=7, fig.height=8.5, warning=FALSE}
+```{r, extension-static-model-marginal-density, eval=FALSE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the Marginal posterior distributions", fig.width=7, fig.height=8.5, warning=FALSE}
 traces <- rbind(
-  result[[1]]@traces[30000:50000, ], 
-  result[[2]]@traces[30000:50000, ], 
-  result[[3]]@traces[30000:50000, ]
+  result[[1]]@traces[10000:50000, ], 
+  result[[2]]@traces[10000:50000, ], 
+  result[[3]]@traces[10000:50000, ]
 )
 
 # Plot theme:
 p_theme <- theme(
-  legend.position = "bottom",
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
   legend.title = element_blank(), 
   legend.background = element_rect(fill = "transparent"),
   plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
   plot.title = element_text(hjust = 0.5, size = 8),
   axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8, vjust = 0.5)
+  axis.title.y = element_text(size = 8, vjust = 0.5),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)
 )
 
 # beta_0
@@ -1416,17 +1372,17 @@ p1 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_0$}"
+    "Marginal posterior: \\textbf{$\\beta_0$}"
   ), x = latex2exp::TeX("$\\beta_0$"))
 
 # beta_1
 df <- data.frame(time = 1:nrow(traces), beta_1 = traces[, 4])
 p2 <- ggplot(data = df, aes(x = beta_1)) +
-  geom_density(aes(x = beta_1, colour = "Posterior", linetype = "Posterior"), 
+  geom_density(aes(x = beta_1, colour = "Marginal posterior", linetype = "Marginal posterior"), 
                show.legend = FALSE) + 
   geom_vline(
     aes(xintercept = mean(traces[, 4]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
+        colour = "Marginal posterior mean", linetype = "Marginal posterior mean"), 
     show.legend = FALSE
   ) +
   stat_function(
@@ -1434,15 +1390,15 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
   ) +
   theme_light() + p_theme + 
   scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", 
-               "Posterior Mean" = "#2126b5"), 
+    values = c("Marginal posterior" = "black", "Prior" = "#30914a", 
+               "Marginal posterior mean" = "#2126b5"), 
     name = ""
   ) +
   scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
+    values = c("Marginal posterior" = 1, "Marginal posterior mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_1$}"
+    "Marginal posterior: \\textbf{$\\beta_1$}"
   ), x = latex2exp::TeX("$\\beta_1$"))
 
 # beta_2
@@ -1468,94 +1424,16 @@ p3 <- ggplot(data = df, aes(x = beta_2)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_2$}"
+    "Marginal posterior: \\textbf{$\\beta_2$}"
   ), x = latex2exp::TeX("$\\beta_2$"))
 
-# beta_3
-df <- data.frame(time = 1:nrow(traces), beta_3 = traces[, 6])
-p4 <- ggplot(data = df, aes(x = beta_3)) +
-  geom_density(aes(x = beta_3, colour = "Posterior", linetype = "Posterior"), 
-               show.legend = FALSE) + 
-  geom_vline(
-    aes(xintercept = mean(traces[, 6]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
-    show.legend = FALSE
-  ) +
-  stat_function(
-    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
-  ) +
-  theme_light() + p_theme + 
-  scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", 
-               "Posterior Mean" = "#2126b5"), 
-    name = ""
-  ) +
-  scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
-  ) + 
-  labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_3$}"
-  ), x = latex2exp::TeX("$\\beta_3$"))
-
-# beta_4
-df <- data.frame(time = 1:nrow(traces), beta_4 = traces[, 7])
-p5 <- ggplot(data = df, aes(x = beta_4)) +
-  geom_density(aes(x = beta_4, colour = "Posterior", linetype = "Posterior"), 
-               show.legend = FALSE) + 
-  geom_vline(
-    aes(xintercept = mean(traces[, 7]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
-    show.legend = FALSE
-  ) +
-  stat_function(
-    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
-  ) +
-  theme_light() + p_theme + 
-  scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", 
-               "Posterior Mean" = "#2126b5"), 
-    name = ""
-  ) +
-  scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
-  ) + 
-  labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_4$}"
-  ), x = latex2exp::TeX("$\\beta_4$"))
-
-# beta_5
-df <- data.frame(time = 1:nrow(traces), beta_5 = traces[, 8])
-p6 <- ggplot(data = df, aes(x = beta_5)) +
-  geom_density(aes(x = beta_5, colour = "Posterior", linetype = "Posterior"), 
-               show.legend = FALSE) + 
-  geom_vline(
-    aes(xintercept = mean(traces[, 8]), 
-        colour = "Posterior Mean", linetype = "Posterior Mean"), 
-    show.legend = FALSE
-  ) +
-  stat_function(
-    fun = function(...){1}, aes(colour = "Prior", linetype = "Prior")
-  ) +
-  theme_light() + p_theme + 
-  scale_color_manual(
-    values = c("Posterior" = "black", "Prior" = "#30914a", 
-               "Posterior Mean" = "#2126b5"), 
-    name = ""
-  ) +
-  scale_linetype_manual(
-    values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
-  ) + 
-  labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_5$}"
-  ), x = latex2exp::TeX("$\\beta_5$"))
-
 # sigma_u
-df <- data.frame(time = 1:nrow(traces), sigma_u = exp(traces[, 9]))
-p7 <- ggplot(data = df, aes(x = sigma_u)) +
+df <- data.frame(time = 1:nrow(traces), sigma_u = exp(traces[, 6]))
+p4 <- ggplot(data = df, aes(x = sigma_u)) +
   geom_density(aes(x = sigma_u, colour = "Posterior", linetype = "Posterior"), 
                show.legend = FALSE) + 
   geom_vline(
-    aes(xintercept = mean(exp(traces[, 9])), 
+    aes(xintercept = mean(exp(traces[, 6])), 
         colour = "Posterior Mean", linetype = "Posterior Mean"), 
     show.legend = FALSE
   ) +
@@ -1571,16 +1449,16 @@ p7 <- ggplot(data = df, aes(x = sigma_u)) +
   scale_linetype_manual(
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_u$}"),
        x = latex2exp::TeX("$\\sigma_u$"))
 
 # sigma_epsilon
-df <- data.frame(time = 1:nrow(traces), sigma_e = exp(traces[, 10]))
-p8 <- ggplot(data = df, aes(x = sigma_e)) +
+df <- data.frame(time = 1:nrow(traces), sigma_e = exp(traces[, 7]))
+p5 <- ggplot(data = df, aes(x = sigma_e)) +
   geom_density(aes(x = sigma_e, colour = "Posterior", linetype = "Posterior"), 
                show.legend = FALSE) + 
   geom_vline(
-    aes(xintercept = mean(exp(traces[, 10])), 
+    aes(xintercept = mean(exp(traces[, 7])), 
         colour = "Posterior Mean", linetype = "Posterior Mean"), 
     show.legend = FALSE
   ) +
@@ -1597,7 +1475,7 @@ p8 <- ggplot(data = df, aes(x = sigma_e)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"
+    "Marginal posterior: \\textbf{$\\sigma_\\epsilon$}"
   ), x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
 get_legend <- function(myggplot){
@@ -1609,30 +1487,23 @@ get_legend <- function(myggplot){
 legend <- get_legend(p2)
 
 grid.arrange(
-  arrangeGrob(
-    p1 + theme(legend.position = "none"), 
-    p2 + theme(legend.position = "none"), 
-    p3 + theme(legend.position = "none"), 
-    p4 + theme(legend.position = "none"), 
-    p5 + theme(legend.position = "none"), 
-    p6 + theme(legend.position = "none"), 
-    p7 + theme(legend.position = "none"), 
-    p8 + theme(legend.position = "none"),
-    ncol = 2
-  ),
-  arrangeGrob(grid::nullGrob(), legend, grid::nullGrob(), nrow = 1),
-  heights = c(4.5, 0.1), ncol = 1
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"),
+  ncol = 2, legend = legend, nrow = 3
 )
 ```
 
-```{r, extension-ar-error-model-setup, eval=TRUE, echo=FALSE}
+```{r, extension-ar-error-model-setup, eval=FALSE, echo=FALSE}
 # get simulation result
 source(here::here("R", "model_comparison", "model_comparison_ar_error_model.R"))
 library(ggplot2)
 library(gridExtra)
 ```
 
-```{r, extension-ar-error-model-trace, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Trace plot setup 3", fig.width=6, fig.height=9.5, warning=FALSE}
+```{r, extension-ar-error-model-trace, eval=FALSE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Trace plot setup 3", fig.width=6, fig.height=9.5, warning=FALSE}
 traces <- list(
   result[[1]]@traces, 
   result[[2]]@traces, 
@@ -1832,7 +1703,7 @@ grid.arrange(
 )
 ```
 
-```{r, extension-ar-error-model-marginal-density, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the marginal posterior distributions", fig.width=6, fig.height=8.5, warning=FALSE}
+```{r, extension-ar-error-model-marginal-density, eval=FALSE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the Marginal posterior distributions", fig.width=6, fig.height=8.5, warning=FALSE}
 traces <- rbind(
   result[[1]]@traces[5000:20000, ], 
   result[[2]]@traces[5000:20000, ], 
@@ -1873,7 +1744,7 @@ p1 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_0$}"
+    "Marginal posterior: \\textbf{$\\beta_0$}"
   ), x = latex2exp::TeX("$\\beta_0$"))
 
 # beta_1
@@ -1899,7 +1770,7 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_1$}"
+    "Marginal posterior: \\textbf{$\\beta_1$}"
   ), x = latex2exp::TeX("$\\beta_1$"))
 
 # beta_2
@@ -1925,7 +1796,7 @@ p3 <- ggplot(data = df, aes(x = beta_2)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_2$}"
+    "Marginal posterior: \\textbf{$\\beta_2$}"
   ), x = latex2exp::TeX("$\\beta_2$"))
 
 # beta_3
@@ -1951,7 +1822,7 @@ p4 <- ggplot(data = df, aes(x = beta_3)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_3$}"
+    "Marginal posterior: \\textbf{$\\beta_3$}"
   ), x = latex2exp::TeX("$\\beta_3$"))
 
 # beta_4
@@ -1977,7 +1848,7 @@ p5 <- ggplot(data = df, aes(x = beta_4)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_4$}"
+    "Marginal posterior: \\textbf{$\\beta_4$}"
   ), x = latex2exp::TeX("$\\beta_4$"))
 
 # beta_5
@@ -2003,7 +1874,7 @@ p6 <- ggplot(data = df, aes(x = beta_5)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_5$}"
+    "Marginal posterior: \\textbf{$\\beta_5$}"
   ), x = latex2exp::TeX("$\\beta_5$"))
 
 # sigma_u
@@ -2028,7 +1899,7 @@ p7 <- ggplot(data = df, aes(x = sigma_u)) +
   scale_linetype_manual(
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_u$}"),
        x = latex2exp::TeX("$\\sigma_u$"))
 
 # sigma_epsilon
@@ -2054,7 +1925,7 @@ p8 <- ggplot(data = df, aes(x = sigma_e)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"
+    "Marginal posterior: \\textbf{$\\sigma_\\epsilon$}"
   ), x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
 # phi
@@ -2080,7 +1951,7 @@ p9 <- ggplot(data = df, aes(x = phi)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\phi$}"
+    "Marginal posterior: \\textbf{$\\phi$}"
   ), x = latex2exp::TeX("$\\phi$"))
 
 get_legend <- function(myggplot){
@@ -2332,7 +2203,7 @@ grid.arrange(
 )
 ```
 
-```{r echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the marginal posterior distributions", fig.height=8.5, fig.width=6, warning=FALSE, extension-ardl-model-marginal-density, eval=FALSE}
+```{r echo=FALSE, fig.align='center', fig.cap="Random walk state model: Gaussian kernel density estimates of the Marginal posterior distributions", fig.height=8.5, fig.width=6, warning=FALSE, extension-ardl-model-marginal-density, eval=FALSE}
 traces <- rbind(
   result[[1]]@traces, 
   result[[2]]@traces, 
@@ -2373,7 +2244,7 @@ p1 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_0$}"
+    "Marginal posterior: \\textbf{$\\beta_0$}"
   ), x = latex2exp::TeX("$\\beta_0$"))
 
 # beta_1
@@ -2399,7 +2270,7 @@ p2 <- ggplot(data = df, aes(x = beta_1)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_1$}"
+    "Marginal posterior: \\textbf{$\\beta_1$}"
   ), x = latex2exp::TeX("$\\beta_1$"))
 
 # beta_2
@@ -2425,7 +2296,7 @@ p3 <- ggplot(data = df, aes(x = beta_2)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_2$}"
+    "Marginal posterior: \\textbf{$\\beta_2$}"
   ), x = latex2exp::TeX("$\\beta_2$"))
 
 # beta_3
@@ -2451,7 +2322,7 @@ p4 <- ggplot(data = df, aes(x = beta_3)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_3$}"
+    "Marginal posterior: \\textbf{$\\beta_3$}"
   ), x = latex2exp::TeX("$\\beta_3$"))
 
 # beta_4
@@ -2477,7 +2348,7 @@ p5 <- ggplot(data = df, aes(x = beta_4)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_4$}"
+    "Marginal posterior: \\textbf{$\\beta_4$}"
   ), x = latex2exp::TeX("$\\beta_4$"))
 
 # beta_5
@@ -2503,7 +2374,7 @@ p6 <- ggplot(data = df, aes(x = beta_5)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\beta_5$}"
+    "Marginal posterior: \\textbf{$\\beta_5$}"
   ), x = latex2exp::TeX("$\\beta_5$"))
 
 # sigma_u
@@ -2528,7 +2399,7 @@ p7 <- ggplot(data = df, aes(x = sigma_u)) +
   scale_linetype_manual(
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
-  labs(title = latex2exp::TeX("Marginal Posterior: \\textbf{$\\sigma_u$}"),
+  labs(title = latex2exp::TeX("Marginal posterior: \\textbf{$\\sigma_u$}"),
        x = latex2exp::TeX("$\\sigma_u$"))
 
 # sigma_epsilon
@@ -2554,7 +2425,7 @@ p8 <- ggplot(data = df, aes(x = sigma_e)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\sigma_\\epsilon$}"
+    "Marginal posterior: \\textbf{$\\sigma_\\epsilon$}"
   ), x = latex2exp::TeX("$\\sigma_\\epsilon$"))
 
 # e_lpd_0
@@ -2580,7 +2451,7 @@ p9 <- ggplot(data = df, aes(x = beta_0)) +
     values = c("Posterior" = 1, "Posterior Mean" = 3, "Prior" = 1), name = ""
   ) + 
   labs(title = latex2exp::TeX(
-    "Marginal Posterior: \\textbf{$\\tilde{\\eta}_0$}"
+    "Marginal posterior: \\textbf{$\\tilde{\\eta}_0$}"
   ), x = latex2exp::TeX("$\\tilde{\\eta}_0$"))
 
 get_legend <- function(myggplot){
@@ -2608,12 +2479,12 @@ grid.arrange(
 
 # Appendix: Algorithms {#algorithms}
 
-The following algorithms can be found in [@pomp_article].
+The following algorithm descriptions are taken from [@pomp_article].
 
 ## Particle filter and systematic resampling
 
 \begin{algorithm}
-  \caption{Particle Filter}
+  \caption{Particle filter}
   \label{alg:particle-filter}
     \KwIn {Simulators $\mu_{\theta}(x_{0})$ and $f_{\theta}(x_{n}|x_{n-1})$ \newline
     Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
@@ -2621,21 +2492,21 @@ The following algorithms can be found in [@pomp_article].
     Data $y^*_{1:N}$ \newline
     Number of particles $J$
     }
-  \nl Initialize filter particles: simulate $X^F_{0,j} \sim \mu_{\theta}(\cdot)$ for $j$ in $1:J$\;
+  \nl Initialize filter particles: simulate $x^F_{0,j}$ from $\mu_{\theta}(\cdot)$ for $j$ in $1:J$\;
   \nl \For{$n = 1$ \To{} $N$}{%
-    \nl Simulate for prediction: $X^P_{n,j} \sim f_{\theta}(\cdot|X^F_{n-1,j})$ for $j$ in $1:J$\;
-    \nl Evaluate weights: $w(n, j) = g_{\theta}(y^*_{n}|X^P_{n,j})$ for $j$ in $1:J$\;
+    \nl Simulate for prediction: $x^P_{n,j}$ from $f_{\theta}(\cdot|x^F_{n-1,j})$ for $j$ in $1:J$\;
+    \nl Evaluate weights: $w(n, j) = g_{\theta}(y^*_{n}|x^P_{n,j})$ for $j$ in $1:J$\;
     \nl Normalize weights: $\tilde{w}(n, j) = \frac{w(n, j)}{\sum^J_{m=1}w(n, m)}$\;
     \nl Apply Algorithm \ref{alg:systematic-resampling} to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
-    \nl Resample: set $X^F_{n,j} = X^P_{n,k_j}$ for $j$ in $1:J$\;
-    \nl Compute conditional log likelihood: $\hat{\ell}_{n|n-1} = ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
+    \nl Resample: set $x^F_{n,j} = x^P_{n,k_j}$ for $j$ in $1:J$\;
+    \nl Compute conditional log likelihood: $\hat{\ell}_{n|n-1} = \ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
   }
   \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|n-1}$ \newline
-  Filter sample: $X^F_{n,1:J}$ for $n$ in 1:N}
+  Filter sample: $x^F_{n,1:J}$ for $n$ in $1:N$}
 \end{algorithm}
 
 \begin{algorithm}
-  \caption{Systematic Resampling}
+  \caption{Systematic resampling}
   \label{alg:systematic-resampling}
     \KwIn {Weights $\tilde{w}_{1:J}$, normalized so that $\sum^J_{j=1}\tilde{w}_{j} = 1$
     }
@@ -2660,28 +2531,28 @@ The following algorithms can be found in [@pomp_article].
     \KwIn {Simulators $\mu_{\theta}(x_{0})$ and $f_{\theta}(x_{n}|x_{n-1})$ \newline
     Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
     Proposal distribution $q(\theta^*|\theta^{(m-1)})$ \newline
-    Starting Parameter $\theta_0$ \newline
+    Starting parameter $\theta_0$ \newline
     Prior $\pi(\theta)$ \newline
     Data $y^*_{1:N}$ \newline
     Number of particles $J$ \newline
     Number of iterations $M$
     }
   \nl Initialization: Compute $\hat{\ell}_0 = \hat{\ell}(\theta_0)$ using Algorithm \ref{alg:particle-filter} with $J$ particles\;
-  \nl Draw random trajectory $X^{(0)}_{0:N}$from $X^F_{0:N,1:J}$ obtained from particle filter \;
+  \nl Draw random trajectory $x^{(0)}_{0:N}$from $x^F_{0:N,1:J}$ obtained from particle filter \;
   \nl \For{$m = 1$ \To{} $M$}{%
     \nl Draw a parameter proposal $\theta^*\sim q(\theta^*|\theta^{(m-1)})$\;
     \nl Compute $\hat{\ell}^* = \hat{\ell}(\theta^*)$ using algorithm \ref{alg:particle-filter} with $J$ particles\;
-    \nl Draw random trajectory $X^{*}_{0:N}$ from $X^F_{0:N,1:J}$ obtained from particle filter \;
-    \nl Compute acceptance probability $$\alpha(\theta^{*}|\theta^{(m-1)}) = \min\Bigg\{1, \frac{\text{exp}(\hat{\ell}^*)(\theta^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\text{exp}(\hat{\ell}^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}$$\;
+    \nl Draw random trajectory $x^{*}_{0:N}$ from $x^F_{0:N,1:J}$ obtained from particle filter \;
+    \nl Compute acceptance probability $$\alpha(\theta^{*}|\theta^{(m-1)}) = \min\Bigg\{1, \frac{\text{exp}(\hat{\ell}^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\text{exp}(\hat{\ell}^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}$$\;
     \nl Generate $U \sim \mathcal{U}(0, 1)$\;
     \nl Set $$
-    (\theta^{(m)}, \hat{\ell}^{(m)}, X^{(m)}_{0:N}) =
+    (\theta^{(m)}, \hat{\ell}^{(m)}, x^{(m)}_{0:N}) =
     \begin{cases}
-      (\theta^{*}, \hat{\ell}^{*}, X^{*}_{0:N}), & \text{if}\;\; U < \alpha(\theta^{*}|\theta^{(m-1)}) \\
-      (\theta^{(m-1)}, \hat{\ell}^{(m-1)}, X^{(m-1)}_{0:N}), & \text{otherwise}
+      (\theta^{*}, \hat{\ell}^{*}, x^{*}_{0:N}), & \text{if}\;\; U < \alpha(\theta^{*}|\theta^{(m-1)}) \\
+      (\theta^{(m-1)}, \hat{\ell}^{(m-1)}, x^{(m-1)}_{0:N}), & \text{otherwise}
     \end{cases}$$\;
   }
-  \KwOut{Samples $X^{(1:M)}_{0:N}$, $\theta^{(1:M)}$ from posterior distribution $p(x_{0:N}, \theta|y^*_{1:N})$}
+  \KwOut{Samples $x^{(1:M)}_{0:N}$, $\theta^{(1:M)}$ from posterior distribution $p(x_{0:N}, \theta|y^*_{1:N})$}
 \end{algorithm}
 
 # Appendix: Derivations {#derivations}
@@ -2692,8 +2563,8 @@ The following algorithms can be found in [@pomp_article].
 \begin{split}
   p_{\theta}(x_n|y^*_{1:n-1}) & = \int p_{\theta}(x_n, x_{n-1}|y^*_{1:n-1})dx_{n-1} \\
   & = \int \frac{p_{\theta}(x_n, x_{n-1}, y^*_{1:n-1})}{p_{\theta}(y^*_{1:n-1})}dx_{n-1} \\
-  & = \int \frac{p_{\theta}(x_n, y^*_{1:n-1} | x_{n-1})p_{\theta}(x_{n-1})}{p_{\theta}(y^*_{1:n-1})}dx_{n-1} \\
-  & = \int \frac{p_{\theta}(x_n| y^*_{1:n-1}, x_{n-1})p_{\theta}(y^*_{1:n-1}, x_{n-1})p_{\theta}(x_{n-1})}{p_{\theta}(y^*_{1:n-1})p_{\theta}(x_{n-1})}dx_{n-1} \\
+  & = \int \frac{p_{\theta}(x_n, y^*_{1:n-1} | x_{n-1})\;p_{\theta}(x_{n-1})}{p_{\theta}(y^*_{1:n-1})}dx_{n-1} \\
+  & = \int \frac{p_{\theta}(x_n| y^*_{1:n-1}, x_{n-1})\;p_{\theta}(y^*_{1:n-1}, x_{n-1})\;p_{\theta}(x_{n-1})}{p_{\theta}(y^*_{1:n-1})\;p_{\theta}(x_{n-1})}dx_{n-1} \\
   & = \int f_{\theta}(x_n|x_{n-1})p_{\theta}(x_{n-1}|y^*_{1:n-1})dx_{n-1}
 \end{split}
 \end{equation*}
@@ -2701,19 +2572,19 @@ The following algorithms can be found in [@pomp_article].
 \begin{equation*}
 \begin{split}
   p_{\theta}(x_n|y^*_{1:n}) & = p_{\theta}(x_n|y^*_n, y^*_{1:n-1}) = \frac{
-    p_{\theta}(y^*_n, y^*_{1:n-1} | x_{n})p_{\theta}(x_n)
+    p_{\theta}(y^*_n, y^*_{1:n-1} | x_{n})\;p_{\theta}(x_n)
   }{
     p_{\theta}(y^*_n, y^*_{1:n-1})
   } \\
   & = \frac{
-    p_{\theta}(y^*_n | y^*_{1:n-1}, x_{n})p_{\theta}(y^*_{1:n-1} | x_n)p_{\theta}(x_n)
+    p_{\theta}(y^*_n | y^*_{1:n-1}, x_{n})\;p_{\theta}(y^*_{1:n-1} | x_n)\;p_{\theta}(x_n)
   }{
-    p_{\theta}(y^*_n | y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})
+    p_{\theta}(y^*_n | y^*_{1:n-1})\;p_{\theta}(y^*_{1:n-1})
   } \\
   & = \frac{
-    p_{\theta}(y^*_n | y^*_{1:n-1}, x_{n})p_{\theta}(x_n | y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})p_{\theta}(x_n)
+    p_{\theta}(y^*_n | y^*_{1:n-1}, x_{n})\;p_{\theta}(x_n | y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})\;p_{\theta}(x_n)
   }{
-    p_{\theta}(y^*_n|y^*_{1:n-1})p_{\theta}(y^*_{1:n-1})p_{\theta}(x_n)
+    p_{\theta}(y^*_n|y^*_{1:n-1})\;p_{\theta}(y^*_{1:n-1})\;p_{\theta}(x_n)
   } \\
   & = \frac{g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})}{p_{\theta}(y^*_n|y^*_{1:n-1})}
 \end{split}
@@ -2721,25 +2592,28 @@ The following algorithms can be found in [@pomp_article].
 
 ## PMMH - acceptance probability
 
+Using that:
 \begin{equation*}
 \begin{split}
-\alpha(\theta^{*}|\theta^{(m-1)}) & = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})q(\theta^{(m-1)}, x^{(m-1)}_{0:N}|\theta^*, x^*_{0:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N})}\Bigg\} \\
-& = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})q(\theta^{(m-1)}|\theta^*)p_{\theta^{(m-1)}}(x^{(m-1)}_{0:N}|y^*_{1:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})q(\theta^*|\theta^{(m-1)})p_{\theta^*}(x^*_{0:N}|y^*_{1:N})}\Bigg\} \\
+p(\theta, x_{0:N}|y^*_{1:N}) &\propto \mathcal{L}(\theta, x_{0:N})\pi(\theta) \\
+&\propto p_{\theta}(y^*_{1:N}|x_{0:N})p_{\theta}(x_{0:N})\pi(\theta)
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+\frac{p_{\theta}(y^*_{1:N}|x_{0:N})p_{\theta}(x_{0:N})}{p_{\theta}(x_{0:N}|y^*_{1:N})} & = \frac{p(y^*_{1:N}, x_{0:N}, \theta)\;p(x_{0:N}, \theta)\;p(y^*_{1:N}, \theta)}{p(y^*_{1:N}, x_{0:N}, \theta)\;p(x_{0:N}, \theta)\;p(\theta)} \\
+& = \frac{p(y^*_{1:N}, \theta)}{p(\theta)} = p_{\theta}(y^*_{1:N}) \\
+& = \mathcal{L}(\theta)
+\end{split}
+\end{equation*}
+\newpage
+The acceptance probability can therefore be simplified:
+\begin{equation*}
+\begin{split}
+\alpha(\theta^{*}|\theta^{(m-1)}) & = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})\;q(\theta^{(m-1)}, x^{(m-1)}_{0:N}|\theta^*, x^*_{0:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})\;q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N})}\Bigg\} \\
+& = \min\Bigg\{1, \frac{p(\theta^*, x^*_{0:N}|y^*_{1:N})\;q(\theta^{(m-1)}|\theta^*)\;p_{\theta^{(m-1)}}(x^{(m-1)}_{0:N}|y^*_{1:N})}{p(\theta^{(m-1)}, x^{(m-1)}_{0:N}|y^*_{1:N})\;q(\theta^*|\theta^{(m-1)})\;p_{\theta^*}(x^*_{0:N}|y^*_{1:N})}\Bigg\} \\
 & = \min\Bigg\{1, \frac{\mathcal{L}(\theta^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\mathcal{L}(\theta^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}
 \end{split}
-\end{equation*}
-
-Using that:
-
-\begin{equation*}
-\begin{split}
-p_{\theta}(y_{1:N}) & = \frac{p_{\theta}(y_{1:N}|x_{0:N})p_{\theta}(x_{0:N})}{p_{\theta}(x_{0:N}|y_{1:N})} \\
-& = \frac{p(y_{1:N}, x_{0:N}, \theta)p(x_{0:N}, \theta)p(y_{1:N}, \theta)}{p(y_{1:N}, x_{0:N}, \theta)p(x_{0:N}, \theta)p(\theta)} \\
-& = \frac{p(y_{1:N}, \theta)}{p(\theta)}
-\end{split}
-\end{equation*}
-
-\begin{equation*}
-p(\theta, x_{0:N}|y_{1:N}) \propto p_{\theta}(y_{1:N}|x_{0:N})p_{\theta}(x_{0:N})\pi(\theta)
 \end{equation*}
 
