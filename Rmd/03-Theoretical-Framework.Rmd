@@ -6,7 +6,7 @@ editor_options:
 ---
 # Theoretical framework {#theory}
 
-This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore, relevant algorithms for performing likelihood based and Bayesian inference will be introduced and their disadvantages and advantages elaborated. However, the content of this master's thesis will be limited to the case of discrete non-Gaussian and nonlinear state-space models and it will be based on the literature of [@pomp_article; @doucet_inference; @doucet_johansen_tutorial; @cappe_smc; @doucet_pmmh].
+This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore, relevant algorithms for performing likelihood based and Bayesian inference will be introduced and their disadvantages and advantages elaborated. However, the content of this master's thesis will be limited to the case of discrete non-Gaussian and nonlinear state-space models and it will be based upon the literature of [@pomp_article; @doucet_inference; @doucet_johansen_tutorial; @cappe_smc; @doucet_pmmh].
 
 ## Partially observed Markov processes
 
@@ -49,7 +49,7 @@ Typically, one can separate two setups. Firstly, the case where the latent state
 
 Given a fixed collection of observations $y^*_{1:N} = (y^*_1, ..., y^*_N)$ one is interested in carrying out inference about $\theta$ and $x_{0:N} = (x_0, ..., x_N)$. The two methods at hand, likelihood based inference and Bayesian inference, require the evaluation of the likelihood function.
 
-Typically, one separates the joint likelihood $\mathcal{L}(\theta, x_{0:N})$ of the parameter vector $\theta$ and the state process $x_{0:N}$ and the marginal likelihood $\mathcal{L}(\theta)$. The former has the following representation and can be obtained using the joint density \@ref(eq:pomp-joint-density)
+Typically, one separates the joint likelihood $\mathcal{L}(\theta, x_{0:N})$, of the parameter vector $\theta$ and the state process $x_{0:N}$, and the marginal likelihood $\mathcal{L}(\theta)$. The former has the following representation and can be obtained using the joint density \@ref(eq:pomp-joint-density)
 \begin{equation}
 \begin{split}
   \mathcal{L}(\theta, x_{0:N}) & = p_{\theta}(x_{0:n}, y^*_{1:n}) \\
@@ -65,11 +65,11 @@ and the marginal likelihood for parameter $\theta$ is the marginal density \@ref
   (\#eq:pomp-likelihood)
 \end{split}
 \end{equation}
-Given that parameter inference will be the main goal, the focus will be on the marginal likelihood and it will be called likelihood in the following.
+Given that parameter inference will be the main goal, the focus will be on the marginal likelihood \@ref(eq:pomp-likelihood) and it will be called likelihood in the following.
 
 For finite state hidden Markov models the integrals would correspond to finite sums and the likelihood could be computed exactly. Furthermore, for linear Gaussian models Kalman filter techniques can be used for evaluating the likelihood exactly. However, for nonlinear and non-Gaussian models it is not possible to compute the likelihood in closed-form and numerical methods have to be employed, [@doucet_johansen_tutorial]. 
 
-A naive approach for estimating the likelihood function \@ref(eq:pomp-likelihood) using Monte Carlo integration can be based upon the Markov property
+A naive approach for estimating the likelihood function \@ref(eq:pomp-likelihood) using Monte Carlo integration can be based upon the Markov property, as presented in the \texttt{pomp} documentation [@king_pomp]
 \begin{equation*}
 \begin{split}
   p_{\theta}(x_{0:N}) & = \mu_{\theta}(x_0) \cdot f_{\theta}(x_1|x_0) \cdot f_{\theta}(x_2|x_1) \cdot \; ... \; \cdot f_{\theta}(x_{N}|x_N-1) \\
@@ -91,7 +91,7 @@ As a first step, the likelihood of the partially observed Markov model can be fa
   & =\prod^{N}_{n=1} \int g_{\theta}(y^*_n|x_{n})p_{\theta}(x_n|y^*_{1:n-1})dx_n
 \end{split}
 \end{equation*}
-Now, the likelihood can be estimated by approximating the integral at each time point $t_n$ as shown in [@cappe_smc]. One can think of this task as applying Monte Carlo integration by drawing samples from the so called prediction distribution $p_{\theta}(x_n|y^*_{1:n-1})$. Drawing samples from this distribution can only be done by using a so called filtering or updating distribution $p_{\theta}(x_n|y^*_{1:n})$, as can be seen by extending the prediction distribution, see the derivations in the [appendix][Prediction & Filtering distribution]
+Now, the likelihood can be estimated by approximating the integral at each time point $t_n$, as shown in [@cappe_smc]. One can think of this task as applying Monte Carlo integration by drawing samples from the so called prediction distribution $p_{\theta}(x_n|y^*_{1:n-1})$. Drawing samples from this distribution can only be done by using a so called filtering or updating distribution $p_{\theta}(x_n|y^*_{1:n})$, as can be seen by extending the prediction distribution, see the derivations in the [appendix][Prediction & Filtering distribution]
 \begin{equation*}
 \begin{split}
   p_{\theta}(x_n|y^*_{1:n-1}) & = \int p_{\theta}(x_n, x_{n-1}|y^*_{1:n-1})dx_{n-1} \\
@@ -106,9 +106,9 @@ The filtering distribution is obtained by applying Bayes theorem, see the deriva
 \end{equation*}
 Hence, for each time point, $t_n, n= 1, ...., N$, it is possible to obtain the prediction distribution using the filtering distribution from $t_{n-1}$. One can obtain the filtering distribution at $t_n$ from the prediction distribution at $t_n$. Furthermore, the filtering distribution at $t_0$ is just the initial value distribution $\mu_{\theta}(x_0)$.
 
-At $t_0$ one starts by sampling values from the initial value distribution $\mu_{\theta}(\cdot)$ in order to get a sample from the filtering distribution, $x^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$ a sample from the prediction distribution, $x^P_{1,j}$, $j = 1, ..., J$ can be obtained by sampling from $f_{\theta}(\cdot|x^F_{0, j})$. Particles with low weights are discarded by resampling $\{x^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|x^P_{n, j})$ and one obtains a sample from the filtering distribution at $t_1$, $x^F_{1, j}$, $j = 1, ..., J$. This process is repeated for all observations.
+At $t_0$ one starts by sampling values from the initial value distribution $\mu_{\theta}(\cdot)$ in order to get a sample from the filtering distribution, $x^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$ a sample from the prediction distribution, $x^P_{1,j}$, $j = 1, ..., J$ can be obtained by sampling from $f_{\theta}(\cdot|x^F_{0, j})$. Particles with low weights are discarded by resampling $\{x^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|x^P_{n, j})$ and one obtains a sample from the filtering distribution at $t_1$, $x^F_{1, j}$, $j = 1, ..., J$. This process will be repeated for all time points.
 
-In general, a variety of resampling schemes are available with the basic schema being multinomial resampling. However, based on the results in [@resampling_schemes] the systematic resampling approach will be used.
+In general, a variety of resampling schemes are available with the basic schema being multinomial resampling. However, the systematic resampling approach will be used, based upon the results depicted in [@resampling_schemes] where multiple approaches have been compared.
 
 Moreover, at each time point the conditional log likelihood can be approximated and a filtering estimate for the state can be computed
 \begin{equation*}
@@ -127,7 +127,7 @@ The objective of likelihood based inference is to find the vector of parameters 
 \begin{equation*}
   \hat{\theta} = \argmax_{\theta}\mathcal{L}(\theta)
 \end{equation*}
-Since the natural logarithm is a monotonically increasing function one obtains equal results by maximizing the log likelihood function instead.
+Since the natural logarithm is a monotonically increasing function, one obtains equal results by maximizing the log likelihood function instead.
 
 The particle filter returns a stochastic estimate of the likelihood function which has been shown to be unbiased, see [@del_moral]. Furthermore, with increasing number of particles $J$ the variance in the estimation can be reduced significantly but it cannot be removed completely. It is natural to assume that the maximization problem translates into maximizing the particle filters likelihood estimate.
 
@@ -139,7 +139,7 @@ However, using this optimization algorithm does not come without drawbacks. Firs
 
 There have been recent scientific advances that solve the mentioned problems within likelihood based inference for partially observed Markov processes. A very interesting alternative by the name iterated filtering has been introduced in [@iterated_filtering] and further improved in [@iterated_filtering_improved]. The basic idea of the iterated filtering algorithm will be introduced briefly. However, for simplification likelihood based inference, within this master's thesis, will be limited to the application of the Nelder-Mead algorithm.
 
-Iterated filtering is a simulation based algorithm that uses a particle filter for an artificial state space model where the parameters are following a random walk process. The perturbations of the parameters are successively reduced and it has been shown that the algorithm converges towards the maximum likelihood estimate [@iterated_filtering_improved]. Furthermore, it is possible to compute confidence intervals by constructing profile likelihoods for each parameter and applying the so called Monte Carlo adjusted profile algorithm. This approach is complicated and computationally intensive but the advantage of this methodology is that it adjusts the width of the confidence interval by accounting for the Monte Carlo error in the likelihood approximation, see [@mcap_algorithm]. 
+Iterated filtering is a simulation based algorithm that uses a particle filter for an artificial state-space model where the parameters are following a random walk process. The perturbations of the parameters are successively reduced and it has been shown that the algorithm converges towards the maximum likelihood estimate [@iterated_filtering_improved]. Furthermore, it is possible to compute confidence intervals by constructing profile likelihoods for relevant parameters and applying the so called Monte Carlo adjusted profile algorithm. This approach is complicated and computationally intensive but the advantage of this methodology is that it adjusts the width of the confidence interval by accounting for the Monte Carlo error in the likelihood approximation, see [@mcap_algorithm]. 
 
 ## Bayesian inference
 
@@ -184,4 +184,4 @@ By sampling from the posterior distribution it is possible to obtain point estim
 
 The major difficulty of the random walk Metropolis Hastings procedure is setting appropriate jump size parameters. The goal is that the sampler explores the parameter space efficiently by rejecting and accepting not too many proposals. Within this master's thesis the jump size will be set based on inspecting initial runs of the PMMH procedure using a small sample size of $M = 5000$. In particular the jump size will be set such that the acceptance rate is between $15\%$ to $25\%$ for the initial tests.
 
-Moreover, there are further possible improvements that deal with this problem. In particular, the parameter tuning can be automated by employing an adaptive Metropolis procedure that uses the previous history of the Chain to estimate a covariance matrix for the sampler, see [@adaptive_mcmc]. Additionally, gradient estimates have been successfully incorporated for generating proposals that are more likely to be accepted, see [@mala_pmmh1; @mala_pmmh2].
+Moreover, there are further possible improvements that deal with this problem. The parameter tuning can be automated by employing an adaptive Metropolis procedure that uses the previous history of the Chain to estimate a covariance matrix for the sampler, see [@adaptive_mcmc]. Additionally, gradient estimates have been successfully incorporated for generating proposals that are more likely to be accepted, see [@mala_pmmh1; @mala_pmmh2].
