@@ -5,7 +5,7 @@ editor_options:
 ---
 # Empirical application {#application}
 
-For the empirical application the presented PMMH procedure will be applied for modeling the time varying mean of the PD. This application will be an extension of the presented results and procedures in [@h2_paper]. Besides applying the Bayesian approach as an alternative, further possible specifications of the latent state process will be inspected. First, the necessary steps for deriving the state-space model will be explained.
+For the empirical application the presented PMMH procedure will be applied for modeling the time varying mean of the PD. This application will be an extension of the presented results and procedures in [@h2_paper]. Besides applying the Bayesian approach as an alternative, a possible state process extension will be tested. First, the necessary steps for deriving the state-space model will be explained.
 
 ## Model implementation
 
@@ -76,7 +76,7 @@ Similar approximations as in [@van_nieuwerburgh_paper] are adopted: $\mathbb{E}_
 \end{equation}
 Here, the excess dividend growth $\Delta d_{t}^e = \Delta d_t - r^f_t$ and return $r_t^e = r_t - r_t^f$ are used with $r^f_t$ being the risk-free interest rate.
 
-A nonlinear state-space model will be used to filter the latent mean process. As in [@h2_paper], the present value formulation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$.
+A nonlinear state-space model will be used to filter the latent mean process. As in [@h2_paper], the present value formulation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$
 \begin{equation}
 \eta_{t} = \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \epsilon_t
  (\#eq:observation-process)
@@ -85,8 +85,11 @@ A low dimensional vector autoregressive (VAR) model of order $1$ will be used fo
 
 Assuming the following VAR model
 \begin{equation}
-y_t = \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \end{pmatrix} = \alpha + Ay_{t-1} + v_t
+\begin{split}
+y_t &= \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \end{pmatrix} = \alpha + Ay_{t-1} + v_t \\
+v_t &\sim \mathcal{N}_4(0, \Sigma)
  (\#eq:ex-ante-expectations-var-model)
+\end{split}
 \end{equation}
 and the following reparametrization by stacking the vector of constants $\alpha$ on to the parameter matrix $A$
 \begin{equation}
@@ -98,7 +101,7 @@ y_t = \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \\ 1 \end{pmatrix
 \end{array}
 \right)y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix} = B y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix}
 \end{equation}
-the discounted expectations can be evaluated using the vector $h = \begin{pmatrix} 0 & 1 & -1 & 0 & 0\end{pmatrix}^T$
+the discounted objective expectations can be evaluated using the vector $h = \begin{pmatrix} 0 & 1 & -1 & 0 & 0\end{pmatrix}^T$
 \begin{equation}
 \begin{split}
 \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] &= \sum_{i=1}^{\infty}\rho_t^{i-1}h^TB^iy_{t} \\
@@ -106,7 +109,7 @@ the discounted expectations can be evaluated using the vector $h = \begin{pmatri
  (\#eq:ex-ante-expectations)
 \end{split}
 \end{equation}
-Similar to [@h2_paper], a adaptive approach will be used for the choice of VAR model sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last $5$ in sample observations of the difference of the excess dividend rate and return, $\{\Delta d_m^e - r_m^e\}^{m=t}_{m=t-4}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of matrix $A$, from \@ref(eq:ex-ante-expectations-var-model), have modulus less than 1. If this requirement is violated the specific VAR, model will be discarded. If at a specific time point $t$ all VAR models violate the stability requirement, the VAR model with $\omega = 10$ will be used.
+Similar to [@h2_paper], a adaptive approach will be used for the choice of VAR model sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last five in sample observations of the difference of the excess dividend rate and return, $\{\Delta d_m^e - r_m^e\}^{m=t}_{m=t-4}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of matrix $A$, from \@ref(eq:ex-ante-expectations-var-model), have modulus less than 1. If this requirement is violated, the specific VAR model will be discarded. If at a specific time point $t$ all VAR models violate the stability requirement, the VAR model with $\omega = 10$ will be used.
 
 The empirical application will be conducted on quarterly data for the S&P 500 starting at the 30th of September 1963 up until the 30th of September 2020, with the forecast origin being the 31st of December 1970. The 10-year treasury constant maturity rate has been used for the risk free rate $r^f_t$ and the inflation rate $\pi_t$ has been derived from the consumer price index for all urban consumers. These time series, and the price and dividend data for the S&P 500, have been provided by Robert J. Shiller [@shiller_website]
 
@@ -132,9 +135,9 @@ Hence, after having applied the change of variable technique the prior specifica
   p_{\varsigma_u}(\varsigma_u) &= \text{exp}(\varsigma_u)
 \end{split}
 \end{equation}
-For the PMMH procedure $3$ independent Markov chains with $M = 50000$ iterations and $J = 1000$ particles will be run and the starting parameter $\theta_0$ will be set to 
+For the PMMH procedure three independent Markov chains with $M = 50000$ iterations and $J = 1000$ particles will be run and the starting parameter $\theta^{(0)}$ will be set to 
 $$
-\theta_0 = \begin{pmatrix}\tilde{\eta}_0^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix}3.5 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+\theta^{(0)} = \begin{pmatrix}\tilde{\eta}_0^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix}3.5 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
 $$
 Furthermore, the parameter proposals will be generated using
 $$
@@ -171,7 +174,7 @@ knitr::kable(
   result_table, 
   row.names = TRUE,
   col.names = c("Mean", "Median", "0.025\\%", "0.975\\%"),
-  caption = "Random walk state model: PMMH parameter inference results", 
+  caption = "Random walk model: PMMH parameter inference results", 
   booktabs = TRUE, escape = FALSE,
   linesep = "\\addlinespace", 
   align = rep("c", 4)
@@ -182,7 +185,7 @@ knitr::kable(
 
 Moreover, Figure \@ref(fig:basic-model-state-estimates) visualizes the marginal posterior mean for the latent state and corresponding $95\%$ pointwise credible intervals. One can directly see that the estimated latent mean captures structural changes in the PD. 
 
-```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk state model: Filtered latent state", fig.width=6, fig.height=3.5, warning=FALSE}
+```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk model: Filtered latent state", fig.width=6, fig.height=4, warning=FALSE}
 traj <- rbind(
   result[[1]]@filter.traj[1, 10000:50000, ], 
   result[[2]]@filter.traj[1, 10000:50000, ],
@@ -229,7 +232,7 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
 
 The connection between economic fundamentals and financial markets will be studied by inspecting possible economic factors that drive the latent mean of the PD. In [@h2_paper] three long-term determinants of the latent mean of the PD have been found. These three factors form a cointegration relationship with the time varying mean $\tilde{\eta}_t$: consumption risk, the demographic structure of the population and the dividend payout policy of firms.
 
-A similar cointegration analysis will be conducted by analyzing the effect of additional covariates. The previously established connection with consumption risk and the demographic of the population will be added. Overall, the following economic indicators will be analyzed, see \@ref(tab:cointegration-analysis-name-variables).
+A similar cointegration analysis will be conducted by analyzing the effect of additional covariates. The previously established connection with consumption risk and the demographic structure of the population will be added. Overall, the following economic indicators will be analyzed, see Table \@ref(tab:cointegration-analysis-name-variables).
 
 ```{r, cointegration-analysis-name-variables, eval=TRUE, echo=FALSE}
 result_table <- data.frame(
@@ -249,7 +252,6 @@ knitr::kable(
   col.names = c("Description"),
   caption = "Cointegration analysis: Exogenous covariates", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "\\addlinespace", 
   align = rep("l", 1)
 ) %>% 
   kableExtra::kable_paper() %>%
@@ -264,9 +266,9 @@ As has been proposed in [@consumption_risk], consumption risk has been computed 
 
 The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from [@federal_funds_rate_data], and the log real M1 money supply, retrieved from [@m1_money_supply_data], have been added for establishing a possible link between monetary policy and the latent mean of the PD. Furthermore, the log real GDP [@gdp_data] as an indicator of economic growth has been added. 
 
-Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time varying mean $\tilde{\eta}_t$ and all accompanying covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money supply $ms_t$ and log real GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money supply by extending quantitative easing, see [@fed_qe].
+Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time varying mean $\tilde{\eta}_t$ and all accompanying exogenous covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money supply $ms_t$ and log real GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money supply by extending quantitative easing, see [@fed_qe].
 
-```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of exogenous covariates", fig.width=6, fig.height=5, warning=FALSE}
+```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of exogenous covariates", fig.width=6, fig.height=6.5, warning=FALSE}
 traj <- rbind(
   result[[1]]@filter.traj[1, 10000:50000, ], 
   result[[2]]@filter.traj[1, 10000:50000, ],
@@ -409,18 +411,16 @@ knitr::kable(
   )
 ```
 
-The significance results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this master's thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle-aged to young ratio indicate second order integration. However, for longer time series there exist significant evidence for first order integration, [@long_term_mys]. Hence, the middle-aged to young ratio will be treated as a first order integrated process as well.
+The test results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this master's thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle-aged to young ratio indicate second order integration. However, for longer time series there exist significant evidence for first order integration, [@long_term_mys]. Hence, the middle-aged to young ratio will be treated as a first order integrated process as well.
 
 Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
-\begin{equation}
+\begin{equation*}
 \begin{split}
 \Delta \tilde{\eta}_t = &\delta_0 + \alpha(\tilde{\eta}_{t-1} - \beta_1 cr_{t-1} - \beta_2 my_{t-1} - \beta_3 fr_{t-1} - \beta_4 ms_{t-1} - \beta_5 gdp_{t-1}) + \\
 & \delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + \phi_1\Delta \tilde{\eta}_{t-1} + \phi_2\Delta \tilde{\eta}_{t-2} + e_t
-(\#eq:secm)
 \end{split}
-\end{equation}
-Table \@ref(tab:cointegration-analysis-study) displays the results of the inspected cointegration relationship with parameter estimates evaluated based on a nonlinear regression approach. 
-```{r, cointegration-analysis-study, eval=TRUE, echo=FALSE}
+\end{equation*}
+```{r, cointegration-analysis-study-1, eval=TRUE, echo=FALSE}
 traj <- rbind(
   result[[1]]@filter.traj[1, 10000:50000, ], 
   result[[2]]@filter.traj[1, 10000:50000, ],
@@ -502,6 +502,9 @@ rownames(result_table) <- c(
   "$\\alpha$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$",
   "$\\beta_4$", "$\\beta_5$", "$R^2$", "adj $R^2$"
 )
+```
+Table \@ref(tab:cointegration-analysis-study-2) displays the results of the inspected cointegration relationship based on a nonlinear regression approach. Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ significance level. The statistic of `r round(cointegration_model_1$coefficients[2, 3], 3)` is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
+```{r, cointegration-analysis-study-2, eval=TRUE, echo=FALSE}
 opts <- options(knitr.kable.NA = "-")
 knitr::kable(
   result_table, 
@@ -523,213 +526,186 @@ knitr::kable(
   )
 ```
 
-Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ significance level. The statistic of `r round(cointegration_model_1$coefficients[2, 3], 3)` is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
-
 Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic `r round(cointegration_model_2$coefficients[2, 3], 3)` is larger but relatively close to the critical value $-3.04$. 
 
-Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented in [@h2_paper] a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. Firstly, it is possible that the state process is misspecified and another specification, possibly already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used in [@h2_paper] is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with lower frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. 
+Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented in [@h2_paper] a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. 
+
+Firstly, it is possible that the state process is misspecified and another specification, possibly already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used in [@h2_paper] is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with lower frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. 
 
 ## State process extension with covariates
 
-As mentioned, it is possible that the filtered latent mean of the price-dividend ratio could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of possible exogenous covariates effecting the latent process.
+As mentioned, it is possible that the filtered latent mean of the PD could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of possible exogenous covariates effecting the latent process. An additional model containing covariates will be tested and the results will be compared with the random walk model. Firstly, the model extension and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
 
-Three additional models with different state process specifications will be tested and the results will be compared with the random walk model. Each model will contain the previously described covariates. Firstly, the model extensions and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
+Common similarities between the approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, the PMMH approach will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 50000$ iterations. Similar to the random walk state process a flat prior specification will be used and the first $10000$ iterations of the PMMH approach will be dropped.
 
-Common similarities between all approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, all PMMH approaches will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 20000$ iterations. Similar to the random walk state process a flat prior specification will be used and the first $5000$ iterations of the PMMH approach will be dropped.
-
-The first model (**Model 1**) describes a long run equilibrium relationship that could not be detected within the [cointegration analysis][Cointegration analysis]
+The model extension (**Covariate Model**) describes a possible long run equilibrium relationship that could not be detected within the [cointegration analysis][Cointegration analysis]
 \begin{equation}
 \begin{split}
-\tilde{\eta}_t &= \beta_0 + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + u_t \\
+\tilde{\eta}_t &= \beta_0 + \beta_1 my_{t} + \beta_2 ms_{t} + u_t \\
 u_t &\sim \mathcal{N}(0, \sigma_u^2)
 (\#eq:static-model-state-process)
 \end{split}
 \end{equation}
-Combined with the observation process \@ref(eq:observation-process) the necessary parameters are $\theta = \begin{pmatrix} \beta_0 & \beta_1 & \beta_2 & \beta_3 & \beta_4 & \beta_5 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$. Note that due to the missing autoregressive part of the model the initial value $\tilde{\eta}_0$ does not need to be included.
+Here, only the middle-aged to young ratio and the log real M1 money suppy have been added. Combined with the observation process \@ref(eq:observation-process) the necessary parameters are $\theta = \begin{pmatrix} \beta_0 & \beta_1 & \beta_2 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$. Note that due to the missing autoregressive part of the model the initial value $\tilde{\eta}_0$ does not need to be included.
 
-Furthermore, as initial parameters $\theta_0$ the parameter estimates for the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study) will be used
+Furthermore, as initial parameters $\theta^{(0)}$ the long-run equilibrium parameter estimates from the single equation error correction model from Table \@ref(tab:cointegration-analysis-study-2) will be used
 $$
-\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \ln(0.05) \\ \ln(0.09) \end{pmatrix}
-$$
-The second setup (**Model 2**) is an extension of the previous model \@ref(eq:static-model-state-process) and handles possibly correlated errors by adding to the setup an AR(1) structure
-\begin{equation}
-\begin{split}
-\tilde{\eta}_t &= \beta_0 + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + v_t \\
-v_t &= \phi v_{t-1} + u_t \\
-u_t &\sim \mathcal{N}(0, \sigma_u^2)
-(\#eq:ar-error-model-state-process)
-\end{split}
-\end{equation}
-The parameter $\phi$ will be restricted for stationarity in the error process, $\left| \phi \right| < 1$. Additionally, the initial value $v_0$ will be set to zero. Similar starting values as in the previous setup are applied
-$$
-\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+\theta^{(0)} = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.4 \\ 1.6 \\ 0.4 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
 $$
 Moreover, for both models the following proposal distribution is used
-$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.02^2)$$
-As has been shown in the [simulation study][Simulation study], autoregressive distributed lag models are closely related to error correction models. Hence, building upon the results presented in the [cointegration analysis][Cointegration analysis] the next state process specification (**Model 3**) will be the following autoregressive distributed lag model
-\begin{equation}
-\begin{split}
-\tilde{\eta}_t &= \beta_0 + \phi \tilde{\eta}_{t-1} + \beta_1 cr_{t} + \beta_2 my_{t} + \beta_3 fr_{t} + \beta_4 ms_{t} + \beta_5 gdp_{t} + u_t \\
-u_t &\sim \mathcal{N}(0, \sigma_u^2)
-(\#eq:ardl-model-state-process)
-\end{split}
-\end{equation}
-Compared to model \@ref(eq:ar-error-model-state-process) the state process of the ARDL model is linear in parameters. The starting values for this approach are derived by obtaining the corresponding parameter estimates of an ARDL model specification of the complete single equation error correction model from Table \@ref(tab:cointegration-analysis-study). Furthermore, the initial value $\tilde{\eta_0}$ will be added as a necessary parameter for estimation.
-$$
-\theta_0 = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \beta_3^{(0)} \\ \beta_4^{(0)} \\ \beta_5^{(0)} \\ \tilde{\eta_0} \\ \psi \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.75 \\ 0.18 \\ 1.86 \\ 0.75 \\0.69 \\ -0.15 \\ 3.5 \\ \text{atanh}(0.95) \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
-$$
-Here the variance for the proposal distribution will be different for the parameters $\tilde{\eta_0}, \psi, \varsigma_u, \varsigma_\epsilon$ with $\lambda = 0.015^2$ and for the other parameters $\lambda = 0.001^2$.
-
-Figures \@ref(fig:extension-static-model-trace), \@ref(fig:extension-ar-error-model-trace) and \@ref(fig:extension-ardl-model-trace) show the trace plots for each model and for each parameter and each Markov chain. Furthermore, figures \@ref(fig:extension-static-model-marginal-density), \@ref(fig:extension-ar-error-model-marginal-density) and \@ref(fig:extension-ardl-model-marginal-density) display the Gaussian kernel density estimates of the marginal posterior distributions. As can be seen ...
-
-Table \@ref(tab:pmmh-estimation-result) summarizes the estimation results for all models.
-```{r, pmmh-estimation-result, eval=FALSE, echo=FALSE}
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.015^2)$$
+Figure \@ref(fig:extension-static-model-trace) shows the trace plot for each parameter and each Markov chain. Furthermore, Figure \@ref(fig:extension-static-model-marginal-density) displays the Gaussian kernel density estimates of the marginal posterior distributions. Table \@ref(tab:pmmh-estimation-result) summarizes the estimation results
+```{r, pmmh-estimation-result, eval=TRUE, echo=FALSE}
 library(tidyverse)
 
 model_1 <- lapply(
   readRDS(
     here::here("data", "results", "model_study_result_static_model.rds")
-  ), function(x){x@traces[5000:20000, ]}
+  ), function(x){x@traces[10000:50000, ]}
 )
 model_1 <- do.call(rbind, model_1)
 
-model_2 <- lapply(
-  readRDS(
-    here::here("data", "results", "model_study_result_ar_error_model.rds")
-  ), function(x){x@traces[5000:20000, ]}
-)
-model_2 <- do.call(rbind, model_2)
-
 result_table <- data.frame(
   model_1_mean = c(
-    NA, mean(model_1[, 3]), mean(model_1[, 4]), mean(model_1[, 5]), 
-    mean(model_1[, 6]), mean(model_1[, 7]), mean(model_1[, 8]), 
-    NA, mean(exp(model_1[, 9])), mean(exp(model_1[, 10]))
+    colMeans(model_1[, 3:5]), colMeans(exp(model_1[, 6:7]))
+  ),
+  model_1_median = c(
+    apply(model_1[, 3:5], 2, median),
+    apply(exp(model_1[, 6:7]), 2, median)
   ),
   model_1_lower = c(
-    NA, quantile(model_1[, 3], probs = 0.025), 
+    quantile(model_1[, 3], probs = 0.025), 
     quantile(model_1[, 4], probs = 0.025), 
     quantile(model_1[, 5], probs = 0.025), 
-    quantile(model_1[, 6], probs = 0.025), 
-    quantile(model_1[, 7], probs = 0.025), 
-    quantile(model_1[, 8], probs = 0.025), 
-    NA,
-    quantile(exp(model_1[, 9]), probs = 0.025), 
-    quantile(exp(model_1[, 10]), probs = 0.025)
+    quantile(exp(model_1[, 6]), probs = 0.025), 
+    quantile(exp(model_1[, 7]), probs = 0.025)
   ),
   model_1_upper = c(
-    NA, quantile(model_1[, 3], probs = 0.975), 
+    quantile(model_1[, 3], probs = 0.975), 
     quantile(model_1[, 4], probs = 0.975), 
     quantile(model_1[, 5], probs = 0.975), 
-    quantile(model_1[, 6], probs = 0.975), 
-    quantile(model_1[, 7], probs = 0.975), 
-    quantile(model_1[, 8], probs = 0.975), 
-    NA,
-    quantile(exp(model_1[, 9]), probs = 0.975), 
-    quantile(exp(model_1[, 10]), probs = 0.975)
-  ),
-  model_2_mean = c(
-    mean(tanh(model_2[, 5])), mean(model_2[, 6]), 
-    mean(model_2[, 7]), mean(model_2[, 8]), mean(model_2[, 9]),
-    mean(model_2[, 10]), mean(model_2[, 11]), NA, mean(exp(model_2[, 4])), 
-    mean(exp(model_2[, 3]))
-  ),
-  model_2_lower = c(
-    quantile(tanh(model_2[, 5]), probs = 0.025), 
-    quantile(model_2[, 6], probs = 0.025), 
-    quantile(model_2[, 7], probs = 0.025), 
-    quantile(model_2[, 8], probs = 0.025), 
-    quantile(model_2[, 9], probs = 0.025), 
-    quantile(model_2[, 10], probs = 0.025), 
-    quantile(model_2[, 11], probs = 0.025), 
-    NA,
-    quantile(exp(model_2[, 4]), probs = 0.025), 
-    quantile(exp(model_1[, 3]), probs = 0.025)
-  ),
-  model_2_upper = c(
-    quantile(tanh(model_2[, 5]), probs = 0.975), 
-    quantile(model_2[, 6], probs = 0.975), 
-    quantile(model_2[, 7], probs = 0.975), 
-    quantile(model_2[, 8], probs = 0.975), 
-    quantile(model_2[, 9], probs = 0.975), 
-    quantile(model_2[, 10], probs = 0.975), 
-    quantile(model_2[, 11], probs = 0.975), 
-    NA,
-    quantile(exp(model_2[, 4]), probs = 0.975), 
-    quantile(exp(model_1[, 3]), probs = 0.975)
-  ),
-  model_3_mean = c(
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
-  ),
-  model_3_lower = c(
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
-  ),
-  model_3_upper = c(
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+    quantile(exp(model_1[, 6]), probs = 0.975), 
+    quantile(exp(model_1[, 7]), probs = 0.975)
   )
 )
 result_table <- data.frame(sapply(result_table, as.numeric))
 
 result_table <- round(result_table, 4)
 rownames(result_table) <- c(
-  "$\\phi$", "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", 
-  "$\\beta_4$", "$\\beta_5$", "$\\tilde{\\eta}_0$", "$\\sigma_u$", 
+  "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\sigma_u$", 
   "$\\sigma_\\epsilon$"
 )
 opts <- options(knitr.kable.NA = "-")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = rep(c("mean", "$0.025\\%$", "$0.975\\%$"), 3),
-  caption = "Model extension: PMMH results", 
+  col.names = c("Mean", "Median", "$0.025\\%$", "$0.975\\%$"),
+  caption = "Covariate extension: PMMH results", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
-  align = rep("l", 4)
+  align = rep("c", 3)
 ) %>% 
   kableExtra::kable_paper() %>%
-  kableExtra::kable_styling(latex_options = "hold_position") %>%
-  kableExtra::add_header_above(
-    c("", "Model 1" = 3, "Model 2" = 3, "Model 3" = 3)
-  )
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```
-Table \@ref(tab:pmmh-model-comparison) summarizes the model comparison results for all models.
-```{r, pmmh-model-comparison, eval=FALSE, echo=FALSE}
-model_1 <- lapply(
+As can be seen, the estimated parameters $\beta_0$, $\beta_1$ and $\beta_2$ diverge from the estimated long-run relationship in the cointegration analysis. Moreover, the standard deviation $\sigma_u$ for the error term in the latent state process is significantly larger for the covariate extension compared to the random walk model.
+
+Figure \@ref(fig:pmmh-estimation-figure) displays the filtered latent state for the model extension and the model with random walk state process. Both filtered latent state estimates are moving closely together with the random walk model being smoother and the covariate extension model having more spikes. 
+
+```{r, pmmh-estimation-figure, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Filtered latent state", fig.width=6, fig.height=4, warning=FALSE}
+library(ggplot2)
+
+rw_model <- lapply(
+  readRDS(
+    here::here("data", "results", "model_study_result_basic_model.rds")
+  ), function(x){x@filter.traj[1, 10000:50000, ]}
+)
+rw_model <- do.call(rbind, rw_model)[, -1]
+static_model <- lapply(
   readRDS(
     here::here("data", "results", "model_study_result_static_model.rds")
-  ), function(x){x@traces[5000:20000, ]}
+  ), function(x){x@filter.traj[1, 10000:50000, ]}
+)
+static_model <- do.call(rbind, static_model)[, -1]
+
+df <- data.frame(time = dates, lpd = y$lpd, rw_model = colMeans(rw_model), 
+                 static_model = colMeans(static_model))
+df <- reshape2::melt(df, id.vars = "time")
+ggplot(data = df, aes(x = time, y = value, group = variable)) +
+  geom_line(aes(color = variable)) + 
+  scale_color_manual(
+    values = c("black", "red", "blue"), 
+    labels = unname(c(
+      latex2exp::TeX("PD: $\\eta_t$"),
+      latex2exp::TeX("RW model: $\\tilde{\\eta}_t$"),
+      latex2exp::TeX("Covariate model: $\\tilde{\\eta}_t$")
+   ))
+  ) +
+  theme_light() +
+  theme(
+    legend.position = "bottom", 
+    legend.title = element_blank(), 
+    legend.background = element_rect(fill = "transparent"),
+    plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"),
+    plot.title = element_text(hjust = 0.5, size = 8),
+    axis.title = element_blank(),
+    axis.text.x = element_text(size = 7),
+    axis.text.y = element_text(size = 7)
+  )
+```
+For the model comparison the Deviance information criterion (DIC) will be used. Similar to the Akaike information criterion (AIC) and the Bayesian information criterion (BIC), the model with the lower DIC should be preferred. The deviance $D(\theta)$ is defined as
+$$D(\theta) = -2\ell(\theta) + C$$
+with $\ell(\theta$ being the log likelihood for the likelihood function \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded. The DIC follows as
+\begin{equation}
+DIC = D(\hat\theta) + 2p_d \\
+\end{equation}
+where $\hat\theta$ is the mean of the posterior distribution and $p_d$ is the effective number of parameters that can be approximated by
+$$p_d = \frac{1}{2}\hat{\text{var}}(D(\theta))$$
+Hence, $p_d$ is half the estimated variance of the deviance from the posterior samples $\theta$. Table \@ref(tab:pmmh-model-comparison) depicts the model comparison results. The log likelihood of $\hat\theta$ has been computed using $10$ runs of the particle filter with $1000$ particles and averaging the resulting log likelihoods. As visible, measured by the DIC the random walk model is superior.
+
+```{r, pmmh-model-loglik, eval=TRUE, echo=FALSE}
+l_rw_model <- readRDS(here::here("data", "results", "rw_lik.rds"))
+l_cov_model <- readRDS(here::here("data", "results", "cov_lik.rds"))
+```
+
+```{r, pmmh-model-comparison, eval=TRUE, echo=FALSE}
+r <- readRDS(
+    here::here("data", "results", "model_study_result_basic_model.rds")
+)
+N <- ncol(r[[1]]@data)
+rw_model <- lapply(r, function(x){x@traces[10000:50000, ]})
+rw_model <- do.call(rbind, rw_model)
+
+model_1 <- lapply(
+    readRDS(
+        here::here("data", "results", "model_study_result_static_model.rds")
+    ), function(x){x@traces[10000:50000, ]}
 )
 model_1 <- do.call(rbind, model_1)
 
-r <- readRDS(
-  here::here("data", "results", "model_study_result_basic_model.rds")
-)
-N <- ncol(r[[1]]@data)
-rw_model <- lapply(r, function(x){x@traces[5000:20000, ]})
-rw_model <- do.call(rbind, rw_model)
-
 result_table <- data.frame(
-  num_params = c(3, 8, NA, NA),
-  lik = c(mean(rw_model[, 1]), mean(model_1[, 1]), NA, NA),
-  bic = c(
-    -2*mean(rw_model[, 1]) +  log(N)*3, 
-    -2*mean(model_1[, 1]) +  log(N)*8, 
-    NA, NA
+  num_params = c(3, 5),
+  lik = c(l_rw_model, l_cov_model),
+  dic = c(
+    -2*l_rw_model + var(-2*rw_model[, 1]), 
+    -2*l_cov_model + var(-2*model_1[, 1])
   )
 )
 
-rownames(result_table) <- c("RW Model", "Model 1", "Model 2", "Model 3")
+rownames(result_table) <- c("RW Model", "Covariate Model")
 result_table <- round(result_table, 4)
 opts <- options(knitr.kable.NA = "")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("Number of parameters", "log-lik", "BIC"),
-  caption = "Model extension: Model comparison", 
+  col.names = c("Number of parameters", "$\\ell(\\hat{\\theta})$", "DIC"),
+  caption = "Covariate extension: Model comparison", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
-  align = rep("l", 4)
+  align = rep("c", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position")
+rm(list = ls())
 ```
+

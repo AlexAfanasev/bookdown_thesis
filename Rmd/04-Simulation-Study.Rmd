@@ -61,7 +61,7 @@ All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observ
 $$
 \theta = \begin{pmatrix} x_0 \\ \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 3.5 \\0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
 $$
-Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run. At each of the $1000$ iterations the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=1500$ particles and the PMMH procedures will use $J=500$ particles.
+Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run. At each of the $1000$ iterations the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=2000$ particles and the PMMH procedures will use $J=500$ particles.
 
 The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
 \begin{align}
@@ -150,7 +150,7 @@ with $\phi(\cdot)$ being the density function of the standard normal distributio
   p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 10, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | 0.0, 0.1^2)
 \end{align*}
 
-The MCMC approaches will use $20000$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
+The MCMC approaches will use $50000$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
 $$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.025^2)$$
 Furthermore, the starting parameter $\theta^{(0)} = \begin{pmatrix} x_0^{(0)} & \psi^{(0)} & \beta_0^{(0)} & \beta_{1}^{(0)} & \beta_{2}^{(0)} & \varsigma_{\epsilon}^{(0)} & \varsigma_{u}^{(0)}\end{pmatrix} ^T$, for the inference methods, will be set randomly at each iteration of the simulation study with
 \begin{align*}
@@ -160,18 +160,13 @@ x_0^{(0)} &\sim \mathcal{U}(3.4, 3.6) & \phi^{(0)} &\sim \mathcal{U}(0.8, 0.9) &
 \end{align*}
 The starting hyperparameters $\psi^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)}$ are obtained using the corresponding presented transformations in \@ref(eq:parameter-transformation). As visible, the starting parameters will be close to the true values in order to increase the likelihood of convergence for the Markov chains. 
 
-One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted using simulation $4$.
+One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted using simulation four. Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter seems to lag behind the former.
 
 ```{r, nonlinear-simulation, eval=TRUE, echo=FALSE}
-source(here::here("R", "simulation_study", "simulation.R"))
+load(here::here("data", "results", "simulation_results.RData"))
 ```
 
-Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter seems to lag behind the former.
-
 ```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Data", fig.width=5, fig.height=2, warning=FALSE}
-# Plot data
-sim_4 <- simulation_result[[4]]
-
 library(ggplot2)
 
 df <- data.frame(time = 0:(N - 1), x = sim_4$data_latent, 
@@ -196,11 +191,11 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
   labs(x = "n", y = "")
 ```
 
-The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). Moreover, as visible in the trace plots for the variance parameters in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), convergence cannot be guaranteed. A  burn in phase of roughly $10000$ iterations will be set. Hence, for the next visualizations and figures the first $10000$ iterations of the Bayesian approaches have been discarded. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
+The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). Moreover, as visible in the trace plots for the variance parameters in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), convergence cannot be guaranteed. A burn in phase of $25000$ iterations will be set. Hence, for the next visualizations and figures the first $25000$ iterations of the Bayesian approaches have been discarded. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
 
 Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviations from the true parameters.
 
-Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. For the likelihood based approach this corresponds to the particle filter state estimate using the estimated MLE parameters. For the Bayesian approaches the marginal posterior mean for the latent state will be used.  One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
+Figure \@ref(fig:sim-4-plot-2) displays the state estimates $\hat{x}_n$ from all approaches. For the likelihood based approach this corresponds to the particle filter state estimate using the parameter maximum likelihood estimates. For the Bayesian approaches the marginal posterior mean for the latent state will be used.  One can see, that all setups are relatively good at estimating the state process. Moreover, for the Bayesian approaches $95\%$ pointwise credible intervals have been added with **setup 2** having the narrowest estimates.
 
 Additionally, the results from the $10$ runs of the likelihood based approach using the Nelder-Mead algorithm can be inspected by looking at Table \@ref(tab:nm-result-table). The resulting parameter estimates within the $10$ repetitions vary, which can be seen by the minimum and maximum estimates displayed. However, all in all the parameter estimates are close to the true values.
 
@@ -216,7 +211,7 @@ result_table <- data.frame(
 )
 rownames(result_table) <- c(
   "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\sigma_u$", 
-  "$\\sigma_\\epsilon$", "$\\phi$", "$x_0$","$\\mathcal{L}(\\theta)$"
+  "$\\sigma_\\epsilon$", "$\\phi$", "$x_0$","$\\ell(\\theta)$"
 )
 result_table[4:5, ] <- exp(result_table[4:5, ])
 result_table[6, ] <- tanh(result_table[6, ])
@@ -227,23 +222,85 @@ knitr::kable(
   row.names = TRUE,
   col.names = c("True Values", "Estimates", "Min", "Max"),
   caption = "Exemplary simulation: Results of the Nelder-Mead approach", booktabs = TRUE, escape = FALSE,
-  linesep = "\\addlinespace", 
+  #linesep = "\\addlinespace", 
   align = rep("c", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-As expected, the first indication from inspecting the exemplary simulation results is that the informative **setup 2** results in the most precise parameter estimates. The aggregate analysis will clarify this observation.
+Table \@ref(tab:bayes-result-table) depicts the marginal posterior means for the parameters from the three PMMH approaches. As expected, the first indication from inspecting the exemplary simulation results is that the informative **setup 2** results in the most precise parameter estimates. The aggregate analysis will clarify this observation.
 
-Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other 3 Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
+```{r, bayes-result-table, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+result_table <- data.frame(
+  true = c(
+    true_params_simulation[1:3], 
+    exp(true_params_simulation[4:5]),
+    tanh(true_params_simulation[6]),
+    true_params_simulation[7]
+  ),
+  mean_1 = c(
+    colMeans(
+      sim_4$pmmh_noninformative$traces[25000:50000, 3:5]
+    ),
+    colMeans(
+      exp(sim_4$pmmh_noninformative$traces[25000:50000, 6:7])
+    ),
+    mean(
+      tanh(sim_4$pmmh_noninformative$traces[25000:50000, 8])
+    ),
+    mean(sim_4$pmmh_noninformative$traces[25000:50000, 9])
+  ),
+  mean_2 = c(
+    colMeans(
+      sim_4$pmmh_true_informative$traces[25000:50000, 3:5]
+    ),
+    colMeans(
+      exp(sim_4$pmmh_true_informative$traces[25000:50000, 6:7])
+    ),
+    mean(
+      tanh(sim_4$pmmh_true_informative$traces[25000:50000, 8])
+    ),
+    mean(sim_4$pmmh_true_informative$traces[25000:50000, 9])
+  ),
+  mean_3 = c(
+    colMeans(
+      sim_4$pmmh_false_informative$traces[25000:50000, 3:5]
+    ),
+    colMeans(
+      exp(sim_4$pmmh_false_informative$traces[25000:50000, 6:7])
+    ),
+    mean(
+      tanh(sim_4$pmmh_false_informative$traces[25000:50000, 8])
+    ),
+    mean(sim_4$pmmh_false_informative$traces[25000:50000, 9])
+  )
+)
+rownames(result_table) <- c(
+  "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\sigma_u$", 
+  "$\\sigma_\\epsilon$", "$\\phi$", "$x_0$"
+)
+result_table <- round(result_table, 4)
+opts <- options(knitr.kable.NA = "")
+knitr::kable(
+  result_table, 
+  row.names = TRUE,
+  col.names = c("True Values", "Setup 1", "Setup 2", "Setup 3"),
+  caption = "Exemplary simulation: Results of the PMMH approaches", booktabs = TRUE, escape = FALSE,
+  #linesep = "\\addlinespace", 
+  align = rep("c", 4)
+) %>% 
+  kableExtra::kable_paper() %>%
+  kableExtra::kable_styling(latex_options = "hold_position")  %>%
+  kableExtra::add_header_above(c("", "", "Marginal posterior means" = 3))
+```
+
+Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other three Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
 $$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
-The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise than the Bayesian approaches in **setup 2** and **setup 3**. All in all, the trade off between bias and variance using different prior specifications is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
+The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise than the Bayesian approaches in **setup 2** and **setup 3**. All in all, the effect of the prior specification on the estimation results is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
 
 ```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=6, fig.height=8.5, warning=FALSE, message=FALSE}
-# Filtering Results
-sim_4 <- simulation_result[[4]]
-
 library(ggplot2)
 library(gridExtra)
 
@@ -379,52 +436,6 @@ grid.arrange(
 ```
 
 ```{r, aggregate-simulation-result-plot, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Aggregate simulation: Result", fig.width=7, fig.height=10, warning=FALSE, message=FALSE}
-res_smc <- matrix(nrow = N_sim, ncol = length(true_params_simulation))
-mse_smc <- vector("numeric", length = N_sim)
-res_pmmh_noninformative <- matrix(
-  nrow = N_sim, ncol = length(true_params_simulation)
-)
-mse_pmmh_noninformative <- vector("numeric", length = N_sim)
-res_pmmh_true_informative <- matrix(
-  nrow = N_sim, ncol = length(true_params_simulation)
-)
-mse_pmmh_true_informative <- vector("numeric", length = N_sim)
-res_pmmh_false_informative <- matrix(
-  nrow = N_sim, ncol = length(true_params_simulation)
-)
-mse_pmmh_false_informative <- vector("numeric", length = N_sim)
-
-for (i in 1:N_sim) {
-    res_smc[i, ] <- simulation_result[[i]]$smc_result$par
-    mse_smc[i] <- sqrt(mean((
-      simulation_result[[i]]$smc_result$pf - 
-        simulation_result[[i]]$data_latent
-    )[2:N]^2))
-    for (j in 1:length(true_params_simulation)) {
-        res_pmmh_noninformative[i, j] <- mean(
-          simulation_result[[i]]$pmmh_noninformative$traces[3000:7500, j+2]
-        )
-        mse_pmmh_noninformative[i] <- sqrt(mean((
-          simulation_result[[i]]$pmmh_noninformative$state_mean - 
-            simulation_result[[i]]$data_latent
-        )[2:N]^2))
-        res_pmmh_true_informative[i, j] <- mean(
-          simulation_result[[i]]$pmmh_true_informative$traces[3000:7500, j+2]
-        )
-        mse_pmmh_true_informative[i] <- sqrt(mean((
-          simulation_result[[i]]$pmmh_true_informative$state_mean - 
-            simulation_result[[i]]$data_latent
-        )[2:N]^2))
-        res_pmmh_false_informative[i, j] <- mean(
-          simulation_result[[i]]$pmmh_false_informative$traces[3000:7500, j+2]
-        )
-        mse_pmmh_false_informative[i] <- sqrt(mean((
-          simulation_result[[i]]$pmmh_false_informative$state_mean - 
-            simulation_result[[i]]$data_latent
-        )[2:N]^2))
-    }
-}
-
 # Plot theme
 p_theme <- theme(
   legend.position = "bottom",

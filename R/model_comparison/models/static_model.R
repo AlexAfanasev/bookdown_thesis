@@ -15,11 +15,8 @@ model_1 <- pomp::pomp(
             "
             e_lpd = (
               beta_0
-              + beta_1*cr
-              + beta_2*mys
-              + beta_3*fr
-              + beta_4*ms
-              + beta_5*gdp
+              + beta_1*mys
+              + beta_2*ms
               + rnorm(0, exp(sigma_u))
             );
             "
@@ -29,7 +26,7 @@ model_1 <- pomp::pomp(
     dmeasure = rw_latent_lpd_dmeasure,
     statenames = c("e_lpd"),
     paramnames = c("sigma_u", "sigma_e", "e_lpd_0", "beta_0",
-                   "beta_1", "beta_2", "beta_3", "beta_4", "beta_5"),
+                   "beta_1", "beta_2"),
     covar = pomp::covariate_table(covars, times = "time"),
     covarnames = colnames(covars[, -1])
 )
