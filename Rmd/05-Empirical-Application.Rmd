@@ -660,7 +660,7 @@ with $\ell(\theta$ being the log likelihood for the likelihood function \@ref(eq
 DIC = D(\hat\theta) + 2p_d \\
 \end{equation}
 where $\hat\theta$ is the mean of the posterior distribution and $p_d$ is the effective number of parameters that can be approximated by
-$$p_d = \frac{1}{2}\hat{\text{var}}(D(\theta))$$
+$$p_d = \frac{1}{2}\hat{\text{Var}}(D(\theta))$$
 Hence, $p_d$ is half the estimated variance of the deviance from the posterior samples $\theta$. Table \@ref(tab:pmmh-model-comparison) depicts the model comparison results. The log likelihood of $\hat\theta$ has been computed using $10$ runs of the particle filter with $1000$ particles and averaging the resulting log likelihoods. As visible, measured by the DIC the random walk model is superior.
 
 ```{r, pmmh-model-loglik, eval=TRUE, echo=FALSE}

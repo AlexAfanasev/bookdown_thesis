@@ -1,3 +1,7 @@
 # Conclusion {#conclusion}
 
+After having briefly described the basic structure of partially observed Markov processes and corresponding numerical procedures for inference, a simulation study has been conducted and the results of likelihood based and Bayesian approaches for parameter and latent state estimation have been presented. There, different prior setups have been tested and a general superiority of either the likelihood or the Bayesian approach could not be identified. However, the advantage of the Bayesian approach for providing uncertainty quantification for parameter and latent state estimates has been used for the empirical application. 
 
+Based on the log linear approximation of the present-value formulation presented in [@campbell_shiller_paper] a nonlinear state-space model has been derived. Firstly, a random walk state process has been used for the latent mean of the PD. The PMMH approach has been successfully applied for estimating the parameter and latent state and for providing the corresponding uncertainty quantification.
+
+Similar to the procedure applied in [@h2_paper], a cointegration analysis has been conducted by including macroeconomic variables for monetary policy and economic growth. However, a cointegration relationship could not be detected. 

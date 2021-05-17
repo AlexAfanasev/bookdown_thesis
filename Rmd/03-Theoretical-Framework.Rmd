@@ -117,6 +117,8 @@ Moreover, at each time point the conditional log likelihood can be approximated 
   \hat{x}_n & = \frac{1}{J}\sum^J_{j=1}x^F_{n, j}
 \end{split}
 \end{equation*}
+Note that the filtered state is an estimated value for the following conditional expectation: 
+$$\mathbb{E}[X_n | Y_1 = y_1^*, ..., Y_n = y_n^*]$$
 After having iterated through this sampling, resampling procedure, the full log likelihood approximation can be computed:
 $$\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|n-1}$$
 An exact description of these algorithms can be found in [@pomp_article] and the algorithms in the [appendix][Particle Filter and Systematic resampling]. 
@@ -180,8 +182,10 @@ The resulting acceptance probability reduces to the same probability as for the 
 \end{equation}
 Hence, drawing samples from the joint posterior density can be achieved by using the previous acceptance probability from the pseudo marginal approach \@ref(eq:acceptance-marginal-approach). Therefore, posterior samples for the latent state process can be obtained by storing a random trajectory from the particle cloud at each step $m$, obtained by the particle filter.
 
-By sampling from the posterior distribution it is possible to obtain point estimates for the parameters and states (e.g., mean or mode) as well as Bayesian credible intervals as measures of uncertainty. In the following, this master's thesis will be limited to the application of the PMMH algorithm. An overview of the procedure can be found in [@pomp_article] and in the algorithms [appendix][PMMH].
-
+By sampling from the posterior distribution it is possible to obtain point estimates for the parameters and states (e.g., mean or mode) as well as Bayesian credible intervals as measures of uncertainty. Contrary to the estimated state $\hat{x}_n$ from the particle filter where the expectation conditional on the data $y_{1:n}^*$ has been approximated, the PMMH approach yields a state estimate by approximating the expectation conditional on the complete data set $y_{1:N}^*$:
+$$\mathbb{E}[X_n|Y_1 = y_1^*, ..., Y_N= y_N^*]$$
 The major difficulty of the random walk Metropolis Hastings procedure is setting appropriate jump size parameters. The goal is that the sampler explores the parameter space efficiently by rejecting and accepting not too many proposals. Within this master's thesis the jump size will be set based on inspecting initial runs of the PMMH procedure using a small sample size of $M = 5000$. In particular the jump size will be set such that the acceptance rate is between $15\%$ to $25\%$ for the initial tests.
 
 Moreover, there are further possible improvements that deal with this problem. The parameter tuning can be automated by employing an adaptive Metropolis procedure that uses the previous history of the Chain to estimate a covariance matrix for the sampler, see [@adaptive_mcmc]. Additionally, gradient estimates have been successfully incorporated for generating proposals that are more likely to be accepted, see [@mala_pmmh1; @mala_pmmh2].
+
+In the following, this master's thesis will be limited to the application of the PMMH algorithm. An overview of the procedure can be found in [@pomp_article] and in the algorithms [appendix][PMMH].
