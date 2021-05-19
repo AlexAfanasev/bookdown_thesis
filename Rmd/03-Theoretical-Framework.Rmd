@@ -6,11 +6,11 @@ editor_options:
 ---
 # Theoretical framework {#theory}
 
-This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore, relevant algorithms for performing likelihood based and Bayesian inference will be introduced and their disadvantages and advantages elaborated. However, the content of this master's thesis will be limited to the case of discrete non-Gaussian and nonlinear state-space models and it will be based upon the literature of [@pomp_article; @doucet_inference; @doucet_johansen_tutorial; @cappe_smc; @doucet_pmmh].
+This chapter will present a brief description of the basic structure of partially observed Markov processes. Furthermore, relevant algorithms for performing likelihood based and Bayesian inference will be introduced and their disadvantages and advantages elaborated. However, the content of this master's thesis will be limited to the case of discrete time non-Gaussian and nonlinear state-space models and it will be based upon the literature of [@pomp_article; @doucet_inference; @doucet_johansen_tutorial; @cappe_smc; @doucet_pmmh].
 
 ## Partially observed Markov processes
 
-Partially observed Markov processes, also known as state-space models, consist of an unobserved continuous-valued Markov state process which is directly connected to the observation process. 
+Partially observed Markov processes, also known as state-space models, consist of an unobserved typically continuous-valued Markov state process which is directly connected to the observation process. 
 
 As illustrated in [@pomp_article], let $\theta \in \mathbb{R}^p$ be the $p$-dimensional vector of model parameters and $\{X(t;\;\theta), t\in T\}$ be the latent state process with $T \subset \mathbb{N}$ and $X(t;\;\theta) \in \mathbb{R}^q$. The times at which $X(t;\;\theta)$ is partially observed are denoted $\{t_i \in T, i=1, ..., N\}$ with $t_0 \leq t_1 < t_2 < ... < t_N$ and $t_0 \in T$ being the initial time. Furthermore, the following representation is set $X_i = X(t_i; \theta)$ and $X_{i:j} = (X_i, X_{i+1}, ..., X_j)$. Besides that, one observes the latent state process by way of a $r$-dimensional observation process $Y_{1:N}$ with $Y_n \in \mathbb{R}^r$.
 
@@ -37,13 +37,13 @@ Using the joint density \@ref(eq:pomp-joint-density) it is possible to obtain th
     p_{\theta}(y_{1:n}) = \int p_{\theta}(x_{0:n}, y_{1:n})dx_{0:n}
     (\#eq:pomp-marginal-density)
 \end{equation}
-Within this setup the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$ one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including exogenous covariates. The observed covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ and the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$. Figure \@ref(fig:pomp-model-graphic) displays the structure of a state-space model containing exogenous covariates within the state process.
+Within this setup the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the dimension of the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$ one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including exogenous covariates. The observed covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ and the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$. Figure \@ref(fig:pomp-model-graphic) displays the structure of a state-space model containing exogenous covariates within the state process.
 
 ```{r pomp-model-graphic, fig.align='center', fig.cap='Exemplary state-space model with covariates', echo=FALSE}
 knitr::include_graphics(here::here("images", "pomp_model_graph.pdf"))
 ```
 
-Typically, one can separate two setups. Firstly, the case where the latent state and the observation processes are Gaussian with a linear relationship. This setup has an analytical solution to the parameter inference and hidden state estimation problem which is based upon the famous Kalman filter [@kalman_filter]. Secondly, there is the general case where the processes are not necessarily Gaussian and the relationship between the state and observation is not necessarily linear. Furthermore, their processes themselves do not have to be linear. Unfortunately, these models are more difficult to fit and require powerful simulation techniques [@doucet_inference].
+Typically, one can separate two setups. Firstly, the case where the latent state and the observation processes are Gaussian with a linear relationship. This setup has an analytical solution to the parameter inference and hidden state estimation problem which is based upon the famous Kalman filter [@kalman_filter]. Secondly, there is the general case where the processes are not necessarily Gaussian and the relationship between the state and observation processes is not necessarily linear. Furthermore, their processes themselves do not have to be linear. Unfortunately, these models are more difficult to fit and require powerful simulation techniques [@doucet_inference].
 
 ## Particle filtering
 
@@ -77,7 +77,7 @@ A naive approach for estimating the likelihood function \@ref(eq:pomp-likelihood
   (\#eq:markov-property)
 \end{split}
 \end{equation}
-Hence, by directly sampling a set of trajectories $\{x_{0:N}^j, j = 1,..., J\}$ of size $J$, each with length $N$, from \@ref(eq:markov-property), one can compute a numerical approximation of the likelihood
+Hence, by directly sampling a set of trajectories $\{x_{0:N}^j, j = 1,..., J\}$ of size $J$ from \@ref(eq:markov-property), one can compute a numerical approximation of the likelihood
 $$\mathcal{L}(\theta) = \mathbb{E}\Bigg[\prod^{N}_{n=1}g_{\theta}(y^*_{n} | x_{n})\Bigg] \approx \frac{1}{J}\sum^J_{j=1}\prod^{N}_{n=1}g_{\theta}(y^*_{n} | x^j_{n})$$
 However, this setup would require a very large number of samples $J$ in order to obtain a relatively good approximation, since most of the trajectories diverge a lot from the true state and therefore yield extremely small likelihoods. Additionally, as a trajectory diverges from the true process, it will almost never come back.
 
@@ -106,7 +106,7 @@ The filtering distribution is obtained by applying Bayes theorem, see the deriva
 \end{equation*}
 Hence, for each time point, $t_n, n= 1, ...., N$, it is possible to obtain the prediction distribution using the filtering distribution from $t_{n-1}$. One can obtain the filtering distribution at $t_n$ from the prediction distribution at $t_n$. Furthermore, the filtering distribution at $t_0$ is just the initial value distribution $\mu_{\theta}(x_0)$.
 
-At $t_0$ one starts by sampling values from the initial value distribution $\mu_{\theta}(x_0)$ in order to get a sample from the filtering distribution, $x^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$ a sample from the prediction distribution, $x^P_{1,j}$, $j = 1, ..., J$ can be obtained by sampling from $f_{\theta}(x^F_{1, j}|x^F_{0, j})$. Particles with low weights are discarded by resampling $\{x^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|x^P_{n, j})$ and one obtains a sample from the filtering distribution at $t_1$, $x^F_{1, j}$, $j = 1, ..., J$. This process will be repeated for all time points.
+At $t_0$ one starts by sampling values from the initial value distribution $\mu_{\theta}(x_0)$ in order to get a sample from the filtering distribution, $x^F_{0, j}$, $j = 1, ..., J$. Then, at $t_{1}$ a sample from the prediction distribution, $x^P_{1,j}$, $j = 1, ..., J$ can be obtained by sampling from $f_{\theta}(x^P_{1, j}|x^F_{0, j})$. Particles with low weights are discarded by resampling $\{x^P_{n, j}\;,j \in1:J\}$ with weights $w_{n, j} = g_{\theta}(y^*_n|x^P_{n, j})$ and one obtains a sample from the filtering distribution at $t_1$, $x^F_{1, j}$, $j = 1, ..., J$. This process will be repeated for all time points.
 
 In general, a variety of resampling schemes are available with the basic schema being multinomial resampling. However, the systematic resampling approach will be used, based upon the results depicted in [@resampling_schemes] where multiple approaches have been compared.
 
@@ -133,7 +133,7 @@ Since the natural logarithm is a monotonically increasing function, one obtains 
 
 The particle filter returns a stochastic estimate of the likelihood function which has been shown to be unbiased, see [@del_moral]. Furthermore, with increasing number of particles $J$ the variance in the estimation can be reduced significantly but it cannot be removed completely. It is natural to assume that the maximization problem translates into maximizing the particle filters likelihood estimate.
 
-Unfortunately, the stochasticity of the likelihood estimate creates issues for most optimization routines, as the ones defined in the \texttt{R} \texttt{optim} function, which assume that the objective function is evaluated deterministically. Furthermore, the analytical properties of the target function (convexity, boundedness, smoothness), assumed by most deterministic numerical optimization algorithms, are often paramount.
+Unfortunately, the stochasticity of the likelihood estimate creates issues for most optimization routines, as the ones defined in the \texttt{R} \texttt{optim} function, which assume that the objective function is evaluated deterministically. Furthermore, the analytical properties of the target function, as smoothness and concavity, assumed by most deterministic numerical optimization algorithms, are often paramount.
 
 The particle filter does not return information about the derivative. Approximating the derivative via finite difference methods is not promising. Since the likelihood function is already a noisy estimate, one can expect the derivative estimates to be even noisier. Equivalently, confidence intervals can not be obtained numerically since approximating the Hessian via finite difference methods, in order to get the observed Fisher information, is not feasible. Hence, a derivative-free optimization algorithm has to be chosen. \texttt{R}'s \texttt{optim} default method, the Nelder-Mead algorithm, can be used for this case.
 
@@ -169,7 +169,7 @@ The second case targets the joint posterior density $p(x_{0:N}, \theta|y^*_{1:N}
 $$
 p(x_{0:N}, \theta|y^*_{1:N}) = \frac{\mathcal{L}(\theta, x_{0:N})\pi(\theta)}{p(y^*_{1:N})}
 $$
-Besides requiring a proposal for the parameter vector $\theta$, this approach needs an additional proposal for the latent state process. A simple approach would be to generate the state proposal independent of the observed data $y^*_{1:N}$. As with the naive Monte Carlo integration example, explained within the previous section, this approach would yield trajectories that diverge a lot from the true state.
+Besides requiring a proposal for the parameter vector $\theta$, this approach needs an additional proposal for the latent state process. A simple approach would be to generate the state proposal independent of the observed data $y^*_{1:N}$. As with the naive Monte Carlo integration example, explained within the [particle filtering][Particle filtering] section, this approach would yield trajectories that diverge a lot from the true state.
 
 Hence, the particle marginal Metropolis Hastings approach (PMMH), uses the proposal $\theta^*$ and the observed data in order to generate a proposal $x^*_{0:N}$. The pair $(\theta^*, x^*_{0:N})$ can be generated from the following proposal density, see [@doucet_pmmh]
 $$q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N}) = q(\theta^*|\theta^{(m-1)})p_{\theta^*}(x^*_{0:N}|y^*_{1:N})$$

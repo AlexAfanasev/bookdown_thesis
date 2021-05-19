@@ -16,11 +16,8 @@ model_2 <- pomp::pomp(
             e_lpd = (
               beta_0
               + tanh(phi)*e_lpd
-              + beta_1*cr
-              + beta_2*mys
-              + beta_3*fr
-              + beta_4*ms
-              + beta_5*gdp
+              + beta_1*mys
+              + beta_2*ms
               + rnorm(0, exp(sigma_u))
             );
             "
@@ -30,19 +27,18 @@ model_2 <- pomp::pomp(
     dmeasure = rw_latent_lpd_dmeasure,
     statenames = c("e_lpd"),
     paramnames = c("sigma_u", "sigma_e", "e_lpd_0", "beta_0", "phi",
-                   "beta_1", "beta_2", "beta_3", "beta_4", "beta_5"),
+                   "beta_1", "beta_2"),
     covar = pomp::covariate_table(covars, times = "time"),
     covarnames = colnames(covars[, -1])
 )
 rm(covars, y)
 
 theta <- c(
-    e_lpd_0 = 3.5, sigma_e = log(0.05), sigma_u = log(0.05), phi = atanh(0.95),
-    beta_0 = 0.09, beta_1 = -0.003, beta_2 = 0.13, beta_3 = 0.16,
-    beta_4 = 0.04, beta_5 = -0.025
+    e_lpd_0 = 3.5, sigma_e = log(0.02), sigma_u = log(0.05), phi = atanh(0.95),
+    beta_0 = 0.12, beta_1 = 0.08, beta_2 = 0.02
 )
 res <- pomp::pmcmc(
-    model_2, Nmcmc = 500, Np = 1000,
+    model_2, Nmcmc = 500, Np = 2000,
     proposal = pomp::mvn.diag.rw(
         c(e_lpd_0 = 0.001, sigma_e = 0.015, sigma_u = 0.015, phi = 0.015,
           beta_0 = 0.001, beta_1 = 0.001, beta_2 = 0.001,
@@ -67,4 +63,8 @@ res <- pomp::pmcmc(
         lik <- p_sigma_u * p_sigma_e * p_phi
         return(ifelse(log, log(lik), lik))
     }
+)
+
+a <- replicate(
+    10, pomp::logLik(pomp::pfilter(model_2, Np = 2000, params = theta))
 )

@@ -416,8 +416,8 @@ The test results of most factors indicate first order integration at conventiona
 Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
 \begin{equation*}
 \begin{split}
-\Delta \tilde{\eta}_t = &\delta_0 + \alpha(\tilde{\eta}_{t-1} - \beta_1 cr_{t-1} - \beta_2 my_{t-1} - \beta_3 fr_{t-1} - \beta_4 ms_{t-1} - \beta_5 gdp_{t-1}) + \\
-& \delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + \phi_1\Delta \tilde{\eta}_{t-1} + \phi_2\Delta \tilde{\eta}_{t-2} + e_t
+\Delta \tilde{\eta}_t = &\alpha(\tilde{\eta}_{t-1} - \beta_0 - \beta_1 cr_{t-1} - \beta_2 my_{t-1} - \beta_3 fr_{t-1} - \beta_4 ms_{t-1} - \beta_5 gdp_{t-1}) + \\
+&\delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + \phi_1\Delta \tilde{\eta}_{t-1} + \phi_2\Delta \tilde{\eta}_{t-2} + e_t
 \end{split}
 \end{equation*}
 ```{r, cointegration-analysis-study-1, eval=TRUE, echo=FALSE}
@@ -450,11 +450,12 @@ cointegration_model_2 <- summary(cointegration_model_2)
 
 result_table <- data.frame(
   complete = c(
-    cointegration_model_1$coefficients[2, 1], m_1[2:6, 2],
+    cointegration_model_1$coefficients[2, 1], m_1[1:6, 2],
     cointegration_model_1$r.squared, cointegration_model_1$adj.r.squared
   ),
   droped = c(
-    cointegration_model_2$coefficients[2, 1], NA, m_2[2, 2], NA, m_2[3, 2], NA, 
+    cointegration_model_2$coefficients[2, 1], m_2[1, 2], NA, m_2[2, 2], 
+    NA, m_2[3, 2], NA, 
     cointegration_model_2$r.squared, cointegration_model_2$adj.r.squared
   )
 )
@@ -484,22 +485,23 @@ result_table[1, 2] <- paste(
 )
 
 # Long run relationship test
-result_table[2:6, 1] <- sapply(2:6, function(i){paste(
+result_table[2:7, 1] <- sapply(2:7, function(i){paste(
     result_table[i, 1],
     ifelse(
-        is.na(stars[m_1[i, 5] < c(0.01, 0.05, 0.1)][1]),
-        "", stars[m_1[i, 5] < c(0.01, 0.05, 0.1)][1]
+        is.na(stars[m_1[i - 1, 5] < c(0.01, 0.05, 0.1)][1]),
+        "", stars[m_1[i - 1, 5] < c(0.01, 0.05, 0.1)][1]
     )
 )})
-result_table[c(3, 5), 2] <- sapply(c(3, 5), function(i){paste(
-    result_table[i, 2],
+result_table[c(2, 4, 6), 2] <- sapply(1:3, function(i){paste(
+    
+    result_table[c(2, 4, 6)[i], 2],
     ifelse(
-        is.na(stars[m_2[ifelse(i == 3, 2, 3), 5] < c(0.01, 0.05, 0.1)][1]),
-        "", stars[m_2[ifelse(i == 3, 2, 3), 5] < c(0.01, 0.05, 0.1)][1]
+        is.na(stars[m_2[i, 5] < c(0.01, 0.05, 0.1)][1]),
+        "", stars[m_2[i, 5] < c(0.01, 0.05, 0.1)][1]
     )
 )})
 rownames(result_table) <- c(
-  "$\\alpha$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$",
+  "$\\alpha$", "$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$",
   "$\\beta_4$", "$\\beta_5$", "$R^2$", "adj $R^2$"
 )
 ```
@@ -534,7 +536,7 @@ Firstly, it is possible that the state process is misspecified and another speci
 
 ## State process extension with covariates
 
-As mentioned, it is possible that the filtered latent mean of the PD could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of possible exogenous covariates effecting the latent process. An additional model containing covariates will be tested and the results will be compared with the random walk model. Firstly, the model extension and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
+As mentioned, it is possible that the latent mean of the PD could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of exogenous covariates effecting the latent process. An additional model containing covariates will be tested and the results will be compared with the random walk model. Firstly, the model extension and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
 
 Common similarities between the approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, the PMMH approach will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 50000$ iterations. Similar to the random walk state process a flat prior specification will be used and the first $10000$ iterations of the PMMH approach will be dropped.
 
@@ -608,7 +610,7 @@ knitr::kable(
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
-As can be seen, the estimated parameters $\beta_0$, $\beta_1$ and $\beta_2$ diverge from the estimated long-run relationship in the cointegration analysis. Moreover, the standard deviation $\sigma_u$ for the error term in the latent state process is significantly larger for the covariate extension compared to the random walk model.
+As can be seen, the estimated parameters $\beta_0$, $\beta_1$ and $\beta_2$ diverge from the estimated long-run relationship in the cointegration analysis. However, the estimates using the state process containing covariates are close to the results already presented in Table \@ref(tab:cointegration-analysis-study-2). Moreover, the standard deviation $\sigma_u$ for the error term in the latent state process is significantly larger for the covariate extension compared to the random walk model.
 
 Figure \@ref(fig:pmmh-estimation-figure) displays the filtered latent state for the model extension and the model with random walk state process. Both filtered latent state estimates are moving closely together with the random walk model being smoother and the covariate extension model having more spikes. 
 
@@ -655,7 +657,9 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
 ```
 For the model comparison the Deviance information criterion (DIC) will be used. Similar to the Akaike information criterion (AIC) and the Bayesian information criterion (BIC), the model with the lower DIC should be preferred. The deviance $D(\theta)$ is defined as
 $$D(\theta) = -2\ell(\theta) + C$$
-with $\ell(\theta$ being the log likelihood for the likelihood function \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded. The DIC follows as
+with $\ell(\theta$ being the log likelihood for the likelihood function \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded. 
+
+The DIC follows as
 \begin{equation}
 DIC = D(\hat\theta) + 2p_d \\
 \end{equation}

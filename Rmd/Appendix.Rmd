@@ -1413,7 +1413,7 @@ library(ggplot2)
 library(gridExtra)
 ```
 
-```{r, extension-static-model-trace, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: PMMH trace plot", fig.width=6, fig.height=6.75, warning=FALSE}
+```{r, extension-static-model-trace, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: PMMH trace plots", fig.width=6, fig.height=6.75, warning=FALSE}
 traces <- list(
   result[[1]]@traces[10000:50000, ], 
   result[[2]]@traces[10000:50000, ],

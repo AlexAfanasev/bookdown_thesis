@@ -34,7 +34,7 @@ This setup is an indirect specification of an error correction mechanism. The re
 \end{equation*}
 Hence, given that $\left|\phi\right|<1$, the long run relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
 $$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}$$
-The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed PD.
+The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed PD in the [empirical application][Empirical application].
 
 Furthermore, the observation process has the following specification
 \begin{equation}
@@ -50,7 +50,7 @@ where $k_{n}$ and $\rho_n$ directly depend on the latent state $x_n$ via
 & k_{n} = -\ln(\rho_{n})-(1-\rho_{n})\ln\bigg(\frac{1}{\rho_{n}} - 1\bigg)
 \end{split}
 \end{equation}
-and $d_{n}$ will be handled as an exogenous covariate arising from the following specification
+and for simplicity $d_{n}$ will be handled as an exogenous covariate arising from the following specification
 \begin{equation}
 \begin{split}
 & d_{n} = -1 + 0.85(d_{n - 1} + 1) + 0.15v_{n-1} + v_{n} \\ 
@@ -142,7 +142,7 @@ f^{\mathcal{T}\mathcal{N}}(x|\mu, \sigma^2, a, b) =
 $$
 with $\phi(\cdot)$ being the density function of the standard normal distribution and $\Phi(\cdot)$ its cumulative distribution function. Again, the accompanying prior specification for the hyperparameters can be obtained using \@ref(eq:hyperparamter-prior).
 
-**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used, however with different parameters.
+**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used, however with different parameters
 \begin{align*}
   p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.0, 0.1^2) \\
   p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.3, 0.1^2, -1, 1) & p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.8, 0.1^2) \\
@@ -191,7 +191,7 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
   labs(x = "n", y = "")
 ```
 
-The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). Moreover, as visible in the trace plots for the variance parameters in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), convergence cannot be guaranteed. A burn in phase of $25000$ iterations will be set. Hence, for the next visualizations and figures the first $25000$ iterations of the Bayesian approaches have been discarded. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
+The trace plots from the Bayesian approaches can be seen in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), Figure \@ref(fig:sim-4-appendix-trace-plot-setup-2) and Figure \@ref(fig:sim-4-appendix-trace-plot-setup-3). Moreover, as visible in the trace plots for the standard deviation hyperparameters in Figure \@ref(fig:sim-4-appendix-trace-plot-setup-1), convergence cannot be guaranteed. A burn in phase of $25000$ iterations will be set. Hence, for the next visualizations and figures the first $25000$ iterations of the Bayesian approaches have been discarded. The Gaussian kernel density estimates of the marginal posterior distributions can be seen in Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-1), Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-2) and Figure \@ref(fig:sim-4-appendix-marginal-posterior-setup-3).
 
 Furthermore, the impact of the prior specification is visible. The misspecified, **setup 3**, and the uninformative case, **setup 1**, show the largest deviations from the true parameters.
 
@@ -216,7 +216,7 @@ rownames(result_table) <- c(
 result_table[4:5, ] <- exp(result_table[4:5, ])
 result_table[6, ] <- tanh(result_table[6, ])
 result_table <- round(result_table, 4)
-opts <- options(knitr.kable.NA = "")
+opts <- options(knitr.kable.NA = "-")
 knitr::kable(
   result_table, 
   row.names = TRUE,
@@ -298,7 +298,7 @@ knitr::kable(
 
 Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other three Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
 $$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
-The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise than the Bayesian approaches in **setup 2** and **setup 3**. All in all, the effect of the prior specification on the estimation results is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
+The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise for the parameter estimation than the Bayesian approaches in **setup 2** and **setup 3**. Furthermore, the RMSE is on average smaller for the Bayesian approaches due to the estimation including the whole data set contrary to the particle filter including only the information up until the time point of interest. All in all, the effect of the prior specification on the estimation results is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
 
 ```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=6, fig.height=8.5, warning=FALSE, message=FALSE}
 library(ggplot2)
