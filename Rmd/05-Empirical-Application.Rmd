@@ -392,8 +392,8 @@ opts <- options(knitr.kable.NA = "")
 knitr::kable(
   result_table, 
   row.names = TRUE,
-  col.names = c("t-statistic", "$\\alpha = 0.01\\%$", "$\\alpha = 0.05\\%$",
-                "$\\alpha = 0.1\\%$"),
+  col.names = c("t-statistic", "$\\alpha = 1\\%$", "$\\alpha = 5\\%$",
+                "$\\alpha = 10\\%$"),
   caption = "Cointegration analysis: Results ADF unit root test", 
   booktabs = TRUE, escape = FALSE,
   linesep = "", 
@@ -467,20 +467,20 @@ result_table[1, 1] <- paste(
   result_table[1, 1], 
   ifelse(
     is.na(
-      stars[cointegration_model_1$coefficients[2, 3] < c(-4.95756, -4.41519, -4.41315)][1]
+      stars[cointegration_model_1$coefficients[2, 3] < c(-4.7970, -4.1922, -3.8670)][1]
     ),
     "", 
-    stars[cointegration_model_1$coefficients[2, 3] < c(-4.95756, -4.41519, -4.41315)][1]
+    stars[cointegration_model_1$coefficients[2, 3] < c(-4.7970, -4.1922, -3.8670)][1]
   )
 )
 result_table[1, 2] <- paste(
   result_table[1, 2], 
   ifelse(
     is.na(
-      stars[cointegration_model_2$coefficients[2, 3] < c(-3.89644, -3.33613, -3.04445)][1]
+      stars[cointegration_model_2$coefficients[2, 3] < c(-4.0947, -3.5057, -3.1924)][1]
     ),
     "", 
-    stars[cointegration_model_2$coefficients[2, 3] < c(-3.89644, -3.33613, -3.04445)][1]
+    stars[cointegration_model_2$coefficients[2, 3] < c(-4.0947, -3.5057, -3.1924)][1]
   )
 )
 
@@ -505,7 +505,7 @@ rownames(result_table) <- c(
   "$\\beta_4$", "$\\beta_5$", "$R^2$", "adj $R^2$"
 )
 ```
-Table \@ref(tab:cointegration-analysis-study-2) displays the results of the inspected cointegration relationship based on a nonlinear regression approach. Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ significance level. The statistic of `r round(cointegration_model_1$coefficients[2, 3], 3)` is larger than the critical value $-4.41$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
+Table \@ref(tab:cointegration-analysis-study-2) displays the results of the inspected cointegration relationship based on a nonlinear regression approach. Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ significance level. The statistic of `r round(cointegration_model_1$coefficients[2, 3], 3)` is larger than the critical value $-3.8670$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
 ```{r, cointegration-analysis-study-2, eval=TRUE, echo=FALSE}
 opts <- options(knitr.kable.NA = "-")
 knitr::kable(
@@ -528,7 +528,7 @@ knitr::kable(
   )
 ```
 
-Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic `r round(cointegration_model_2$coefficients[2, 3], 3)` is larger but relatively close to the critical value $-3.04$. 
+Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic `r round(cointegration_model_2$coefficients[2, 3], 3)` is larger but relatively close to the critical value $-3.1924$. 
 
 Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented in [@h2_paper] a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. 
 
@@ -554,7 +554,7 @@ Furthermore, as initial parameters $\theta^{(0)}$ the long-run equilibrium param
 $$
 \theta^{(0)} = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.4 \\ 1.6 \\ 0.4 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
 $$
-Moreover, for both models the following proposal distribution is used
+Moreover, for this model the following proposal distribution is used
 $$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.015^2)$$
 Figure \@ref(fig:extension-static-model-trace) shows the trace plot for each parameter and each Markov chain. Furthermore, Figure \@ref(fig:extension-static-model-marginal-density) displays the Gaussian kernel density estimates of the marginal posterior distributions. Table \@ref(tab:pmmh-estimation-result) summarizes the estimation results
 ```{r, pmmh-estimation-result, eval=TRUE, echo=FALSE}

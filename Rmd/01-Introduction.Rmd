@@ -8,7 +8,7 @@ editor_options:
 
 # Introduction {#intro}
 
-Discounted cash flow models are used widely in the financial industry for determining the present value of an investment. Campbell and Shiller present, in their article [@campbell_shiller_paper], a log linear approximation of the present-value formulation. They show that the current log price-to-dividend ratio (PD) is approximately the sum of a constant plus the difference of discounted, expected future log returns and future log dividend growth. Furthermore, within their setup, both the constant and the discount rate depend on the long-term mean of the PD.
+Discounted cash flow models are widely used in the financial industry for determining the present value of an investment. @campbell_shiller_paper present, a log linear approximation of the present-value formulation. They show that the current log price-to-dividend ratio (PD) is approximately the sum of a constant plus the difference of discounted, expected future log returns and future log dividend growth. Furthermore, within their setup, both the constant and the discount rate depend on the long-term mean of the PD.
 
 A major assumption for this setup is the existence of the long term mean requiring stationarity of the PD. This requirement has been tested and evaluated in [@dog_bark_paper; @h2_paper]. Contrary to the assumption made by Campbell and Shiller, the results indicate that the PD is indeed nonstationary. Therefore, a more realistic assumption is the nonexistence of the long-term mean. Hence, the discount rate and constant should be regarded as time varying. 
 

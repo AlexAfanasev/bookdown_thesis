@@ -8,5 +8,5 @@ Similar to the steps applied in [@h2_paper], a cointegration analysis has been c
 
 All in all, the particle marginal Metropolis Hastings approach has been successfully applied to the context of a nonlinear state-space model for the log linear approximation of the present-value formulation.
 
-As a possible outlook, further advances in MCMC approaches for nonlinear partially observed Markov processes are available. Especially being able to generate proposals that are more likely to be accepted, by adding gradient estimates to the MCMC approaches, seems to be promising for improving mixing. Additionally, another interesting procedure would be the application of the likelihood based iterated filtering procedure and the corresponding confidence interval estimation using the so called Monte Carlo adjusted
+As a possible outlook, further advances in MCMC approaches for nonlinear partially observed Markov processes are available. Especially, being able to generate proposals that are more likely to be accepted, by adding gradient estimates to the MCMC approaches, seems to be promising. Additionally, another interesting application would be the likelihood based iterated filtering procedure and the corresponding confidence interval estimation using the Monte Carlo adjusted
 profile algorithm.
