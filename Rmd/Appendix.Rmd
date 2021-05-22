@@ -1706,7 +1706,7 @@ grid.arrange(
 
 # Appendix: Algorithms {#algorithms}
 
-The following algorithm descriptions are taken from [@pomp_article].
+The following algorithm descriptions are taken from [@pomp_article, pp. 7-10].
 
 ## Particle filter and systematic resampling
 
