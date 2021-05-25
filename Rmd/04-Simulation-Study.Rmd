@@ -170,7 +170,7 @@ One out of the $1000$ simulations will be inspected in detail and then the aggre
 load(here::here("data", "results", "simulation_results.RData"))
 ```
 
-```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Simulated state and observation processes", fig.width=5, fig.height=2, warning=FALSE}
+```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Simulated state and observation processes", fig.width=6, fig.height=2, warning=FALSE}
 library(ggplot2)
 
 df <- data.frame(time = 0:(N - 1), x = sim_4$data_latent, 

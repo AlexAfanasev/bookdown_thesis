@@ -77,7 +77,7 @@ Similar approximations as by @van_nieuwerburgh_paper are adopted: $\mathbb{E}_t[
 \end{equation}
 Here, the excess dividend growth $\Delta d_{t}^e = \Delta d_t - r^f_t$ and return $r_t^e = r_t - r_t^f$ are used with $r^f_t$ being the risk-free interest rate.
 
-A nonlinear state-space model will be used to filter the latent mean process. As presented by @h2_paper, the present-value formulation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$
+A nonlinear state-space model will be used to filter the latent mean process. As presented by @h2_paper, the present-value formulation in Equation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$
 \begin{equation}
 \eta_{t} = \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \epsilon_t
  (\#eq:observation-process)
@@ -206,16 +206,16 @@ knitr::kable(
   col.names = c("Mean", "Median", "0.025\\%", "0.975\\%"),
   caption = "Random walk model: PMMH parameter inference results", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "\\addlinespace", 
+  #linesep = "\\addlinespace", 
   align = rep("c", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-Moreover, Figure \@ref(fig:basic-model-state-estimates) visualizes the marginal posterior mean for the latent state and corresponding $95\%$ pointwise credible intervals. One can directly see that the estimated latent mean captures structural changes in the PD. Additionally, the latent state estimate from applying the particle filter is depicted. This estimate has been derived using $J = 3000$ particles and as parameters the marginal posterior means from Table \@ref(tab:basic-model-setup). As visible the state estimates between the PMMH approach and the particle filter vary, with the particle filter based estimate capturing structural changes later than the PMMH based estimate.
+Moreover, Figure \@ref(fig:basic-model-state-estimates) visualizes the marginal posterior mean for the latent state and corresponding $95\%$ pointwise credible intervals. One can directly see that the estimated latent mean captures structural changes in the PD. Additionally, the latent state estimate from applying the particle filter is depicted. This estimate has been derived using $J = 3000$ particles and as parameters the marginal posterior means from Table \@ref(tab:basic-model-setup). 
 
-```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk model: Filtered latent state", fig.width=6, fig.height=4, warning=FALSE}
+```{r, basic-model-state-estimates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Random walk model: Estimated latent state", fig.width=6, fig.height=3.75, warning=FALSE}
 traj <- rbind(
   result[[1]]@filter.traj[1, 10000:50000, ], 
   result[[2]]@filter.traj[1, 10000:50000, ],
@@ -260,6 +260,8 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
   )
 ```
 
+As visible the state estimates from the PMMH approach and the particle filter vary, with the particle filter based estimate capturing structural changes later than the PMMH based estimate.
+
 ## Cointegration analysis
 
 The connection between economic fundamentals and financial markets will be studied by inspecting possible economic factors that drive the latent mean of the PD. @h2_paper have found three long-term determinants of the latent mean of the PD. These three factors form a cointegration relationship with the time-varying mean $\tilde{\eta}_t$: consumption risk, the demographic structure of the population and the dividend payout policy of firms.
@@ -292,13 +294,13 @@ knitr::kable(
 
 Annual population data has been collected from Datastream ("US-
 POP24Y" for the 20–24-year old agents, "USPOP29Y" for the 25–29, "USPOP44Y"
-for the 40–44, and "USPOP49Y" for the 45–49, "USPOPTO" for the total US population). The middle-aged to young ratio has been computed as the ratio of 40-49 to the 20-29 year old agents. Quarterly data between the end of consecutive years has been obtained by applying linear interpolation. 
+for the 40–44, "USPOP49Y" for the 45–49 and "USPOPTO" for the total US population). The middle-aged to young ratio has been computed as the ratio of 40-49 to the 20-29 year old agents. Quarterly data between the end of consecutive years has been obtained by applying linear interpolation. 
 
-As has been proposed in [@consumption_risk], consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an autoregressive (AR) order one regression for real per capita consumption growth. The real per capita consumption has been computed by taking real personal consumption data from [@real_consumption_data] and the retrieved total US population data from Datastream.
+As has been proposed by @consumption_risk, consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an autoregressive (AR) order one regression for real per capita consumption growth. The real per capita consumption has been computed by taking real personal consumption data from the @real_consumption_data and the retrieved total US population data from Datastream.
 
-The impact of monetary policy has been of large interest in the asset pricing literature, see [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from [@federal_funds_rate_data], and the log real M1 money supply, retrieved from [@m1_money_supply_data], have been added for establishing a possible link between monetary policy and the latent mean of the PD. Furthermore, the log real GDP [@gdp_data] as an indicator of economic growth has been added. 
+The impact of monetary policy has been of large interest in the asset pricing literature [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from @federal_funds_rate_data, and the log real M1 money supply, retrieved from @m1_money_supply_data, have been added for establishing a possible link between monetary policy and the latent mean of the PD. Furthermore, the log real GDP as an indicator of economic growth has been added [@gdp_data]. 
 
-Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying exogenous covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money supply $ms_t$ and log real GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate, see [@fed_lower_funds_rate], and increasing the money supply by extending quantitative easing, see [@fed_qe].
+Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying exogenous covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money supply $ms_t$ and log real GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate [@fed_lower_funds_rate] and increasing the money supply by extending quantitative easing [@fed_qe].
 
 ```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of exogenous covariates", fig.width=6, fig.height=6.5, warning=FALSE}
 traj <- rbind(
@@ -426,9 +428,9 @@ knitr::kable(
   row.names = TRUE,
   col.names = c("t-statistic", "$\\alpha = 1\\%$", "$\\alpha = 5\\%$",
                 "$\\alpha = 10\\%$"),
-  caption = "Cointegration analysis: Results ADF unit root test", 
+  caption = "Cointegration analysis: Results of the ADF unit root test", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "", 
+  #linesep = "\\addlinespace",
   align = rep("l", 4)
 ) %>% 
   kableExtra::kable_paper() %>%
@@ -443,7 +445,7 @@ knitr::kable(
   )
 ```
 
-The test results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this master's thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle-aged to young ratio indicate second order integration. However, for longer time series there exists significant evidence for first order integration, [@long_term_mys]. Hence, the middle-aged to young ratio will be treated as a first order integrated process as well.
+The test results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this master's thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle-aged to young ratio indicate second order integration. However, for longer time series there exists significant evidence for first order integration [@long_term_mys]. Hence, the middle-aged to young ratio will be treated as a first order integrated process as well.
 
 Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
 \begin{equation*}
@@ -537,7 +539,7 @@ rownames(result_table) <- c(
   "$\\beta_4$", "$\\beta_5$", "$R^2$", "adj $R^2$"
 )
 ```
-Table \@ref(tab:cointegration-analysis-study-2) displays the results of the inspected cointegration relationship based on a nonlinear regression approach. Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ significance level. The statistic of `r round(cointegration_model_1$coefficients[2, 3], 3)` is larger than the critical value $-3.8670$ at the $10\%$ level, obtained from the surface regression approach by [@cointegration_critical_values]. 
+Table \@ref(tab:cointegration-analysis-study-2) displays the results of the inspected cointegration relationship based on a nonlinear regression approach. Test statistics for the adjustment coefficient $\alpha$ are used for testing a possible cointegration relationship. The model including all covariates has no significant cointegration relationship based on a $10\%$ significance level. The statistic of `r round(cointegration_model_1$coefficients[2, 3], 3)` is larger than the critical value $-3.8670$ at the $10\%$ level, obtained from the surface regression approach by @cointegration_critical_values. 
 ```{r, cointegration-analysis-study-2, eval=TRUE, echo=FALSE}
 opts <- options(knitr.kable.NA = "-")
 knitr::kable(
@@ -546,7 +548,7 @@ knitr::kable(
   col.names = c("All covariates", "Excluding $cr_t$, $fr_t$, $gdp_t$"),
   caption = "Cointegration analysis: Results", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "", 
+  #linesep = "\\addlinespace",
   align = rep("l", 2)
 ) %>% 
   kableExtra::kable_paper() %>%
@@ -562,9 +564,9 @@ knitr::kable(
 
 Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic `r round(cointegration_model_2$coefficients[2, 3], 3)` is larger but relatively close to the critical value $-3.1924$. 
 
-Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented in [@h2_paper], a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. 
+Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented by @h2_paper, a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. 
 
-Firstly, it is possible that the state process is misspecified and another specification, possibly already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used in [@h2_paper] is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with lower frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. 
+Firstly, it is possible that the state process is misspecified and another specification, possibly already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used by @h2_paper is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with lower frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. Finally, @h2_paper used the filtered latent mean from the particle filter whereas here the latent mean has been estimated using the PMMH approach. Both approaches differ in which conditional expectation they are estimating, as described in the [particle filtering][Particle filtering] and [Bayesian inference][Bayesian inference] sections.
 
 ## State process extension with covariates
 
@@ -572,7 +574,7 @@ As mentioned, it is possible that the latent mean of the PD could be misspecifie
 
 Common similarities between the approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, the PMMH approach will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 50000$ iterations. Similar to the random walk state process, a flat prior specification will be used and the first $10000$ iterations of the PMMH approach will be dropped.
 
-The model extension (**Covariate Model**) describes a possible long run equilibrium relationship that could not be detected within the [cointegration analysis][Cointegration analysis]
+The model extension (**Covariate Model**) describes a possible long run equilibrium relationship that could not be detected within the previous [cointegration analysis][Cointegration analysis]
 \begin{equation}
 \begin{split}
 \tilde{\eta}_t &= \beta_0 + \beta_1 my_{t} + \beta_2 ms_{t} + u_t \\
@@ -634,9 +636,9 @@ knitr::kable(
   result_table, 
   row.names = TRUE,
   col.names = c("Mean", "Median", "$0.025\\%$", "$0.975\\%$"),
-  caption = "Covariate extension: PMMH results", 
+  caption = "Covariate extension: PMMH parameter inference results", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "", 
+  #linesep = "\\addlinespace",
   align = rep("c", 3)
 ) %>% 
   kableExtra::kable_paper() %>%
@@ -644,9 +646,9 @@ knitr::kable(
 ```
 As can be seen, the estimated parameters $\beta_0$, $\beta_1$ and $\beta_2$ diverge from the estimated long-run relationship in the cointegration analysis. However, the estimates using the state process containing covariates are close to the results already presented in Table \@ref(tab:cointegration-analysis-study-2). Moreover, the standard deviation $\sigma_u$ for the error term in the latent state process is significantly larger for the covariate extension compared to the random walk model.
 
-Figure \@ref(fig:pmmh-estimation-figure) displays the filtered latent state for the model extension and the model with random walk state process. Both filtered latent state estimates are moving closely together with the random walk model being smoother and the covariate extension model having more spikes. 
+Figure \@ref(fig:pmmh-estimation-figure) displays the estimated latent state for the model extension and the model with random walk state process. Both latent state estimates are moving closely together with the random walk model being smoother and the covariate extension model having more spikes. 
 
-```{r, pmmh-estimation-figure, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Filtered latent state", fig.width=6, fig.height=4, warning=FALSE}
+```{r, pmmh-estimation-figure, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Covariate extension: Estimated latent state", fig.width=6, fig.height=3.75, warning=FALSE}
 library(ggplot2)
 
 rw_model <- lapply(
@@ -687,9 +689,12 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
     axis.text.y = element_text(size = 7)
   )
 ```
-For the model comparison the Deviance information criterion (DIC) will be used. Similar to the Akaike information criterion (AIC) and the Bayesian information criterion (BIC), the model with the lower DIC should be preferred. The deviance $D(\theta)$ is defined as
+
+For the model comparison the Deviance information criterion (DIC) will be used. Similar to the Akaike information criterion (AIC) and the Bayesian information criterion (BIC), the model with the lower DIC should be preferred. 
+
+The deviance $D(\theta)$ is defined as
 $$D(\theta) = -2\ell(\theta) + C$$
-with $\ell(\theta$ being the log likelihood for the likelihood function \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded. 
+with $\ell(\theta$ being the log likelihood for the likelihood function defined in Equation \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded. 
 
 The DIC follows as
 \begin{equation}
@@ -697,7 +702,7 @@ DIC = D(\hat\theta) + 2p_d \\
 \end{equation}
 where $\hat\theta$ is the mean of the posterior distribution and $p_d$ is the effective number of parameters that can be approximated by
 $$p_d = \frac{1}{2}\hat{\text{Var}}(D(\theta))$$
-Hence, $p_d$ is half the estimated variance of the deviance from the posterior samples $\theta$. Table \@ref(tab:pmmh-model-comparison) depicts the model comparison results. The log likelihood of $\hat\theta$ has been computed using $10$ runs of the particle filter with $1000$ particles and averaging the resulting log likelihoods. As visible, measured by the DIC the random walk model is superior.
+Hence, $p_d$ is half the estimated variance of the deviance from the posterior samples $\theta$. Table \@ref(tab:pmmh-model-comparison) depicts the model comparison results. The log likelihood of $\hat\theta$ has been computed using $10$ runs of the particle filter with $J = 1000$ particles and averaging the resulting log likelihoods. As visible, measured by the DIC the random walk model is superior.
 
 ```{r, pmmh-model-loglik, eval=TRUE, echo=FALSE}
 l_rw_model <- readRDS(here::here("data", "results", "rw_lik.rds"))
@@ -737,7 +742,7 @@ knitr::kable(
   col.names = c("Number of parameters", "$\\ell(\\hat{\\theta})$", "DIC"),
   caption = "Covariate extension: Model comparison", 
   booktabs = TRUE, escape = FALSE,
-  linesep = "", 
+  #linesep = "\\addlinespace",
   align = rep("c", 4)
 ) %>% 
   kableExtra::kable_paper() %>%

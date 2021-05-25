@@ -8,7 +8,7 @@ Furthermore, parameter inference has been carried out by maximizing the likeliho
 
 @h2_paper2 applied a similar nonlinear state-space model, however for the price-to-rent ratio of the US housing market using the Federal Housing Finance Agency housing price index. Parameter inference has been conducted using multiple runs of a grid search procedure. Again, uncertainty quantification of parameter estimates is not feasible within this setup.
 
-This master's thesis will therefore try to extend the summarized approaches by applying the Bayesian PMMH approach. Hence, after having obtained an approximation of the posterior distribution, it is possible to retrieve credible intervals for the parameters of interest and pointwise credible intervals for the filtered state process.
+This master's thesis will therefore try to extend the summarized approaches by applying the Bayesian PMMH approach. Hence, after having obtained an approximation of the posterior distribution, it is possible to retrieve credible intervals for the parameters of interest and pointwise credible intervals for the estimated state process.
 
 Besides that, @h2_paper used the filtered latent mean for studying the effect of possible determinants within a cointegration analysis. This analysis has shown that a cointegration relationship between the latent mean of the PD, consumption risk, the middle-aged to young ratio and the proportion of firms with traditional dividend payout policy exists. Hence, adding to these results, further macroeconomic variables will be inspected via a cointegration analysis and by estimating a state process extension containing exogenous covariates directly.
 
