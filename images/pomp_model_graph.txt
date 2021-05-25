@@ -16,10 +16,12 @@
     \node[node style, right=of XN1] (XN) {$X_{N}$};
     \node[node style text, above=of XI, , draw=none] (ZI) {\textbf{Covariates:}};
     \node[node style, above=of X1] (Z1) {$Z_{1}$};
+    \node[node style, above=of X] (Z) {$\cdots$};
     \node[node style, above=of XN1] (ZN1) {$Z_{N-1}$};
     \node[node style, above=of XN] (ZN) {$Z_{N}$};
     \node[node style text, below=of XI, draw=none] (YI) {\textbf{Data:}};
     \node[node style, below=of X1] (Y1) {$Y_{1}$};
+    \node[node style, below=of X] (Y) {$\cdots$};
     \node[node style, below=of XN1] (YN1) {$Y_{N-1}$};
     \node[node style, below=of XN] (YN) {$Y_{N}$};
 
@@ -29,9 +31,11 @@
     (X) edge node {} (XN1)
     (XN1) edge node {} (XN)
     (Z1) edge node {} (X1)
+    (Z) edge node {} (X)
     (ZN1) edge node {} (XN1)
     (ZN) edge node {} (XN)
     (X1) edge node {} (Y1)
+    (X) edge node {} (Y)
     (XN1) edge node {} (YN1)
     (XN) edge node {} (YN);
 
