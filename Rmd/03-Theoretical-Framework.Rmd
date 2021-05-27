@@ -35,7 +35,7 @@ Using the joint density from Equation \@ref(eq:pomp-joint-density), it is possib
     p_{\theta}(y_{1:n}) = \int p_{\theta}(x_{0:n}, y_{1:n})dx_{0:n}
     (\#eq:pomp-marginal-density)
 \end{equation}
-Within this setup, the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the dimension of the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$, one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including exogenous covariates. The observed covariate process $Z_{1:N} = (Z_1, ..., Z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ and the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$. Figure \@ref(fig:pomp-model-graphic) displays the structure of a state-space model containing exogenous covariates within the state process.
+Within this setup, the state process represents a first order Markov process. Higher order Markov state processes can be easily constructed by extending the dimension of the state space. As an example, given a state process with transition density $X_{n} | (X_{0:n-1} = x_{0:n-1}) \sim f_{\theta}(x_{n} | x_{n-1}, x_{n-2})$, one can construct a new process $S_{1:N} = ((X_0, X_1), (X_1, X_2), ..., (X_{N-1}, X_N))$ which has the first order Markov process structure. Additionally, it is possible to add further dependence structures to the basic model by including exogenous covariates. The observed covariate process $z_{1:N} = (z_1, ..., z_N)$ can be added to the observation model $g_{\theta}(y_{n}|x_{n}, z_{n})$ and the state model $f_{\theta}(x_{n}|x_{n-1}, z_{n})$. Figure \@ref(fig:pomp-model-graphic) displays the structure of a state-space model containing exogenous covariates within the state process.
 
 ```{r pomp-model-graphic, fig.align='center', fig.cap='Exemplary state-space model with covariates', echo=FALSE}
 knitr::include_graphics(here::here("images", "pomp_model_graph.pdf"))
@@ -45,7 +45,7 @@ Typically, one can separate two setups. Firstly, the case where the latent state
 
 ## Particle filtering
 
-Given a fixed collection of observations $y^*_{1:N} = (y^*_1, ..., y^*_N)$ one is interested in carrying out inference about $\theta$ and $x_{0:N} = (x_0, ..., x_N)$. The two methods at hand, likelihood based inference and Bayesian inference, require the evaluation of the likelihood function.
+Given a fixed collection of observations $y^*_{1:N} = (y^*_1, ..., y^*_N)$ one is interested in carrying out inference about the parameter vector $\theta$ and the hidden latent state $X_{0:N} = (X_0, ..., X_N)$. The two methods at hand, likelihood based inference and Bayesian inference, require the evaluation of the likelihood function.
 
 Typically, one separates the joint likelihood $\mathcal{L}(\theta, x_{0:N})$ of the parameter vector $\theta$ and the state process $x_{0:N}$ and the marginal likelihood $\mathcal{L}(\theta)$. The former has the following representation and can be obtained using the joint density from Equation \@ref(eq:pomp-joint-density)
 \begin{equation}
@@ -67,7 +67,7 @@ Parameter inference is the main goal. Therefore, the focus will be on the margin
 
 For finite state hidden Markov models the integrals would correspond to finite sums and the likelihood could be computed exactly [@doucet_johansen_tutorial, p. 4]. Furthermore, for linear Gaussian models Kalman filter techniques can be used for evaluating the likelihood exactly. However, for nonlinear and non-Gaussian models it is not possible to compute the likelihood in closed-form and numerical methods have to be employed. 
 
-Within the \texttt{pomp} documentation by @king_pomp a naive approach for estimating the likelihood function is presented. This approach uses Monte Carlo integration based upon the Markov property
+For educational purposes the \texttt{pomp} documentation by @king_pomp describes a disadvantageous approach for estimating the likelihood function. This approach uses Monte Carlo integration based upon the Markov property
 \begin{equation}
 \begin{split}
   p_{\theta}(x_{0:N}) & = \mu_{\theta}(x_0) \cdot f_{\theta}(x_1|x_0) \cdot f_{\theta}(x_2|x_1) \cdot \; ... \; \cdot f_{\theta}(x_{N}|x_{N-1}) \\
@@ -168,7 +168,7 @@ The second case targets the joint posterior density $p(x_{0:N}, \theta|y^*_{1:N}
 $$
 p(x_{0:N}, \theta|y^*_{1:N}) = \frac{\mathcal{L}(\theta, x_{0:N})\pi(\theta)}{p(y^*_{1:N})}
 $$
-Besides requiring a proposal for the parameter vector $\theta$, this approach needs an additional proposal for the latent state process. A simple approach would be to generate the state proposal independent of the observed data $y^*_{1:N}$. As with the naive Monte Carlo integration example, explained within the [particle filtering][Particle filtering] section, this approach would yield trajectories that diverge considerably from the true state.
+Besides requiring a proposal for the parameter vector $\theta$, this approach needs an additional proposal for the latent state process. A simple approach would be to generate the state proposal independent of the observed data $y^*_{1:N}$. As with the disadvantageous Monte Carlo integration example, explained within the [particle filtering][Particle filtering] section, this approach would yield trajectories that diverge considerably from the true state.
 
 Hence, the PMMH approach uses the proposal $\theta^*$ and the observed data in order to generate a proposal $x^*_{0:N}$. The pair $(\theta^*, x^*_{0:N})$ can be generated from the following proposal density [@doucet_pmmh, p. 277]
 $$q(\theta^*, x^*_{0:N}|\theta^{(m-1)}, x^{(m-1)}_{0:N}) = q(\theta^*|\theta^{(m-1)})p_{\theta^*}(x^*_{0:N}|y^*_{1:N})$$
@@ -185,6 +185,6 @@ By sampling from the posterior distribution, it is possible to obtain point esti
 $$\mathbb{E}[X_n|Y_1 = y_1^*, ..., Y_N= y_N^*]$$
 The major difficulty of the random walk Metropolis Hastings procedure is setting appropriate jump size parameters. The sampler should explore the parameter space efficiently by rejecting and accepting not too many proposals. Within this master's thesis the jump size will be set based on inspecting initial runs of the PMMH procedure using a small sample size of $M = 5000$. In particular the jump size will be set such that the acceptance rate is between $15\%$ to $25\%$ for the initial tests.
 
-Moreover, there are further possible improvements that deal with this problem. The parameter tuning can be automated by employing an adaptive Metropolis procedure that uses the previous history of the chain to estimate a covariance matrix for the sampler [@adaptive_mcmc]. Additionally, gradient estimates have been successfully incorporated for generating proposals that are more likely to be accepted [@mala_pmmh1; @mala_pmmh2].
+Moreover, there are further possible improvements that deal with this problem. The parameter tuning can be automated by employing an adaptive Metropolis procedure that uses the previous history of the chain to estimate a covariance matrix for the sampler [@adaptive_mcmc]. Additionally, within the context of nonlinear partially observed Markov processes gradient estimates of the posterior have been successfully incorporated for generating proposals that are more likely to be accepted [@mala_pmmh1; @mala_pmmh2].
 
 In the following, this master's thesis will be limited to the application of the PMMH algorithm. An overview of the procedure can be found in @pomp_article and in the [appendix section B][PMMH].

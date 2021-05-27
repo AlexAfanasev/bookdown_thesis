@@ -66,70 +66,77 @@ pomp_simulation <- pomp::pomp(
 )
 
 # can use optim only for finding MLE --> not for CI
-optim_result <- replicate(
-    10,
+system.time(
     {
-        op_res <- optim(
-            par = theta,
-            fn = function(par){
-                # print(par)
-                pomp::logLik(pomp::pfilter(
-                    pomp_simulation, params = par, Np = 1500
-                ))
-            },
-            control = list(
-                "fnscale" = -1
-            )
+        optim_result <- replicate(
+            10,
+            {
+                op_res <- optim(
+                    par = theta,
+                    fn = function(par){
+                        # print(par)
+                        pomp::logLik(pomp::pfilter(
+                            pomp_simulation, params = par, Np = 2000
+                        ))
+                    },
+                    control = list(
+                        "fnscale" = -1
+                    )
+                )
+                return(c(op_res$par, value = op_res$value))
+            }
         )
-        return(c(op_res$par, value = op_res$value))
+
+        k <- which.max(optim_result["value", ])
+        (est_params <- optim_result[1:(length(true_params_simulation)), k])
+        true_params_simulation
+# # compare pfilter result
+# pf1 <- pomp::pfilter(
+#     pomp_simulation,
+#     params = true_params_simulation,
+#     Np = 500,
+#     filter.mean = TRUE
+# )
+# pomp::logLik(pf1)
+
+        pf2 <- pomp::pfilter(
+            pomp_simulation,
+            params = est_params,
+            Np = 2000,
+            filter.mean = TRUE
+        )
+        pomp::logLik(pf2)
     }
 )
 
-k <- which.max(optim_result["value", ])
-(est_params <- optim_result[1:(length(true_params_simulation)), k])
-true_params_simulation
-
-# compare pfilter result
-pf1 <- pomp::pfilter(
-    pomp_simulation,
-    params = true_params_simulation,
-    Np = 500,
-    filter.mean = TRUE
-)
-pomp::logLik(pf1)
-
-pf2 <- pomp::pfilter(
-    pomp_simulation,
-    params = est_params,
-    Np = 500,
-    filter.mean = TRUE
-)
-pomp::logLik(pf2)
-
 # pmcmc test - flat prior
-pmcmc_noninformative <- pomp::pmcmc(
-    pomp_simulation,
-    Nmcmc = 20000,
-    Np = 500,
-    proposal = pomp::mvn.diag.rw(
-        c(beta_0 = 0.025, sigma_x = 0.025, sigma_y = 0.025, beta_1 = 0.025,
-          beta_2 = 0.025, phi = 0.025, x_0 = 0.025)
-    ),
-    params = theta,
-    verbose = FALSE,
-    dprior = function(beta_0, sigma_x, sigma_y, beta_1, beta_2, phi, x_0,
-                      ..., log){
-        p_x_0 <- 1
-        p_beta_0 <- 1
-        p_sigma_x <- exp(sigma_x)
-        p_sigma_y <- exp(sigma_y)
-        p_beta_1 <- 1
-        p_beta_2 <- 1
-        p_phi <- (1 - tanh(phi)^2)
-        lik <- (
-            p_x_0 * p_beta_0 * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+system.time(
+    {
+        pmcmc_noninformative <- pomp::pmcmc(
+            pomp_simulation,
+            Nmcmc = 50000,
+            Np = 500,
+            proposal = pomp::mvn.diag.rw(
+                c(beta_0 = 0.025, sigma_x = 0.025, sigma_y = 0.025, beta_1 = 0.025,
+                  beta_2 = 0.025, phi = 0.025, x_0 = 0.025)
+            ),
+            params = theta,
+            verbose = FALSE,
+            dprior = function(beta_0, sigma_x, sigma_y, beta_1, beta_2, phi, x_0,
+                              ..., log){
+                p_x_0 <- 1
+                p_beta_0 <- 1
+                p_sigma_x <- exp(sigma_x)
+                p_sigma_y <- exp(sigma_y)
+                p_beta_1 <- 1
+                p_beta_2 <- 1
+                p_phi <- (1 - tanh(phi)^2)
+                lik <- (
+                    p_x_0 * p_beta_0 * p_sigma_x * p_sigma_y * p_beta_1 * p_beta_2 * p_phi
+                )
+                return(ifelse(log, log(lik), lik))
+            }
         )
-        return(ifelse(log, log(lik), lik))
     }
 )
 

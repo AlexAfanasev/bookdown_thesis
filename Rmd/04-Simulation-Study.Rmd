@@ -164,6 +164,8 @@ x_0^{(0)} &\sim \mathcal{U}(3.4, 3.6) & \phi^{(0)} &\sim \mathcal{U}(0.8, 0.9) &
 \end{align*}
 The starting hyperparameters $\psi^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)}$ are obtained using the corresponding presented transformations in Equation \@ref(eq:parameter-transformation). As visible, the starting parameters will be close to the true values in order to increase the likelihood of convergence for the Markov chains. 
 
+The $10$ runs of the Nelder-Mead optimization and the corresponding particle filtering for the state estimate took roughly $190$ seconds to complete. In comparison, applying one of the presented PMMH setups took approximately $940$ seconds.
+
 One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted using simulation four. Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter seems to lag behind the former.
 
 ```{r, nonlinear-simulation, eval=TRUE, echo=FALSE}

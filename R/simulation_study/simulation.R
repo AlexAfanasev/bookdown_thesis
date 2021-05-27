@@ -71,7 +71,7 @@ nonlinear_simulation <- function(N_obs, true_params) {
                                           pomp::logLik(pomp::pfilter(
                                               pomp_simulation,
                                               params = par,
-                                              Np = 1500
+                                              Np = 2000
                                           ))
                                       },
                                       control = list("fnscale" = -1)
@@ -84,14 +84,14 @@ nonlinear_simulation <- function(N_obs, true_params) {
     pf <- pomp::pfilter(
         pomp_simulation,
         params = est_params,
-        Np = 1500,
+        Np = 2000,
         filter.mean = TRUE
     )
 
     # pmcmc test - flat prior
     pmmh_noninformative <- pomp::pmcmc(
         pomp_simulation,
-        Nmcmc = 20000,
+        Nmcmc = 50000,
         Np = 500,
         proposal = pomp::mvn.diag.rw(
             c(
@@ -133,7 +133,7 @@ nonlinear_simulation <- function(N_obs, true_params) {
     # pmcmc test - true informative prior
     pmmh_true_informative <- pomp::pmcmc(
         pomp_simulation,
-        Nmcmc = 20000,
+        Nmcmc = 50000,
         Np = 500,
         proposal = pomp::mvn.diag.rw(
             c(
@@ -182,7 +182,7 @@ nonlinear_simulation <- function(N_obs, true_params) {
     # pmcmc test - misspecified informative prior
     pmmh_false_informative <- pomp::pmcmc(
         pomp_simulation,
-        Nmcmc = 20000,
+        Nmcmc = 50000,
         Np = 500,
         proposal = pomp::mvn.diag.rw(
             c(
@@ -240,49 +240,39 @@ nonlinear_simulation <- function(N_obs, true_params) {
                 optim_result = optim_result
             ),
             pmmh_noninformative = list(
-                state_mean = colMeans(
-                    pmmh_noninformative@filter.traj[1, 10000:20000, ]
-                ),
+                state_mean = colMeans(pmmh_noninformative@filter.traj[1, 25000:50000, ]),
                 state_lower = apply(
-                    pmmh_noninformative@filter.traj[1, 10000:20000, ],
-                    MARGIN = 2,
+                    pmmh_noninformative@filter.traj[1, 25000:50000, ], MARGIN = 2,
                     quantile, probs = 0.025
                 ),
                 state_upper = apply(
-                    pmmh_noninformative@filter.traj[1, 10000:20000, ],
-                    MARGIN = 2,
+                    pmmh_noninformative@filter.traj[1, 25000:50000, ], MARGIN = 2,
                     quantile, probs = 0.975
                 ),
                 traces = pmmh_noninformative@traces
             ),
             pmmh_true_informative = list(
-                state_mean = colMeans(
-                    pmmh_true_informative@filter.traj[1, 10000:20000, ]
-                ),
+                state_mean = colMeans(pmmh_true_informative@filter.traj[1, 25000:50000, ]),
                 state_lower = apply(
-                    pmmh_true_informative@filter.traj[1, 10000:20000, ],
-                    MARGIN = 2,
+                    pmmh_true_informative@filter.traj[1, 25000:50000, ], MARGIN = 2,
                     quantile, probs = 0.025
                 ),
                 state_upper = apply(
-                    pmmh_true_informative@filter.traj[1, 10000:20000, ],
-                    MARGIN = 2,
+                    pmmh_true_informative@filter.traj[1, 25000:50000, ], MARGIN = 2,
                     quantile, probs = 0.975
                 ),
                 traces = pmmh_true_informative@traces
             ),
             pmmh_false_informative = list(
                 state_mean = colMeans(
-                    pmmh_false_informative@filter.traj[1, 10000:20000, ]
+                    pmmh_false_informative@filter.traj[1, 25000:50000, ]
                 ),
                 state_lower = apply(
-                    pmmh_false_informative@filter.traj[1, 10000:20000, ],
-                    MARGIN = 2,
+                    pmmh_false_informative@filter.traj[1, 25000:50000, ], MARGIN = 2,
                     quantile, probs = 0.025
                 ),
                 state_upper = apply(
-                    pmmh_false_informative@filter.traj[1, 10000:20000, ],
-                    MARGIN = 2,
+                    pmmh_false_informative@filter.traj[1, 25000:50000, ], MARGIN = 2,
                     quantile, probs = 0.975
                 ),
                 traces = pmmh_false_informative@traces
@@ -300,7 +290,7 @@ system.time(
             library(doParallel)
             library(foreach)
             library(doRNG)
-            cl <- makeCluster(3)
+            cl <- makeCluster(28)
             registerDoParallel(cl)
             registerDoRNG(1234)
             results <- foreach(i = 1:N_sim) %dopar% {
