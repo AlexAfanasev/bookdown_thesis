@@ -11,130 +11,122 @@ A simulation study will be conducted in order to compare the likelihood based in
 Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag (ARDL) model and will be simulated according to the following process
 \begin{equation}
 \begin{split}
-& x_0 = 3.5 \\
-& x_{n} = \beta_0 + \phi x_{n-1} + \beta_{1}z_{1, n} + \beta_{2}z_{2, n} + u_{n} \\ 
-& u_{n} \sim \mathcal{N}(0, \sigma_{u}^2)
+& x_0 = 3.5, \\
+& x_{n} = \beta_0 + \phi x_{n-1} + \beta_{1}z_{1, n} + \beta_{2}z_{2, n} + u_{n}, \\ 
+& u_{n} \sim \mathcal{N}(0, \sigma_{u}^2),
 (\#eq:simulation-study-state)
 \end{split}
 \end{equation}
 with restriction $\left|\phi\right|<1$ and where $z_{1,n}$ and $z_{2,n}$ are independent random walk processes. These exogenous covariates are simulated according to
 \begin{equation}
 \begin{split}
-& \begin{pmatrix} z_{1, 0} \\ z_{2, 0} \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix} \\
-& \begin{pmatrix} z_{1, n} \\ z_{2, n} \end{pmatrix} = \begin{pmatrix} z_{1, n-1} \\ z_{2, n-1} \end{pmatrix} + \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \\
-& \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \sim \mathcal{N}\Bigg(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, 0.0025\;I_{2}\Bigg)
+& \begin{pmatrix} z_{1, 0} \\ z_{2, 0} \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}, \\
+& \begin{pmatrix} z_{1, n} \\ z_{2, n} \end{pmatrix} = \begin{pmatrix} z_{1, n-1} \\ z_{2, n-1} \end{pmatrix} + \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix}, \\
+& \begin{pmatrix} w_{1, n} \\ w_{2, n} \end{pmatrix} \sim \mathcal{N}\Bigg(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, 0.0025\;I_{2}\Bigg).
 \end{split}
 \end{equation}
-This setup is an indirect specification of an error correction mechanism. The relationship to the error correction model can be seen by subtracting $x_{n-1}$ and adding and subtracting $\beta_{1}z_{1, n-1}$, $\beta_{2}z_{2, n-1}$ from both sides of the state process in Equation \@ref(eq:simulation-study-state)
+This setup is an indirect specification of an error correction mechanism. The relationship to the error correction model can be seen by subtracting $x_{n-1}$ and adding and subtracting $\beta_{1}z_{1, n-1}$, $\beta_{2}z_{2, n-1}$ from both sides of the state process in Equation \@ref(eq:simulation-study-state),
 \begin{equation*}
 \begin{split}
  \Delta x_{n} & = \beta_{1}\Delta z_{1, n} + \beta_{2}\Delta z_{2, n} - (1 - \phi) x_{n-1} + \beta_0 + \beta_{1}z_{1, n-1} + \beta_{2}z_{2, n-1} + u_{n} \\ 
- & = \beta_{1} \Delta z_{1, n} + \beta_{2} \Delta z_{2, n} - (1 - \phi)\Bigg(x_{n-1} - \frac{\beta_0}{1 - \phi} - \frac{\beta_{1}}{1 - \phi}z_{1, n} - \frac{\beta_{2}}{1 - \phi}z_{2, n}\Bigg) + u_{n}
+ & = \beta_{1} \Delta z_{1, n} + \beta_{2} \Delta z_{2, n} - (1 - \phi)\Bigg(x_{n-1} - \frac{\beta_0}{1 - \phi} - \frac{\beta_{1}}{1 - \phi}z_{1, n} - \frac{\beta_{2}}{1 - \phi}z_{2, n}\Bigg) + u_{n}.
 \end{split}
 \end{equation*}
 Hence, given that $\left|\phi\right|<1$, the long run relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state exogenous covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
-$$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}$$
-The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed PD in the [empirical application][Empirical application].
-
-Furthermore, the observation process has the following specification
+$$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}.$$
+The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed PD in the [empirical application][Empirical application]. Furthermore, the observation process has the following specification
 \begin{equation}
 \begin{split}
-& y_{n} = \frac{k_{n}}{1 - \rho_{n}} + d_{n} +  \epsilon_{n} \\
-& \epsilon_{n}\sim \mathcal{N}(0, \sigma_{\epsilon}^2)
+& y_{n} = \frac{k_{n}}{1 - \rho_{n}} + d_{n} +  \epsilon_{n}, \\
+& \epsilon_{n}\sim \mathcal{N}(0, \sigma_{\epsilon}^2),
 \end{split}
 \end{equation}
 where $k_{n}$ and $\rho_n$ directly depend on the latent state $x_n$ via
 \begin{equation}
 \begin{split}
-& \rho_{n} = \frac{1}{1+\text{exp}(-x_{n})}\\
-& k_{n} = -\ln(\rho_{n})-(1-\rho_{n})\ln\bigg(\frac{1}{\rho_{n}} - 1\bigg)
+& \rho_{n} = \frac{1}{1+\text{exp}(-x_{n})},\\
+& k_{n} = -\ln(\rho_{n})-(1-\rho_{n})\ln\bigg(\frac{1}{\rho_{n}} - 1\bigg).
 \end{split}
 \end{equation}
 For simplicity $d_{n}$ will be handled as an exogenous covariate arising from the following specification
 \begin{equation}
 \begin{split}
-& d_{n} = -1 + 0.85(d_{n - 1} + 1) + 0.15v_{n-1} + v_{n} \\ 
-& v_{n} \sim \mathcal{N}(0, 0.003)
+& d_{n} = -1 + 0.85(d_{n - 1} + 1) + 0.15v_{n-1} + v_{n}, \\ 
+& v_{n} \sim \mathcal{N}(0, 0.003).
 \end{split}
 \end{equation}
 All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observable whereas the state process $x_n$ is not. Note that the initial value problem of obtaining an estimate for $x_0$ can be solved within the Bayesian setup as well. In order to do this, a prior for $x_0$ has to be assigned. Hence, the results of the likelihood based and Bayesian approach for estimating the latent state and the parameters $\theta = \begin{pmatrix} x_0 & \phi & \beta_0 & \beta_{1} & \beta_{2} & \sigma_{\epsilon} & \sigma_{u} \end{pmatrix}^T$ will be compared. For this simulation, the true parameters will be set to
 $$
-\theta = \begin{pmatrix} x_0 \\ \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 3.5 \\0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}
+\theta = \begin{pmatrix} x_0 \\ \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 3.5 \\0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}.
 $$
 Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run. At each of the $1000$ iterations the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=2000$ particles and the PMMH procedures will use $J=500$ particles.
 
 The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following set of parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
-\begin{equation}
-\begin{split}
-\phi &= \text{tanh}(\psi) \\
-\sigma_u &= \text{exp}(\varsigma_u) \\
-\sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon})
+\begin{align}
+& \phi &= \text{tanh}(\psi), & \sigma_u &= \text{exp}(\varsigma_u), & \sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon}),
 (\#eq:parameter-transformation)
-\end{split}
-\end{equation}
+\end{align}
 where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for these hyperparameters can than easily be converted in order to obtain the initial parameters. 
 
 Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints. This increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the PMMH procedure as well. Therefore, both applications will use the following parameter vector $\theta = \begin{pmatrix} x_0 & \psi & \beta_0 & \beta_{1} & \beta_{2} & \varsigma_{\epsilon} & \varsigma_{u}\end{pmatrix}^T$ instead of the initially presented for inference purposes.
 
 The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **setup 1** will use a flat improper prior specification that incorporates no prior information about the initially presented parameters. **Setup 2** and **setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a smaller probability to the true initial parameters.
 
-The change-of-variable technique has to be applied in order to transfer the prior beliefs about the parameters $\phi$, $\sigma_u$ and $\sigma_\epsilon$ to the hyperparameters $\psi$, $\varsigma_u$, $\varsigma_{\epsilon}$.
-
-Since the transformation for $\sigma_u$ and $\sigma_{\epsilon}$ is equivalent, the following derivations will be presented for an exemplary parameter $\sigma$. Given the prior $p_{\phi}(\phi)$, $p_{\sigma}(\sigma)$, the accompanying prior $p_{\psi}(\psi)$, $p_{\varsigma}(\varsigma)$ can be derived using
+The change-of-variable technique has to be applied in order to transfer the prior beliefs about the parameters $\phi$, $\sigma_u$ and $\sigma_\epsilon$ to the hyperparameters $\psi$, $\varsigma_u$, $\varsigma_{\epsilon}$. Since the transformation for $\sigma_u$ and $\sigma_{\epsilon}$ is equivalent, the following derivations will be presented for an exemplary parameter $\sigma$. Given the prior $p_{\phi}(\phi)$, $p_{\sigma}(\sigma)$, the accompanying prior $p_{\psi}(\psi)$, $p_{\varsigma}(\varsigma)$ can be derived using
 \begin{align*}
-\phi(\psi) &= \text{tanh}(\psi) & \Longleftrightarrow && \psi(\phi) &= \text{atanh}(\phi) \\
-\sigma(\varsigma) &= \text{exp}(\varsigma) & \Longleftrightarrow && \varsigma(\sigma) &= \ln(\sigma)
+\phi(\psi) &= \text{tanh}(\psi) & \Longleftrightarrow && \psi(\phi) &= \text{atanh}(\phi), \\
+\sigma(\varsigma) &= \text{exp}(\varsigma) & \Longleftrightarrow && \varsigma(\sigma) &= \ln(\sigma).
 \end{align*}
 Differentiating the initial parameters $\phi$ and $\sigma$ with respect to the hyperparameter yields
 \begin{equation*}
 \begin{split}
-  \frac{d \phi(\psi)}{d \psi} &= 1 - \text{tanh}(\psi)^2 \\
-  \frac{d \sigma(\varsigma)}{d \varsigma} &= \text{exp}(\varsigma)
+  \frac{d \phi(\psi)}{d \psi} &= 1 - \text{tanh}(\psi)^2, \\
+  \frac{d \sigma(\varsigma)}{d \varsigma} &= \text{exp}(\varsigma).
 \end{split}
 \end{equation*}
 Hence, the change-of-variable technique yields the following prior specifications for the hyperparameters
 \begin{equation}
 \begin{split}
-  p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) \\
-  p_{\varsigma}(\varsigma) &= p_{\sigma}(\text{exp}(\varsigma))\text{exp}(\varsigma)
+  p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2), \\
+  p_{\varsigma}(\varsigma) &= p_{\sigma}(\text{exp}(\varsigma))\text{exp}(\varsigma).
 (\#eq:hyperparamter-prior)
 \end{split}
 \end{equation}
 For **setup 1**, the initially presented parameters will have the following prior specification
 \begin{align*}
-  p_{x_0} &= 1 &
+  p_{x_0} &= 1, &
   p_\phi(\phi) &= 
   \begin{cases} 
     1, & \text{if}\;\; -1 < \phi < 1  \\ 
     0, & \text{otherwise}
-  \end{cases} \\
+  \end{cases}, \\
  p_{\sigma_u}(\sigma_u) &= 
  \begin{cases} 
     1, & \text{if}\;\; \sigma_u > 0  \\ 
     0, & \text{otherwise}
-  \end{cases}
+  \end{cases},
  & p_{\sigma_\epsilon}(\sigma_\epsilon) &= 
  \begin{cases} 
     1, & \text{if}\;\; \sigma_{\epsilon} > 0  \\ 
     0, & \text{otherwise}
-  \end{cases} \\
- p_{\beta_0}(\beta_0) &= 1 & p_{\beta_1}(\beta_1) &= 1 & p_{\beta_2}(\beta_2) &= 1
+  \end{cases}, \\
+ p_{\beta_0}(\beta_0) &= 1, & p_{\beta_1}(\beta_1) &= 1, & p_{\beta_2}(\beta_2) &= 1.
 \end{align*}
 Note that within this uninformative flat prior setup all possibly valid parameter values will have a prior density of one. Using the results from Equation \@ref(eq:hyperparamter-prior), the belonging prior specification for the hyperparameters simplifies to
 \begin{equation*}
 \begin{split}
-p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \text{tanh}(\psi)^2) \\
-  p_{\varsigma_u}(\varsigma_u) &= p_{\sigma_u}(\text{exp}(\varsigma_u))\text{exp}(\varsigma_u) = \text{exp}(\varsigma_u) \\
-  p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= p_{\varsigma_\epsilon}(\text{exp}(\varsigma_\epsilon))\text{exp}(\varsigma_\epsilon) = \text{exp}(\varsigma_\epsilon)
+p_{\psi}(\psi) &= p_{\phi}(\text{tanh}(\psi))(1 - \text{tanh}(\psi)^2) = (1 - \text{tanh}(\psi)^2), \\
+  p_{\varsigma_u}(\varsigma_u) &= p_{\sigma_u}(\text{exp}(\varsigma_u))\text{exp}(\varsigma_u) = \text{exp}(\varsigma_u), \\
+  p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= p_{\varsigma_\epsilon}(\text{exp}(\varsigma_\epsilon))\text{exp}(\varsigma_\epsilon) = \text{exp}(\varsigma_\epsilon).
 \end{split}
 \end{equation*}
 **Setup 2** represents the informative prior setup. The truncated normal distribution will be used for parameter $\phi$ and the gamma distribution for the parameters $\sigma_u$ and $\sigma_\epsilon$. Hence, this specification is applied
 \begin{align*}
-  p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.5, 0.1^2) \\
-  p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.8, 0.1^2, -1, 1) &  p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.4, 0.1^2) \\
-  p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 12, 0.005) &
-  p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.5, 0.2^2) \\
-  p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 6, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | -0.3, 0.2^2)
+  p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.5, 0.1^2), \\
+  p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.8, 0.1^2, -1, 1), &  p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.4, 0.1^2), \\
+  p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 12, 0.005), &
+  p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.5, 0.2^2), \\
+  p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 6, 0.005), & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | -0.3, 0.2^2),
 \end{align*}
 where $f^{\mathcal{N}}(x | \mu, \sigma^2)$ is the density function of the normal distribution with mean $\mu$ and variance $\sigma^2$ and $f^{\mathcal{G}}(x | \alpha, \beta)$ is the density function of the gamma distribution with shape parameter $\alpha$ and scale parameter $\beta$. Additionally, the truncated normal density function is denoted by $f^{\mathcal{T}\mathcal{N}}(x|\mu, \sigma^2, a, b)$ and has the following definition
 $$
@@ -142,37 +134,35 @@ f^{\mathcal{T}\mathcal{N}}(x|\mu, \sigma^2, a, b) =
 \begin{cases} 
   \dfrac{1}{\sigma}\dfrac{\phi\Big(\dfrac{x-\mu}{\sigma}\Big)}{\Phi\Big(\dfrac{b-\mu}{\sigma}\Big) - \Phi\Big(\dfrac{a-\mu}{\sigma}\Big)}, & \text{if}\;\; a < x < b  \\ 
   0, & \text{otherwise}
-\end{cases}
+\end{cases},
 $$
 with $\phi(\cdot)$ being the density function of the standard normal distribution and $\Phi(\cdot)$ its cumulative distribution function. Again, the accompanying prior specification for the hyperparameters can be obtained using Equation \@ref(eq:hyperparamter-prior).
 
-**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used, however with different parameters
+**Setup 3** represents the misspecified prior setup. The same prior distributions as in the previous setup will be used, however with different parameters,
 \begin{align*}
-  p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.0, 0.1^2) \\
-  p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.3, 0.1^2, -1, 1) & p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.8, 0.1^2) \\
-  p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 10, 0.01) & p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.0, 0.1^2)  \\
-  p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 10, 0.005) & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | 0.0, 0.1^2)
+  p_{x_0} &= f^{\mathcal{N}}(x_0 | 3.0, 0.1^2), \\
+  p_\phi(\phi) &= f^{\mathcal{T}\mathcal{N}}(\phi | 0.3, 0.1^2, -1, 1), & p_{\beta_0}(\beta_0) &= f^{\mathcal{N}}(\beta_0 | 0.8, 0.1^2), \\
+  p_{\sigma_u}(\sigma_u) &= f^{\mathcal{G}}(\sigma_u | 10, 0.01), & p_{\beta_1}(\beta_1) &= f^{\mathcal{N}}(\beta_1 | 0.0, 0.1^2),  \\
+  p_{\sigma_\epsilon}(\sigma_\epsilon)  &= f^{\mathcal{G}}(\sigma_{\epsilon} | 10, 0.005), & p_{\beta_2}(\beta_2) &= f^{\mathcal{N}}(\beta_2 | 0.0, 0.1^2).
 \end{align*}
 
 The MCMC approaches will use $50000$ iterations and each parameter proposal $\theta^*_i$ will be generated based on 
-$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.025^2)$$
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.025^2).$$
 Furthermore, the starting parameter $\theta^{(0)} = \begin{pmatrix} x_0^{(0)} & \psi^{(0)} & \beta_0^{(0)} & \beta_{1}^{(0)} & \beta_{2}^{(0)} & \varsigma_{\epsilon}^{(0)} & \varsigma_{u}^{(0)}\end{pmatrix} ^T$, for the inference methods, will be set randomly at each iteration of the simulation study with
 \begin{align*}
-x_0^{(0)} &\sim \mathcal{U}(3.4, 3.6) & \phi^{(0)} &\sim \mathcal{U}(0.8, 0.9) & \beta_0^{(0)} &\sim \mathcal{U}(0.35, 0.65) \\ 
-\beta_{1}^{(0)} &\sim \mathcal{U}(0.3, 0.5) & \beta_{2}^{(0)} &\sim \mathcal{U}(-0.3, -0.1) & \sigma_{\epsilon}^{(0)} &\sim \mathcal{U}(0.03, 0.04) \\ 
-\sigma_{u}^{(0)} &\sim \mathcal{U}(0.04, 0.06)
+x_0^{(0)} &\sim \mathcal{U}(3.4, 3.6), & \phi^{(0)} &\sim \mathcal{U}(0.8, 0.9), & \beta_0^{(0)} &\sim \mathcal{U}(0.35, 0.65), \\ 
+\beta_{1}^{(0)} &\sim \mathcal{U}(0.3, 0.5), & \beta_{2}^{(0)} &\sim \mathcal{U}(-0.3, -0.1), & \sigma_{\epsilon}^{(0)} &\sim \mathcal{U}(0.03, 0.04), \\ 
+\sigma_{u}^{(0)} &\sim \mathcal{U}(0.04, 0.06).
 \end{align*}
-The starting hyperparameters $\psi^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)}$ are obtained using the corresponding presented transformations in Equation \@ref(eq:parameter-transformation). As visible, the starting parameters will be close to the true values in order to increase the likelihood of convergence for the Markov chains. 
+The starting hyperparameters $\psi^{(0)}, \varsigma_{\epsilon}^{(0)}, \varsigma_{u}^{(0)}$ are obtained using the corresponding presented transformations in Equation \@ref(eq:parameter-transformation). As visible, the starting parameters will be close to the true values in order to increase the likelihood of convergence for the Markov chains and to reduce computational time. The Bayesian procedures would work too with starting parameters further away from the true values, but a larger number of MCMC iterations could be necessary. The $10$ runs of the Nelder-Mead optimization and the corresponding particle filtering for the state estimate took roughly $190$ seconds to complete. In comparison, applying one of the presented PMMH setups took approximately $940$ seconds.
 
-The $10$ runs of the Nelder-Mead optimization and the corresponding particle filtering for the state estimate took roughly $190$ seconds to complete. In comparison, applying one of the presented PMMH setups took approximately $940$ seconds.
-
-One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted using simulation four. Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter seems to lag behind the former.
+One out of the $1000$ simulations will be inspected in detail and then the aggregate result of the simulation study will be presented. The detailed analysis will be conducted using simulation $4$. Looking at the simulated data, Figure \@ref(fig:sim-4-plot-1),  the relationship between the state and observation process can be inspected. It is visible that the observation process is varying around the state process and that the latter seems to lag behind the former.
 
 ```{r, nonlinear-simulation, eval=TRUE, echo=FALSE}
 load(here::here("data", "results", "simulation_results.RData"))
 ```
 
-```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Simulated state and observation processes", fig.width=6, fig.height=2, warning=FALSE}
+```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Simulated state and observation processes", fig.width=6, fig.height=2.25, warning=FALSE}
 library(ggplot2)
 
 df <- data.frame(time = 0:(N - 1), x = sim_4$data_latent, 
@@ -302,8 +292,8 @@ knitr::kable(
   kableExtra::add_header_above(c("", "", "Marginal posterior means" = 3))
 ```
 
-Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other three Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches
-$$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}$$
+Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other three Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches,
+$$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}.$$
 The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise for the parameter estimation than the Bayesian approaches in **setup 1** and **setup 3**. Furthermore, the RMSE is on average smaller for the Bayesian approaches due to the estimation including the whole data set contrary to the particle filter including only the information up until the time point of interest. All in all, the effect of the prior specification on the estimation results is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
 
 ```{r, sim-4-plot-2, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Latent state estimates", fig.width=6, fig.height=8.5, warning=FALSE, message=FALSE}

@@ -15,9 +15,9 @@ model_2 <- pomp::pomp(
             "
             e_lpd = (
               tanh(phi) * e_lpd
-              + beta_0 * (1 - tanh(phi))
-              + beta_1*mys - tanh(phi) * beta_1* l_mys
-              + beta_2*ms - tanh(phi) * beta_2 * l_ms
+              + beta_0
+              + beta_1*mys
+              + beta_2*ms
               + rnorm(0, exp(sigma_u))
             );
             "
@@ -34,14 +34,14 @@ model_2 <- pomp::pomp(
 rm(covars, y)
 
 theta <- c(
-    e_lpd_0 = 3.5, sigma_e = log(0.05), sigma_u = log(0.05), phi = atanh(0.95),
-    beta_0 = 2.4, beta_1 = 1.6, beta_2 = 0.4
+    e_lpd_0 = 3.5, sigma_e = log(0.05), sigma_u = log(0.05), phi = atanh(0.963),
+    beta_0 = 0.09, beta_1 = 0.06, beta_2 = 0.015
 )
 res <- pomp::pmcmc(
-    model_2, Nmcmc = 1000, Np = 250,
+    model_2, Nmcmc = 1000, Np = 500,
     proposal = pomp::mvn.diag.rw(
-        c(sigma_e = 0.02, sigma_u = 0.02, phi = 0.02,
-          beta_0 = 0.02, beta_1 = 0.02, beta_2 = 0.02)
+        c(sigma_e = 0.02, sigma_u = 0.02, phi = 0.02, e_lpd_0 = 0.02,
+          beta_0 = 0.0002, beta_1 = 0.0002, beta_2 = 0.0002)
     ),
     params = theta,
     dprior = function(sigma_u,

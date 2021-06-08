@@ -59,19 +59,19 @@ generate_simulation_data <- function(n, params) {
 generate_start_params <- function() {
     return(
         c(
-            beta_0 = runif(1, 0.35, 0.65),
-            beta_1 = runif(1, 0.3, 0.5),
-            beta_2 = runif(1, -0.3, -0.1),
-            sigma_x = log(runif(1, 0.04, 0.06)),
-            sigma_y = log(runif(1, 0.03, 0.04)),
-            phi = atanh(runif(1, 0.8, 0.9)),
-            x_0 = runif(1, 3.4, 3.6)
+            beta_0 = runif(1, 0.0, 1.0),
+            beta_1 = runif(1, -0.5, 0.5),
+            beta_2 = runif(1, -0.5, -0.5),
+            sigma_x = log(runif(1, 0.05, 0.1)),
+            sigma_y = log(runif(1, 0.02, 0.05)),
+            phi = atanh(runif(1, 0.8, 0.99)),
+            x_0 = runif(1, 3.0, 3.2)
         )
     )
 }
 
 # Setup simulation
-N <- 51
+N <- 76
 N_sim <- 1000
 true_params_simulation <- c(
     beta_0 = 0.525,

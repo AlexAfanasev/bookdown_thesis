@@ -5,7 +5,7 @@ editor_options:
 ---
 # Empirical application {#application}
 
-For the empirical application the presented PMMH procedure will be applied for modeling the time-varying mean of the PD. This application will be an extension of the presented results and procedures by @h2_paper. Besides applying the Bayesian approach as an alternative, a possible state process extension will be tested. First, the necessary steps for deriving the state-space model will be explained.
+For the empirical application the presented PMMH procedure will be applied for modeling the time-varying mean of the PD. This application will be an extension of the presented results and procedures by @h2_paper. Besides applying the Bayesian approach as an alternative, a possible state process extension will be tested. Firstly, the necessary steps for deriving the state-space model will be explained.
 
 ## Model implementation
 
@@ -13,32 +13,32 @@ Starting from the basic definition of the total log return at time $t+1$, $r_{t+
 \begin{equation*}
 \begin{split}
 r_{t+1} - r_{t+1} &= \ln\Bigg(\frac{P_{t+1} + D_{t+1}}{P_{t}}\Bigg) - \ln\Bigg(\frac{P_{t+1} + D_{t+1}}{P_{t}}\Bigg) \\
-0 &= \ln\Bigg(\frac{P_{t+1} + D_{t+1}}{P_{t}}\frac{P_t}{P_{t+1} + D_{t+1}}\Bigg)
+0 &= \ln\Bigg(\frac{P_{t+1} + D_{t+1}}{P_{t}}\frac{P_t}{P_{t+1} + D_{t+1}}\Bigg).
 \end{split}
 \end{equation*}
 Then adding the PD, $\eta_t = \ln(P_t) - \ln(D_t)$, to both sides of the equation
 \begin{equation*}
 \begin{split}
-\eta_{t} &= \ln\Bigg(\frac{P_t}{D_t}\frac{P_{t+1} + D_{t+1}}{P_{t}}\Bigg) - r_{t+1} = \ln\Bigg(\Bigg(1 + \frac{P_{t+1}}{D_{t+1}}\Bigg)\frac{D_{t+1}}{D_{t}}\Bigg) - r_{t+1}
+\eta_{t} &= \ln\Bigg(\frac{P_t}{D_t}\frac{P_{t+1} + D_{t+1}}{P_{t}}\Bigg) - r_{t+1} = \ln\Bigg(\Bigg(1 + \frac{P_{t+1}}{D_{t+1}}\Bigg)\frac{D_{t+1}}{D_{t}}\Bigg) - r_{t+1},
 \end{split}
 \end{equation*}
 and simplifying the above yields
 \begin{equation*}
 \begin{split}
-\eta_{t} &= \ln(1 + \text{exp}(\eta_{t+1})) - r_{t+1} + \Delta d_{t+1} \\
-r_{t+1} &= -\eta_{t} + \ln(1 + \text{exp}(\eta_{t+1})) + \Delta d_{t+1}
+\eta_{t} &= \ln(1 + \text{exp}(\eta_{t+1})) - r_{t+1} + \Delta d_{t+1}, \\
+r_{t+1} &= -\eta_{t} + \ln(1 + \text{exp}(\eta_{t+1})) + \Delta d_{t+1}.
 \end{split}
 \end{equation*}
-Here, $\Delta d_{t+1} = \ln(D_{t+1}) - \ln(D_t)$ represents the log dividend growth. Applying a first order Taylor expansion around the fixed steady state $\bar{\eta}$ for $\tilde{\eta}_{t+1}$ yields a linear approximation
+Here, $\Delta d_{t+1} = \ln(D_{t+1}) - \ln(D_t)$ represents the log dividend growth. Applying a first order Taylor expansion around the fixed steady state $\bar{\eta}$ for $\eta_{t+1}$ yields a linear approximation
 \begin{equation}
 \begin{split}
 r_{t+1} &\approx -\eta_{t} + \ln(1 + \text{exp}(\bar{\eta})) + \Delta d_{t+1} + \frac{1}{1 + \text{exp}(-\bar{\eta})}(\eta_{t+1}-\bar{\eta}) \\
-&\approx k -\eta_{t} + \rho\eta_{t+1} + \Delta d_{t+1}
+&\approx k -\eta_{t} + \rho\eta_{t+1} + \Delta d_{t+1}.
 \end{split}
 \end{equation}
 With $\rho$ being specified as
 \begin{align}
-\rho &= \frac{1}{1+\text{exp}(-\bar{\eta})} & \Longleftrightarrow && \bar{\eta} &= -\ln\Bigg(\frac{1}{\rho} - 1\Bigg)
+\rho &= \frac{1}{1+\text{exp}(-\bar{\eta})} & \Longleftrightarrow && \bar{\eta} &= -\ln\Bigg(\frac{1}{\rho} - 1\Bigg),
 (\#eq:rho-spec)
 \end{align}
 and $k$ directly following from the above
@@ -47,48 +47,48 @@ and $k$ directly following from the above
 k &= \ln(1 + \text{exp}(\bar{\eta})) - \bar{\eta}\frac{1}{1 + \text{exp}(-\bar{\eta})} \\
 &= \ln\Bigg(1 + \text{exp}\Bigg(-\ln\Bigg(\frac{1}{\rho} - 1\Bigg)\Bigg)\Bigg) + \ln\Bigg(\frac{1}{\rho} - 1\Bigg)\frac{1}{1 + \text{exp}\Big(\ln\Big(\frac{1}{\rho} - 1\Big)\Big)} \\
 &= -\ln(1 - \rho) + \rho\ln\Bigg(\frac{1}{\rho} - 1\Bigg) \\
-&= -\ln(\rho) - (1 - \rho)\ln\Bigg(\frac{1}{\rho} - 1\Bigg) 
+&= -\ln(\rho) - (1 - \rho)\ln\Bigg(\frac{1}{\rho} - 1\Bigg).
 (\#eq:k-spec)
 \end{split}
 \end{equation}
-Previous empirical applications typically assumed a constant parameter $\bar{\eta}$, as done by @campbell_paper. However, the results presented by @h2_paper deliver evidence for a gradually time-varying mean of the PD. By allowing this time variation, $k$ and $\rho$ become also time-varying. Hence, the corresponding parameters $k_t$ and $\rho_t$ are obtained from Equation \@ref(eq:rho-spec) and Equation \@ref(eq:k-spec)
+Previous empirical applications typically assumed a constant parameter $\bar{\eta}$, as done by @campbell_paper. However, the results presented by @h2_paper provide evidence for a gradually time-varying mean of the PD. By allowing this time variation, $k$ and $\rho$ become also time-varying. Hence, the corresponding parameters $k_t$ and $\rho_t$ are obtained from Equation \@ref(eq:rho-spec) and Equation \@ref(eq:k-spec),
 \begin{equation}
 \begin{split}
-\rho_t &= \frac{1}{1+\text{exp}(-\tilde{\eta}_t)} \\
-k_t &= -\ln(\rho_t) - (1 - \rho_t)\ln\Bigg(\frac{1}{\rho_t} - 1\Bigg)
+\rho_t &= \frac{1}{1+\text{exp}(-\tilde{\eta}_t)}, \\
+k_t &= -\ln(\rho_t) - (1 - \rho_t)\ln\Bigg(\frac{1}{\rho_t} - 1\Bigg),
 \end{split}
 \end{equation}
 with $\tilde{\eta}_t$ denoting the time-varying local mean for the Taylor approximation. Therefore, the PD has the following specification
 \begin{equation}
 \begin{split}
-\eta_{t} &\approx k_t - r_{t+1} + \rho_t\eta_{t+1} + \Delta d_{t+1}
+\eta_{t} &\approx k_t - r_{t+1} + \rho_t\eta_{t+1} + \Delta d_{t+1}.
 (\#eq:lpd-spec)
 \end{split}
 \end{equation}
-Similar approximations as by @van_nieuwerburgh_paper are adopted: $\mathbb{E}_t[\rho_{t+i}]\approx\rho_t$, $\mathbb{E}_t[k_{t+i}]\approx\;k_t$ and $\mathbb{E}_t[\rho_{t+i}\eta_{t+1+i}]\approx\mathbb{E}_t[\rho_{t+i}]\mathbb{E}_t[\eta_{t+1+i}]$. The present-value formulation of the PD can then be concluded by taking the conditional expectation and iterating Equation \@ref(eq:lpd-spec) forward
+Similar approximations as by @van_nieuwerburgh_paper are adopted: $\mathbb{E}_t[\rho_{t+i}]\approx\rho_t$, $\mathbb{E}_t[k_{t+i}]\approx\;k_t$ and $\mathbb{E}_t[\rho_{t+i}\eta_{t+1+i}]\approx\mathbb{E}_t[\rho_{t+i}]\mathbb{E}_t[\eta_{t+1+i}]$. The present-value formulation of the PD can then be concluded by taking the conditional expectation and iterating Equation \@ref(eq:lpd-spec) forward,
 \begin{equation}
 \begin{split}
 \eta_{t} &\approx k_t - \mathbb{E}_t[r_{t+1}] + \rho_t\mathbb{E}_t[\eta_{t+1}] + \mathbb{E}_t[\Delta d_{t+1}] \\
  &\approx k_t - \mathbb{E}_t[r_{t+1}] + \rho_t\mathbb{E}_t[k_{t+1} - r_{t+2} + \rho_{t+1}\eta_{t+2} + \Delta d_{t+2}] + \mathbb{E}_t[\Delta d_{t+1}] \\
  &\approx \cdots \\
- &\approx \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{E}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]
+ &\approx \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{E}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}].
 (\#eq:present-value)
 \end{split}
 \end{equation}
-Here, the excess dividend growth $\Delta d_{t}^e = \Delta d_t - r^f_t$ and return $r_t^e = r_t - r_t^f$ are used with $r^f_t$ being the risk-free interest rate.
+Here, the excess log dividend growth $\Delta d_{t}^e = \Delta d_t - r^f_t$ and log return $r_t^e = r_t - r_t^f$ are used with $r^f_t$ being the risk-free interest rate.
 
-A nonlinear state-space model will be used to filter the latent mean process. As presented by @h2_paper, the present-value formulation in Equation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$
+A nonlinear state-space model will be used to filter the latent mean process. As presented by @h2_paper, the present-value formulation in Equation \@ref(eq:present-value) will be used as the observation process by adding an error term $\epsilon_t \sim\mathcal{N}(0, \sigma_{\epsilon}^2)$ that captures rational bubbles, approximation errors and other influences in $\lim\limits_{i \rightarrow \infty}\rho_t^i\mathbb{E}_t[\eta_{t+i}]$,
 \begin{equation}
-\eta_{t} = \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \epsilon_t
+\eta_{t} = \frac{k_t}{1-\rho_t} + \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] + \epsilon_t.
  (\#eq:observation-process)
 \end{equation}
-A low dimensional vector autoregressive (VAR) model of order $1$ will be used for the objective expectations $\mathbb{\tilde{E}}_t$ conditional on information available at $t$. This approach was first proposed by @campbell_shiller_paper. The VAR model will be comprised of the PD $\eta_t$, excess dividend growth $\Delta d_t^e$, excess return $r_t^e$ and inflation $\pi_t$.
+A low dimensional vector autoregressive (VAR) model of order $1$ will be used for the objective expectations $\mathbb{\tilde{E}}_t$ conditional on information available at $t$. This approach was first proposed by @campbell_shiller_paper. The VAR model will be comprised of the PD $\eta_t$, excess log dividend growth $\Delta d_t^e$, excess log return $r_t^e$ and inflation $\pi_t$.
 
 Assuming the following VAR model
 \begin{equation}
 \begin{split}
-y_t &= \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \end{pmatrix} = \alpha + Ay_{t-1} + v_t \\
-v_t &\sim \mathcal{N}_4(0, \Sigma)
+y_t &= \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \end{pmatrix} = \alpha + Ay_{t-1} + v_t, \\
+v_t &\sim \mathcal{N}_4(0, \Sigma),
  (\#eq:ex-ante-expectations-var-model)
 \end{split}
 \end{equation}
@@ -100,17 +100,17 @@ y_t = \begin{pmatrix} \eta_t \\ \Delta d_t^e \\ r_t^e \\ \pi_t \\ 1 \end{pmatrix
         \hline
         0 & 1\\
 \end{array}
-\right)y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix} = B y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix}
+\right)y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix} = B y_{t-1} + \begin{pmatrix}v_t \\ 0\end{pmatrix}.
 \end{equation}
-The discounted objective expectations can be evaluated using the vector $h = \begin{pmatrix} 0 & 1 & -1 & 0 & 0\end{pmatrix}^T$
+The discounted objective expectations can be evaluated using the vector $h = \begin{pmatrix} 0 & 1 & -1 & 0 & 0\end{pmatrix}^T$,
 \begin{equation}
 \begin{split}
 \sum_{i=1}^{\infty}\rho_t^{i-1}\mathbb{\tilde{E}}_t[\Delta d_{t+i}^e - r_{t+i}^e] &= \sum_{i=1}^{\infty}\rho_t^{i-1}h^TB^iy_{t} \\
-& = h^TB\sum_{i=0}^{\infty}\rho_t^{i}B^iy_{t} = h^TB(I_5 -\rho_t B)^{-1}y_t
+& = h^TB\sum_{i=0}^{\infty}\rho_t^{i}B^iy_{t} = h^TB(I_5 -\rho_t B)^{-1}y_t.
  (\#eq:ex-ante-expectations)
 \end{split}
 \end{equation}
-Similar to the procedure proposed by @h2_paper, a adaptive approach will be used for the choice of VAR model sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last five in sample observations of the difference of the excess dividend rate and return, $\{\Delta d_m^e - r_m^e\}^{m=t}_{m=t-4}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of matrix $A$, from Equation \@ref(eq:ex-ante-expectations-var-model), have modulus less than 1. If this requirement is violated, the specific VAR model will be discarded. If at a specific time point $t$ all VAR models violate the stability requirement, the VAR model with $\omega = 10$ will be used.
+Similar to the procedure proposed by @h2_paper, a adaptive approach will be used for the choice of VAR model sample size. Starting at the forecasting origin, observation $t = 30$, VAR models with samples $\Omega_{t,\omega} = \{\eta_\tau, \Delta d^e_\tau, r_\tau^e, \pi_\tau\;|\;\tau = t-\omega+1, ..., t\}$ and varying lengths $\omega = (10, ..., 30)$ will be fitted. The selection criterion will be the root mean squared error of the last five in sample observations of the difference of the excess log dividend growth and log return, $\{\Delta d_m^e - r_m^e\}^{m=t}_{m=t-4}$. Additionally, the stability of each VAR model will be checked, at each length $\omega$, by inspecting that all eigenvalues of matrix $A$, from Equation \@ref(eq:ex-ante-expectations-var-model), have modulus less than 1. If this requirement is violated, the specific VAR model will be discarded. For simplification, if at a specific time point $t$ all VAR models violate the stability requirement, the VAR model with $\omega = 10$ will be used.
 
 The empirical application will be conducted on quarterly data for the S&P 500 starting at the 30th of September 1963 up until the 30th of September 2020, with the forecast origin being the 31st of December 1970. The 10-year treasury constant maturity rate has been used for the risk free rate $r^f_t$ and the inflation rate $\pi_t$ has been derived from the consumer price index for all urban consumers. These time series, and the price and dividend data for the S&P 500, can be retrieved from Robert J. Shiller's website [@shiller_website].
 
@@ -119,32 +119,32 @@ The empirical application will be conducted on quarterly data for the S&P 500 st
 Firstly, the state-space model with a random walk state process (**RW Model**) will be analyzed. The latent process follows
 \begin{equation}
 \begin{split}
-\tilde{\eta}_t &= \tilde{\eta}_{t-1} + u_t \\
-u_t &\sim \mathcal{N}(0, \sigma_u^2)
+\tilde{\eta}_t &= \tilde{\eta}_{t-1} + u_t, \\
+u_t &\sim \mathcal{N}(0, \sigma_u^2).
 (\#eq:basic-model-state-process)
 \end{split}
 \end{equation}
 The parameters of interest are 
-$$\theta = \begin{pmatrix} \tilde{\eta}_0 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$$ 
+$$\theta = \begin{pmatrix} \tilde{\eta}_0 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T,$$ 
 with $\tilde{\eta}_0$ being the initial value. Similar to the simulation study uninformative setup, flat priors will be used for the parameters and initial value. Equal parameter transformations will be applied
 \begin{align*}
-\sigma_\epsilon(\varsigma_\epsilon) &= \text{exp}(\varsigma_\epsilon) & \Longleftrightarrow && \varsigma_\epsilon(\sigma_\epsilon) &= \ln(\sigma_\epsilon) \\
-\sigma_u(\varsigma_u) &= \text{exp}(\varsigma_u) & \Longleftrightarrow && \varsigma_\epsilon(\sigma_u) &= \ln(\sigma_u)
+\sigma_\epsilon(\varsigma_\epsilon) &= \text{exp}(\varsigma_\epsilon) & \Longleftrightarrow && \varsigma_\epsilon(\sigma_\epsilon) &= \ln(\sigma_\epsilon), \\
+\sigma_u(\varsigma_u) &= \text{exp}(\varsigma_u) & \Longleftrightarrow && \varsigma_\epsilon(\sigma_u) &= \ln(\sigma_u).
 \end{align*}
 Hence, after having applied the change-of-variable technique the prior specification for the hyperparameters $\{\varsigma_\epsilon, \varsigma_u\}$ becomes
 \begin{equation}
 \begin{split}
-  p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= \text{exp}(\varsigma_\epsilon) \\
-  p_{\varsigma_u}(\varsigma_u) &= \text{exp}(\varsigma_u)
+  p_{\varsigma_\epsilon}(\varsigma_\epsilon) &= \text{exp}(\varsigma_\epsilon), \\
+  p_{\varsigma_u}(\varsigma_u) &= \text{exp}(\varsigma_u).
 \end{split}
 \end{equation}
 For the PMMH procedure three independent Markov chains with $M = 50000$ iterations and $J = 1000$ particles will be run and the starting parameter $\theta^{(0)}$ will be set to 
 $$
-\theta^{(0)} = \begin{pmatrix}\tilde{\eta}_0^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix}3.5 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+\theta^{(0)} = \begin{pmatrix}\tilde{\eta}_0^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix}3.5 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}.
 $$
 Furthermore, the parameter proposals will be generated using
 $$
-\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.02^2)
+\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.02^2).
 $$
 Figure \@ref(fig:basic-model-trace-plot) shows the trace plots for each parameter and each Markov chain. The first 10000 iterations have been dropped. Additionally, Figure \@ref(fig:basic-model-posterior-marginal-density) displays the Gaussian kernel density estimates of the marginal posterior distributions of the random walk latent state model parameters. The corresponding Table \@ref(tab:basic-model-setup) summarizes the inference results.
 
@@ -260,11 +260,11 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
   )
 ```
 
-As visible the state estimates from the PMMH approach and the particle filter vary, with the particle filter based estimate capturing structural changes later than the PMMH based estimate.
+As visible, the state estimates from the PMMH approach and the particle filter vary, with the particle filter based estimate capturing structural changes later than the PMMH based estimate.
 
 ## Cointegration analysis
 
-The connection between economic fundamentals and financial markets will be studied by inspecting possible economic factors that drive the latent mean of the PD. @h2_paper have found three long-term determinants of the latent mean of the PD. These three factors form a cointegration relationship with the time-varying mean $\tilde{\eta}_t$: consumption risk, the demographic structure of the population and the dividend payout policy of firms.
+The connection between economic fundamentals and financial markets will be studied by inspecting possible economic factors that drive the latent mean of the PD. @h2_paper have found three long-term determinants of the latent mean of the PD. The three factors that form a cointegration relationship with the time-varying mean $\tilde{\eta}_t$ are: consumption risk, the demographic structure of the population and the dividend payout policy of firms.
 
 A similar cointegration analysis will be conducted by analyzing the effect of additional covariates. The previously established connection with consumption risk and the demographic structure of the population will be added. Overall, the following economic indicators will be analyzed, see Table \@ref(tab:cointegration-analysis-name-variables).
 
@@ -298,79 +298,9 @@ for the 40–44, "USPOP49Y" for the 45–49 and "USPOPTO" for the total US popul
 
 As has been proposed by @consumption_risk, consumption risk has been computed as $cr_t = \ln({\sum_{i = 0}^{12}\left | co_{t-i} \right |})$ where $co_{t}$ is the residual from an autoregressive (AR) order one regression for real per capita consumption growth. The real per capita consumption has been computed by taking real personal consumption data from the @real_consumption_data and the retrieved total US population data from Datastream.
 
-The impact of monetary policy has been of large interest in the asset pricing literature [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from @federal_funds_rate_data, and the log real M1 money supply, retrieved from @m1_money_supply_data, have been added for establishing a possible link between monetary policy and the latent mean of the PD. Furthermore, the log real GDP as an indicator of economic growth has been added [@gdp_data]. 
+The impact of monetary policy has been studied in the asset pricing literature [@monetary_policy_asset_prices]. Here, the effective federal funds rate, obtained from @federal_funds_rate_data, and the log real M1 money supply, retrieved from @m1_money_supply_data, have been added for establishing a link between monetary policy and the latent mean of the PD. Furthermore, the log real GDP as an indicator of economic growth has been added [@gdp_data]. 
 
-Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ and all accompanying exogenous covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money supply $ms_t$ and log real GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate [@fed_lower_funds_rate] and increasing the money supply by extending quantitative easing [@fed_qe].
-
-```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of exogenous covariates", fig.width=6, fig.height=6.5, warning=FALSE}
-traj <- rbind(
-  result[[1]]@filter.traj[1, 10000:50000, ], 
-  result[[2]]@filter.traj[1, 10000:50000, ],
-  result[[3]]@filter.traj[1, 10000:50000, ]
-)
-
-# Plot theme:
-p_theme <- theme(
-  legend.justification = c(0, 1), legend.position = c(0, 1), 
-  legend.title = element_blank(), 
-  legend.background = element_rect(fill = "transparent"),
-  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
-  plot.title = element_text(hjust = 0.5, size = 8),
-  axis.title = element_blank(),
-  legend.key = element_rect(fill = NA)
-)
-
-# e_lpd
-df <- data.frame(time = dates, y = colMeans(traj)[-1])
-p1 <- ggplot(data = df, aes(x = time, y = y)) +
-  geom_line() + theme_light() + p_theme +
-  labs(
-    title = latex2exp::TeX(
-      "Time-varying mean of the PD: \\textbf{$\\tilde{\\eta}_t$}"
-    )
-  )
-
-# cr
-df <- data.frame(time = dates, cr = y$cr)
-p2 <- ggplot(data = df, aes(x = time, y = cr)) +
-  geom_line() + theme_light() + p_theme +
-  labs(title = latex2exp::TeX("Consumption Risk: \\textbf{$cr_t$}"))
-
-# mys
-df <- data.frame(time = dates, mys = y$mys)
-p3 <- ggplot(data = df, aes(x = time, y = mys)) +
-  geom_line() + theme_light() + p_theme +
-  labs(title = latex2exp::TeX("Middle-Aged to Young Ratio: \\textbf{$my_t$}"))
-
-# fr
-df <- data.frame(time = dates, fr = y$fr)
-p4 <- ggplot(data = df, aes(x = time, y = fr)) +
-  geom_line() + theme_light() + p_theme +
-  labs(title = latex2exp::TeX("Effective Federal Funds Rate: \\textbf{$fr_t$}"))
-
-# ms
-df <- data.frame(time = dates, ms = y$ms)
-p5 <- ggplot(data = df, aes(x = time, y = ms)) +
-  geom_line() + theme_light() + p_theme +
-  labs(title = latex2exp::TeX("Log Real M1 Money Supply: \\textbf{$ms_t$}"))
-
-# Phi
-# ms
-df <- data.frame(time = dates, gdp = y$gdp)
-p6 <- ggplot(data = df, aes(x = time, y = gdp)) +
-  geom_line() + theme_light() + p_theme +
-  labs(title = latex2exp::TeX("Log Real GDP: \\textbf{$gdp_t$}"))
-
-grid.arrange(
-  p1 + theme(legend.position = "none"), 
-  p2 + theme(legend.position = "none"), 
-  p3 + theme(legend.position = "none"), 
-  p4 + theme(legend.position = "none"), 
-  p5 + theme(legend.position = "none"), 
-  p6 + theme(legend.position = "none"), 
-  ncol = 2
-)
-```
+Figure \@ref(fig:cointegration-analysis-plot-covariates) depicts the time-varying mean $\tilde{\eta}_t$ estimated via the previously described PMMH approach and all accompanying exogenous covariates. The economic effects of the COVID-19 pandemic are directly visible by inspecting the consumption risk $cr_t$, real effective funds rate $fr_t$, log M1 money supply $ms_t$ and log real GDP $gdp_t$ time series. As a reaction to the shock that resulted in an sharp increase in consumption risk and large drop in GDP, the Federal Reserve intervened by lowering the federal funds rate [@fed_lower_funds_rate] and increasing the money supply by extending quantitative easing [@fed_qe].
 
 Before investigating the cointegration relationship, the individual variables will be characterized by means of the augmented Dickey-Fuller (ADF) test. Table \@ref(tab:cointegration-analysis-unit-root-tests) shows the test statistics for all variables. For variables in level the ADF test has been applied with a constant and drift and for variables in difference only a constant term has been added. All tests have been applied using only one lag.
 
@@ -445,15 +375,17 @@ knitr::kable(
   )
 ```
 
-The test results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate has a significance level of $10\%$. For this master's thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle-aged to young ratio indicate second order integration. However, for longer time series there exists significant evidence for first order integration [@long_term_mys]. Hence, the middle-aged to young ratio will be treated as a first order integrated process as well.
+The test results of most factors indicate first order integration at conventional significance levels. Only the effective federal funds rate is significant at a level of $10\%$. For this master's thesis the federal funds rate will be handled as a first order integrated time series. Additionally, the test results for the middle-aged to young ratio indicate second order integration. However, for longer time series there exists significant evidence for first order integration [@long_term_mys]. Hence, the middle-aged to young ratio will be treated as a first order integrated process as well.
 
 Moreover, the cointegration analysis will be applied using the following single equation error correction model (SECM)
 \begin{equation*}
 \begin{split}
 \Delta \tilde{\eta}_t = &\alpha(\tilde{\eta}_{t-1} - \beta_0 - \beta_1 cr_{t-1} - \beta_2 my_{t-1} - \beta_3 fr_{t-1} - \beta_4 ms_{t-1} - \beta_5 gdp_{t-1}) + \\
-&\delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + \phi_1\Delta \tilde{\eta}_{t-1} + \phi_2\Delta \tilde{\eta}_{t-2} + e_t
+&\delta_1 \Delta cr_{t} + \delta_2 \Delta my_{t} + \delta_3 \Delta fr_{t} + \beta_4 \Delta ms_{t} + \beta_5 \Delta gdp_{t} + \phi_1\Delta \tilde{\eta}_{t-1} + \phi_2\Delta \tilde{\eta}_{t-2} + e_t.
 \end{split}
 \end{equation*}
+The SECM contains two lags of the dependent variable in order to capture possible patterns of serial correlation when testing for cointegration or weak exogeneity [@h2_paper].
+
 ```{r, cointegration-analysis-study-1, eval=TRUE, echo=FALSE}
 traj <- rbind(
   result[[1]]@filter.traj[1, 10000:50000, ], 
@@ -562,34 +494,34 @@ knitr::kable(
   )
 ```
 
-Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic `r round(cointegration_model_2$coefficients[2, 3], 3)` is larger but relatively close to the critical value $-3.1924$. 
+Furthermore, the test has been repeated by removing the insignificant covariates $cr_t$, $fr_t$ and $gdp_t$. Again the cointegration relationship is insignificant at a $10\%$ level. However, the test statistic `r round(cointegration_model_2$coefficients[2, 3], 3)` is larger but relatively close to the critical value $-3.1924$. Other combinations of these covariates yielded insignificant cointegration test results.
 
-Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented by @h2_paper, a cointegration relationship could no be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. 
+Overall, the cointegration analysis has been applied under the assumption that the latent mean of the PD follows a random walk state process. Contrary to the results presented by @h2_paper, a cointegration relationship could not be established. Besides assuming that this connection is not present for the collected data, multiple reasons are available for the mixing results. 
 
-Firstly, it is possible that the state process is misspecified and another specification, possibly already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used by @h2_paper is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with lower frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. Finally, @h2_paper used the filtered latent mean from the particle filter whereas here the latent mean has been estimated using the PMMH approach. Both approaches differ in which conditional expectation they are estimating, as described in the [particle filtering][Particle filtering] and [Bayesian inference][Bayesian inference] sections.
+Firstly, it is possible that the state process is misspecified and another specification, possibly already including covariates, is more suitable. Additionally, the impact of the missing dividend payout policy factor used by @h2_paper is not accounted here. Moreover, it is possible that the cointegration relationship is only present for data with lower frequency than quarterly. Furthermore, different data sources and a shorter time frame have been used. Finally, @h2_paper used the filtered latent mean from the particle filter whereas here the latent mean has been estimated using the PMMH approach. Both approaches differ in which conditional expectation they are targeting, as described in the [particle filtering][Particle filtering] and [Bayesian inference][Bayesian inference] sections.
 
 ## State process extension with covariates
 
 As mentioned, it is possible that the latent mean of the PD could be misspecified by using a random walk state process. Hence, this chapter will continue the analysis of exogenous covariates effecting the latent process. An additional model containing covariates will be tested and the results will be compared with the random walk model. Firstly, the model extension and the estimation results will be presented. Then the latent state estimates will be compared and model comparison performed.
 
-Common similarities between the approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, the PMMH approach will be run in parallel using 3 independent Markov chains, $J = 1000$ particles and $M = 50000$ iterations. Similar to the random walk state process, a flat prior specification will be used and the first $10000$ iterations of the PMMH approach will be dropped.
+Common similarities between the approaches will be that the same parameter transformations as in the [simulation study][Simulation study] chapter will be applied. Hence, the hyperparameters $\psi$, $\varsigma_\epsilon$ and $\varsigma_u$ will be used. Moreover, the PMMH approach will be run in parallel using three independent Markov chains, $J = 1000$ particles and $M = 50000$ iterations. Similar to the model with random walk state process, a flat prior specification will be used and the first $10000$ iterations of the PMMH approach will be dropped.
 
-The model extension (**Covariate Model**) describes a possible long run equilibrium relationship that could not be detected within the previous [cointegration analysis][Cointegration analysis]
+The model extension (**Covariate Model**) describes a possible long run equilibrium relationship that could not be detected within the previous [cointegration analysis][Cointegration analysis],
 \begin{equation}
 \begin{split}
-\tilde{\eta}_t &= \beta_0 + \beta_1 my_{t} + \beta_2 ms_{t} + u_t \\
-u_t &\sim \mathcal{N}(0, \sigma_u^2)
+\tilde{\eta}_t &= \beta_0 + \beta_1 my_{t} + \beta_2 ms_{t} + u_t, \\
+u_t &\sim \mathcal{N}(0, \sigma_u^2).
 (\#eq:static-model-state-process)
 \end{split}
 \end{equation}
-Here, only the middle-aged to young ratio and the log real M1 money suppy have been added. Combined with the observation process \@ref(eq:observation-process) the necessary parameters are $\theta = \begin{pmatrix} \beta_0 & \beta_1 & \beta_2 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$. Note that due to the missing autoregressive part of the model, the initial value $\tilde{\eta}_0$ does not need to be included.
+Here, only the middle-aged to young ratio and the log real M1 money supply have been added. Combined with the observation process \@ref(eq:observation-process) the necessary parameters are $\theta = \begin{pmatrix} \beta_0 & \beta_1 & \beta_2 & \sigma_{\epsilon} & \sigma_{u}\end{pmatrix}^T$. Note that due to the missing autoregressive part of the model, the initial value $\tilde{\eta}_0$ does not need to be included.
 
-Furthermore, as initial parameters $\theta^{(0)}$ the long-run equilibrium parameter estimates from the single equation error correction model from Table \@ref(tab:cointegration-analysis-study-2) will be used
+Furthermore, as initial parameters $\theta^{(0)}$ the long-run equilibrium parameter estimates from the single equation error correction model from Table \@ref(tab:cointegration-analysis-study-2) will be used,
 $$
-\theta^{(0)} = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.4 \\ 1.6 \\ 0.4 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}
+\theta^{(0)} = \begin{pmatrix}\beta_0^{(0)} \\ \beta_1^{(0)} \\ \beta_2^{(0)} \\ \varsigma_\epsilon^{(0)} \\ \varsigma_u^{(0)} \end{pmatrix} = \begin{pmatrix} 2.4 \\ 1.6 \\ 0.4 \\ \ln(0.05) \\ \ln(0.05) \end{pmatrix}.
 $$
 Moreover, for this model the following proposal distribution is used
-$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.015^2)$$
+$$\theta_i^{*}\sim \mathcal{N}(\theta_i^{(m-1)}, 0.015^2).$$
 Figure \@ref(fig:extension-static-model-trace) shows the trace plot for each parameter and each Markov chain. Furthermore, Figure \@ref(fig:extension-static-model-marginal-density) displays the Gaussian kernel density estimates of the marginal posterior distributions. Table \@ref(tab:pmmh-estimation-result) summarizes the estimation results
 ```{r, pmmh-estimation-result, eval=TRUE, echo=FALSE}
 library(tidyverse)
@@ -690,18 +622,14 @@ ggplot(data = df, aes(x = time, y = value, group = variable)) +
   )
 ```
 
-For the model comparison the Deviance information criterion (DIC) will be used. Similar to the Akaike information criterion (AIC) and the Bayesian information criterion (BIC), the model with the lower DIC should be preferred. 
-
-The deviance $D(\theta)$ is defined as
-$$D(\theta) = -2\ell(\theta) + C$$
-with $\ell(\theta$ being the log likelihood for the likelihood function defined in Equation \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded. 
-
-The DIC follows as
+For the model comparison the Deviance information criterion (DIC) will be used. Similar to the Akaike information criterion (AIC) and the Bayesian information criterion (BIC), the model with the lower DIC should be preferred. The deviance $D(\theta)$ is defined as
+$$D(\theta) = -2\ell(\theta) + C,$$
+with $\ell(\theta)$ being the log likelihood for the likelihood function defined in Equation \@ref(eq:pomp-likelihood). $C$ is a constant that cancels out in the model comparison and therefore it can be discarded.  The DIC follows as
 \begin{equation}
-DIC = D(\hat\theta) + 2p_d \\
+DIC = D(\hat\theta) + 2p_d, \\
 \end{equation}
 where $\hat\theta$ is the mean of the posterior distribution and $p_d$ is the effective number of parameters that can be approximated by
-$$p_d = \frac{1}{2}\hat{\text{Var}}(D(\theta))$$
+$$p_d = \frac{1}{2}\hat{\text{Var}}(D(\theta)).$$
 Hence, $p_d$ is half the estimated variance of the deviance from the posterior samples $\theta$. Table \@ref(tab:pmmh-model-comparison) depicts the model comparison results. The log likelihood of $\hat\theta$ has been computed using $10$ runs of the particle filter with $J = 1000$ particles and averaging the resulting log likelihoods. As visible, measured by the DIC the random walk model is superior.
 
 ```{r, pmmh-model-loglik, eval=TRUE, echo=FALSE}

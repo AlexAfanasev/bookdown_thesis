@@ -1406,6 +1406,83 @@ grid.arrange(
 rm(list = ls())
 ```
 
+```{r, cointegration-analysis-plot-covariates, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Cointegration analysis: Visualization of exogenous covariates", fig.width=6, fig.height=6.75, warning=FALSE}
+library(tidyverse)
+library(gridExtra)
+
+source(here::here("R", "prepare_raw_data.R"))
+source(here::here("R", "model_comparison", "model_comparison_basic_model.R"))
+
+traj <- rbind(
+  result[[1]]@filter.traj[1, 10000:50000, ], 
+  result[[2]]@filter.traj[1, 10000:50000, ],
+  result[[3]]@filter.traj[1, 10000:50000, ]
+)
+
+# Plot theme:
+p_theme <- theme(
+  legend.justification = c(0, 1), legend.position = c(0, 1), 
+  legend.title = element_blank(), 
+  legend.background = element_rect(fill = "transparent"),
+  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+  plot.title = element_text(hjust = 0.5, size = 8),
+  axis.title = element_blank(),
+  legend.key = element_rect(fill = NA)
+)
+
+# e_lpd
+df <- data.frame(time = dates, y = colMeans(traj)[-1])
+p1 <- ggplot(data = df, aes(x = time, y = y)) +
+  geom_line() + theme_light() + p_theme +
+  labs(
+    title = latex2exp::TeX(
+      "Time-varying mean of the PD: \\textbf{$\\tilde{\\eta}_t$}"
+    )
+  )
+
+# cr
+df <- data.frame(time = dates, cr = y$cr)
+p2 <- ggplot(data = df, aes(x = time, y = cr)) +
+  geom_line() + theme_light() + p_theme +
+  labs(title = latex2exp::TeX("Consumption Risk: \\textbf{$cr_t$}"))
+
+# mys
+df <- data.frame(time = dates, mys = y$mys)
+p3 <- ggplot(data = df, aes(x = time, y = mys)) +
+  geom_line() + theme_light() + p_theme +
+  labs(title = latex2exp::TeX("Middle-Aged to Young Ratio: \\textbf{$my_t$}"))
+
+# fr
+df <- data.frame(time = dates, fr = y$fr)
+p4 <- ggplot(data = df, aes(x = time, y = fr)) +
+  geom_line() + theme_light() + p_theme +
+  labs(title = latex2exp::TeX("Effective Federal Funds Rate: \\textbf{$fr_t$}"))
+
+# ms
+df <- data.frame(time = dates, ms = y$ms)
+p5 <- ggplot(data = df, aes(x = time, y = ms)) +
+  geom_line() + theme_light() + p_theme +
+  labs(title = latex2exp::TeX("Log Real M1 Money Supply: \\textbf{$ms_t$}"))
+
+# Phi
+# ms
+df <- data.frame(time = dates, gdp = y$gdp)
+p6 <- ggplot(data = df, aes(x = time, y = gdp)) +
+  geom_line() + theme_light() + p_theme +
+  labs(title = latex2exp::TeX("Log Real GDP: \\textbf{$gdp_t$}"))
+
+grid.arrange(
+  p1 + theme(legend.position = "none"), 
+  p2 + theme(legend.position = "none"), 
+  p3 + theme(legend.position = "none"), 
+  p4 + theme(legend.position = "none"), 
+  p5 + theme(legend.position = "none"), 
+  p6 + theme(legend.position = "none"), 
+  ncol = 2
+)
+rm(list = ls())
+```
+
 ```{r, extension-static-model-setup, eval=TRUE, echo=FALSE}
 # get simulation result
 source(here::here("R", "model_comparison", "model_comparison_static_model.R"))
@@ -1726,9 +1803,9 @@ The following algorithm descriptions are taken from [@pomp_article, pp. 7-10].
     \nl Normalize weights: $\tilde{w}(n, j) = \frac{w(n, j)}{\sum^J_{m=1}w(n, m)}$\;
     \nl Apply Algorithm \ref{alg:systematic-resampling} to select indices $k_{1:J}$ with $P(k_j = m) = \tilde{w}(n, m)$\;
     \nl Resample: set $x^F_{n,j} = x^P_{n,k_j}$ for $j$ in $1:J$\;
-    \nl Compute conditional log likelihood: $\hat{\ell}_{n|n-1} = \ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
+    \nl Compute conditional log likelihood: $\hat{\ell}_{n|1:n-1}(\theta) = \ln\Big(\frac{1}{J}\sum^J_{m=1}w(n, m)\Big)$\;
   }
-  \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|n-1}$ \newline
+  \KwOut{Log likelihood estimate: $\hat{\ell}(\theta) = \sum_{n=1}^N\hat{\ell}_{n|1:n-1}(\theta)$ \newline
   Filter sample: $x^F_{n,1:J}$ for $n$ in $1:N$}
 \end{algorithm}
 
@@ -1764,20 +1841,24 @@ The following algorithm descriptions are taken from [@pomp_article, pp. 7-10].
     Number of particles $J$ \newline
     Number of iterations $M$
     }
-  \nl Initialization: Compute $\hat{\ell}_0 = \hat{\ell}(\theta_0)$ using Algorithm \ref{alg:particle-filter} with $J$ particles\;
+  \nl Initialization: Compute $\hat{\ell}^{(0)} = \hat{\ell}(\theta_0)$ using Algorithm \ref{alg:particle-filter} with $J$ particles\;
   \nl Draw random trajectory $x^{(0)}_{0:N}$from $x^F_{0:N,1:J}$ obtained from particle filter \;
   \nl \For{$m = 1$ \To{} $M$}{%
     \nl Draw a parameter proposal $\theta^*\sim q(\theta^*|\theta^{(m-1)})$\;
     \nl Compute $\hat{\ell}^* = \hat{\ell}(\theta^*)$ using algorithm \ref{alg:particle-filter} with $J$ particles\;
     \nl Draw random trajectory $x^{*}_{0:N}$ from $x^F_{0:N,1:J}$ obtained from particle filter \;
-    \nl Compute acceptance probability $$\alpha(\theta^{*}|\theta^{(m-1)}) = \min\Bigg\{1, \frac{\text{exp}(\hat{\ell}^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\text{exp}(\hat{\ell}^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}$$\;
+    \nl Compute acceptance probability\; 
+    \begin{equation*}
+    \alpha(\theta^{*}|\theta^{(m-1)}) = \min\Bigg\{1, \frac{\text{exp}(\hat{\ell}^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\text{exp}(\hat{\ell}^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}
+    \end{equation*}
     \nl Generate $U \sim \mathcal{U}(0, 1)$\;
-    \nl Set $$
+    \nl Set\; 
+    \begin{equation*}
     (\theta^{(m)}, \hat{\ell}^{(m)}, x^{(m)}_{0:N}) =
     \begin{cases}
       (\theta^{*}, \hat{\ell}^{*}, x^{*}_{0:N}), & \text{if}\;\; U < \alpha(\theta^{*}|\theta^{(m-1)}) \\
       (\theta^{(m-1)}, \hat{\ell}^{(m-1)}, x^{(m-1)}_{0:N}), & \text{otherwise}
-    \end{cases}$$\;
+    \end{cases}\end{equation*}
   }
   \KwOut{Samples $x^{(1:M)}_{0:N}$, $\theta^{(1:M)}$ from posterior distribution $p(x_{0:N}, \theta|y^*_{1:N})$}
 \end{algorithm}

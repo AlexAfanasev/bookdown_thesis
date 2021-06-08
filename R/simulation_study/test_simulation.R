@@ -4,6 +4,15 @@ source(here::here("R", "simulation_study", "simulation_setup.R"))
 start_time <- Sys.time()
 generated_data <- generate_simulation_data(N, true_params_simulation)
 theta <- generate_start_params()
+# theta <- c(
+#     beta_0 = 0.2,
+#     beta_1 = 0,
+#     beta_2 = 0,
+#     sigma_x = log(0.1),
+#     sigma_y = log(0.01),
+#     phi = tanh(0.5),
+#     x_0 = 3.2
+# )
 
 # transform to state x and process y
 data <- data.frame(cbind(1:N, generated_data$observed))
