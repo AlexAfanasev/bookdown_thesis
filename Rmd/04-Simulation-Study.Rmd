@@ -8,7 +8,7 @@ editor_options:
 
 A simulation study will be conducted in order to compare the likelihood based inference procedure, via the Nelder-Mead algorithm, with the Bayesian approach, based on the PMMH algorithm. The simulation setup will be closely related to the empirical application. Hence, a variation of the log linear present-value formulation of the PD will be used.
 
-Within the simulation study the latent state $x_n$ will take the form of an autoregressive distributed lag (ARDL) model and will be simulated according to the following process
+Within the simulation study, the latent state $x_n$ will take the form of an autoregressive distributed lag (ARDL) model and will be simulated according to the following process
 \begin{equation}
 \begin{split}
 & x_0 = 3.5, \\
@@ -32,7 +32,7 @@ This setup is an indirect specification of an error correction mechanism. The re
  & = \beta_{1} \Delta z_{1, n} + \beta_{2} \Delta z_{2, n} - (1 - \phi)\Bigg(x_{n-1} - \frac{\beta_0}{1 - \phi} - \frac{\beta_{1}}{1 - \phi}z_{1, n} - \frac{\beta_{2}}{1 - \phi}z_{2, n}\Bigg) + u_{n}.
 \end{split}
 \end{equation*}
-Hence, given that $\left|\phi\right|<1$, the long run relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state exogenous covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
+Hence, given that $\left|\phi\right|<1$, the long-term relationship between the steady-state latent process, $x_{n} = x_{n-1} = \bar{x}$,  and the steady-state exogenous covariates, $z_{1, n} = z_{1, n-1} = \bar{z}_1$, $z_{2, n} = z_{2, n-1} = \bar{z}_2$, is specified by
 $$\bar{x}=\frac{\beta_0}{1 - \phi} + \frac{\beta_{1}}{1 - \phi}\bar{z}_{1} + \frac{\beta_{2}}{1 - \phi}\bar{z}_{2}.$$
 The state process will be bound to be between the minimum, 2.775, and the maximum, 4.487, of the observed PD in the [empirical application][Empirical application]. Furthermore, the observation process has the following specification
 \begin{equation}
@@ -48,7 +48,7 @@ where $k_{n}$ and $\rho_n$ directly depend on the latent state $x_n$ via
 & k_{n} = -\ln(\rho_{n})-(1-\rho_{n})\ln\bigg(\frac{1}{\rho_{n}} - 1\bigg).
 \end{split}
 \end{equation}
-For simplicity $d_{n}$ will be handled as an exogenous covariate arising from the following specification
+For simplicity $d_{n}$ will be handled as an exogenous covariate arising from the following autoregressive moving average (ARMA) specification
 \begin{equation}
 \begin{split}
 & d_{n} = -1 + 0.85(d_{n - 1} + 1) + 0.15v_{n-1} + v_{n}, \\ 
@@ -59,16 +59,16 @@ All in all, the processes $y_{n}$, $d_{n}$, $z_{1, n}$ and $z_{2, n}$ are observ
 $$
 \theta = \begin{pmatrix} x_0 \\ \phi \\ \beta_0 \\ \beta_{1} \\ \beta_{2} \\ \sigma_{\epsilon} \\ \sigma_{u} \end{pmatrix} = \begin{pmatrix} 3.5 \\0.85 \\ 0.525 \\ 0.4 \\ -0.2 \\ 0.02 \\ 0.05 \end{pmatrix}.
 $$
-Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run. At each of the $1000$ iterations the result with the highest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=2000$ particles and the PMMH procedures will use $J=500$ particles.
+Since particle filter based inference methods are very computationally intensive, the simulation procedure will be applied $1000$ times for $N = 50$ simulated observations. For the likelihood based inference $10$ rounds of Nelder-Mead optimization will be run. At each of the $1000$ iterations the result with the largest estimated likelihood will be taken as the maximum likelihood estimate. Furthermore, for the Bayesian approach three different prior setups will be applied and compared. Finally, the likelihood based approach will be applied using a cloud of $J=2000$ particles and the PMMH procedures will use $J=500$ particles.
 
 The Nelder–Mead algorithm was developed for unbounded optimization problems. However, this simulation setup has the following set of parameters $\{\phi, \sigma_{\epsilon}, \sigma_{u}\}$ that are bounded by $\left|\phi\right|<1$, $\sigma_u>0$ and $\sigma_{\epsilon}>0$. Hence, these transformations will be applied
 \begin{align}
-& \phi &= \text{tanh}(\psi), & \sigma_u &= \text{exp}(\varsigma_u), & \sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon}),
+\phi &= \text{tanh}(\psi), & \sigma_u &= \text{exp}(\varsigma_u), & \sigma_{\epsilon} &= \text{exp}(\varsigma_{\epsilon}),
 (\#eq:parameter-transformation)
 \end{align}
 where $\psi, \varsigma_u, \varsigma_{\epsilon} \in \mathbb{R}$ are unconstrained hyperparameters on the real line. The resulting estimates for these hyperparameters can than easily be converted in order to obtain the initial parameters. 
 
-Furthermore, parameter transformations are also beneficial to random walk Metropolis Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints. This increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the PMMH procedure as well. Therefore, both applications will use the following parameter vector $\theta = \begin{pmatrix} x_0 & \psi & \beta_0 & \beta_{1} & \beta_{2} & \varsigma_{\epsilon} & \varsigma_{u}\end{pmatrix}^T$ instead of the initially presented for inference purposes.
+Furthermore, parameter transformations are also beneficial to random walk Metropolis-Hastings approaches. Without them, proposal values can be generated that violate the parameter constraints. This increases the autocorrelation of the Markov chain. Hence, the presented parameter transformation will be applied for the PMMH procedure as well. Therefore, both applications will use the following parameter vector $\theta = \begin{pmatrix} x_0 & \psi & \beta_0 & \beta_{1} & \beta_{2} & \varsigma_{\epsilon} & \varsigma_{u}\end{pmatrix}^T$ instead of the initially presented for inference purposes.
 
 The impact of the chosen prior specification will be analyzed by comparing three setups. Firstly, **setup 1** will use a flat improper prior specification that incorporates no prior information about the initially presented parameters. **Setup 2** and **setup 3** will use informative priors, where the former will incorporate true information about the initial parameters and the latter will be misspecified in the sense that it assigns a smaller probability to the true initial parameters.
 
@@ -165,8 +165,8 @@ load(here::here("data", "results", "simulation_results.RData"))
 ```{r, sim-4-plot-1, eval=TRUE, echo=FALSE, fig.align='center', fig.cap="Exemplary simulation: Simulated state and observation processes", fig.width=6, fig.height=2.25, warning=FALSE}
 library(ggplot2)
 
-df <- data.frame(time = 0:(N - 1), x = sim_4$data_latent, 
-                 y = sim_4$data_observed[, 1])
+df <- data.frame(time = 1:(N - 1), x = sim_4$data_latent[-1], 
+                 y = sim_4$data_observed[-1, 1])
 df <- reshape2::melt(df, id.vars = "time")
 ggplot(data = df, aes(x = time, y = value, group = variable)) +
   geom_line(aes(color = variable)) + 
@@ -292,7 +292,7 @@ knitr::kable(
   kableExtra::add_header_above(c("", "", "Marginal posterior means" = 3))
 ```
 
-Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other three Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root mean squared error (RMSE) for the latent state estimation for all approaches,
+Figure \@ref(fig:aggregate-simulation-result-plot) shows boxplots of the parameter estimates from the $1000$ simulation iterations. As visible, the variations of the parameter estimates from the Nelder-Mead approach and the marginal posterior means of the other three Bayesian approaches are depicted. Furthermore, the last visualization, in the bottom right corner, shows the root-mean-square error (RMSE) for the latent state estimation for all approaches,
 $$\text{RMSE} = \sqrt{\frac{1}{N}\sum_{n = 1}^{N}(\hat{x}_n - x_n)^2}.$$
 The aggregate results show that the uninformative Bayesian approach, **setup 1**, has the highest variation for the parameter and latent state estimates. Additionally, the misspecified prior setup, **setup 3**, has the highest average deviation from the true parameters. As expected, the informative prior setup, **setup 2**, has the smallest average deviation and variance. The likelihood based approach is more precise for the parameter estimation than the Bayesian approaches in **setup 1** and **setup 3**. Furthermore, the RMSE is on average smaller for the Bayesian approaches due to the estimation including the whole data set contrary to the particle filter including only the information up until the time point of interest. All in all, the effect of the prior specification on the estimation results is visible. A general outperformance of the likelihood based or Bayesian approach cannot be concluded.
 

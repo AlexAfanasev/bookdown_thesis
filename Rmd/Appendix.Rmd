@@ -1835,18 +1835,18 @@ The following algorithm descriptions are taken from [@pomp_article, pp. 7-10].
     \KwIn {Simulators $\mu_{\theta}(x_{0})$ and $f_{\theta}(x_{n}|x_{n-1})$ \newline
     Evaluator $g_{\theta}(y_{n}|x_{n})$ \newline
     Proposal distribution $q(\theta^*|\theta^{(m-1)})$ \newline
-    Starting parameter $\theta_0$ \newline
+    Starting parameter $\theta^{(0)}$ \newline
     Prior $\pi(\theta)$ \newline
     Data $y^*_{1:N}$ \newline
     Number of particles $J$ \newline
     Number of iterations $M$
     }
-  \nl Initialization: Compute $\hat{\ell}^{(0)} = \hat{\ell}(\theta_0)$ using Algorithm \ref{alg:particle-filter} with $J$ particles\;
-  \nl Draw random trajectory $x^{(0)}_{0:N}$from $x^F_{0:N,1:J}$ obtained from particle filter \;
+  \nl Initialization: Compute $\hat{\ell}^{(0)} = \hat{\ell}(\theta^{(0)})$ using particle filter with $J$ particles\;
+  \nl Draw random trajectory $x^{(0)}_{0:N}$ obtained from particle filter \;
   \nl \For{$m = 1$ \To{} $M$}{%
     \nl Draw a parameter proposal $\theta^*\sim q(\theta^*|\theta^{(m-1)})$\;
-    \nl Compute $\hat{\ell}^* = \hat{\ell}(\theta^*)$ using algorithm \ref{alg:particle-filter} with $J$ particles\;
-    \nl Draw random trajectory $x^{*}_{0:N}$ from $x^F_{0:N,1:J}$ obtained from particle filter \;
+    \nl Compute $\hat{\ell}^* = \hat{\ell}(\theta^*)$ using particle filter with $J$ particles\;
+    \nl Draw random trajectory $x^{*}_{0:N}$ obtained from particle filter \;
     \nl Compute acceptance probability\; 
     \begin{equation*}
     \alpha(\theta^{*}|\theta^{(m-1)}) = \min\Bigg\{1, \frac{\text{exp}(\hat{\ell}^*)\pi(\theta^*)q(\theta^{(m-1)}|\theta^*)}{\text{exp}(\hat{\ell}^{(m-1)})\pi(\theta^{(m-1)})q(\theta^*|\theta^{(m-1)})}\Bigg\}
